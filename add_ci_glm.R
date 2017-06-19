@@ -38,8 +38,8 @@ parametric_ci_glm <- function(tb, fit, alpha, ciNames, type, ...){
         pred <- out$fit
     }
     ## bind to the tibble and return
-    tb[[ciNames[1]]] <- lwr
     if(is.null(tb[["pred"]])) tb[["pred"]] <- pred
+    tb[[ciNames[1]]] <- lwr
     tb[[ciNames[2]]] <- upr
     tb
 

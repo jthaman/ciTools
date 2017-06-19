@@ -1,0 +1,12 @@
+library(tidyverse)
+x <- cars$speed
+y <- cars$dist
+
+## poisson test
+
+dat <- as_data_frame(x,y)
+
+fit <- glm(y~x, family = "poisson")
+
+sim_pi_glm(dat, fit, 0.50, piNames = c("LPB", "UPB"), type = "response", nSims = 1000)
+
