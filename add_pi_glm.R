@@ -22,8 +22,7 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
-    out <- predict(fit, tb, se.fit = TRUE)
-    fitted_values <- fit$family$linkinv
+    out <- inverselink(predict(fit, tb))
     sims <- arm::sim(fit, n.sims = nSims)
     
     sim_response <- matrix(0, ncol = nSims, nrow = n_preds)
@@ -31,7 +30,7 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
     ## TODO Fix this up, eliminate for loop
     for (i in 1:n_preds){
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = exp(rnorm(n_preds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(n_preds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
             }
     }
 
@@ -41,7 +40,7 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
     
     
     ## bind to the tibble and return
-    if(is.null(tb[["pred"]])) tb[["pred"]] <- out$fit
+    if(is.null(tb[["pred"]])) tb[["pred"]] <- out
     tb[[piNames[1]]] <- lwr
     tb[[piNames[2]]] <- upr
     tb
