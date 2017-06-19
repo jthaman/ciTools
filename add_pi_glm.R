@@ -18,19 +18,20 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = c("LPB", "UPB"),
 ## TODO : hardcode more response distributions
 
 sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
-    n_preds <- NROW(tb)
+    nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- inverselink(predict(fit, tb))
+    fitted_values <- fit$family$linkinv
     sims <- arm::sim(fit, n.sims = nSims)
     
-    sim_response <- matrix(0, ncol = nSims, nrow = n_preds)
+    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
 
     ## TODO Fix this up, eliminate for loop
-    for (i in 1:n_preds){
+    for (i in 1:nPreds){
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(n_preds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
             }
     }
 
