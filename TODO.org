@@ -6,7 +6,7 @@
 #+TITLE: TODO
 #+DATE: <2017-06-19 Mon>
 #+AUTHOR: John Haman
-#+EMAIL: jthaman@bgsu.edu
+#+EMAIL: jhaman@ida.org
 #+LANGUAGE: en
 #+SELECT_TAGS: export
 #+EXCLUDE_TAGS: noexport
@@ -15,3 +15,9 @@
 List of priorities for =uncertain= package.
 
 1. Add more distributions to add_pi_glm.
+   
+
+Wishlist
+
+1. Optimize loops in rcpp
+2. Add a basic rstan option for mermod objects
