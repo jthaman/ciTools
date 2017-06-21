@@ -5,10 +5,8 @@
 
 add_probs.lm <- function(tb, fit, quant, probName = NULL){
     if (is.null(probName))
-        probNameCheck <- paste("Pr(Y < ", quant, ")", sep="")
-    if (!(probNameCheck %in% colnames(tb)))
-        probName <- probNameCheck
-    else {
+        probName <- paste("Pr(Y < ", quant, ")", sep="")
+    if ((probName %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe")
         return(tb)
     }

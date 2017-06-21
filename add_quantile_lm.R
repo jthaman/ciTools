@@ -6,12 +6,10 @@ add_quantile.lm <- function(tb, fit, prob, quantileName = NULL){
     if (prob <= 0 || prob >= 1)
         stop ("prob should be in (0,1)")
     if (is.null(quantileName))
-        quantileNameCheck <- paste("quantile", prob, sep="")
-    if (!(quantileNameCheck %in% colnames(tb)))
-        quantileName <- quantileNameCheck
-    else {
+        quantileName <- paste("quantile", prob, sep="")
+    if (quantileName %in% colnames(tb)) {
         warning ("These quantiles may have already been appended to your dataframe")
-        return(tb) 
+        return(tb)
     }
     out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
     fitted <- out$fit[,1]
