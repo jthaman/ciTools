@@ -9,7 +9,10 @@ add_quantile.lm <- function(tb, fit, prob, quantileName = NULL){
         quantileNameCheck <- paste("quantile", prob, sep="")
     if (!(quantileNameCheck %in% colnames(tb)))
         quantileName <- quantileNameCheck
-    n <- NROW(tb)
+    else {
+        warning ("These quantiles may have already been appended to your dataframe")
+        return(tb) 
+    }
     out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
     fitted <- out$fit[,1]
     residual_df <- out$df
@@ -18,9 +21,9 @@ add_quantile.lm <- function(tb, fit, prob, quantileName = NULL){
     se_pred <- sqrt(resid_var + se_fitted^2)
     t_quantile <- qt(p = prob, df = residual_df)
     out_quantiles <- fitted + se_pred * t_quantile
-    if (is.null(tb[["pred"]])) tb[["pred"]] <- fitted
+    if (is.null(tb[["pred"]]))
+        tb[["pred"]] <- fitted
     tb[[quantileName]] <- out_quantiles
     return(tb)
-    
 }
 
