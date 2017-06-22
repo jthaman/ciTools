@@ -1,17 +1,17 @@
 ## add_ci method for GLMs
 ## TODO : add Bootstrap method (not a primary concern)
+## TODO : Add more families
 
 add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = c("LCB", "UCB"),
                        type = "response", ciType = "parametric", bootReplicates = 1000){
-
-  if(ciType == "bootstrap") return(
-                                stop("not yet implemented")
-    ##bootstrap_ci_glm(tb, fit, alpha, ciNames, type, bootReplicates, ...)
-  ) else
-    if(ciType == "parametric") return(
-      parametric_ci_glm(tb, fit, alpha, ciNames, type,)
-    ) else
-      if(!(ciType %in% c("bootstrap", "parametric"))) stop("Incorrect interval type specified!")
+    if ( !(fit$fit$family %in% c("normal", "poisson", "gamma", "binomial")))
+        stop ("We don't support this glm family'")
+    if (ciType == "bootstrap")
+        stop ("not yet implemented")
+    else if (ciType == "parametric")
+        parametric_ci_glm(tb, fit, alpha, ciNames, type,)
+    else
+        if(!(ciType %in% c("bootstrap", "parametric"))) stop("Incorrect interval type specified!")
 
 }
 
