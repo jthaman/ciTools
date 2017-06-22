@@ -12,3 +12,10 @@ add_pi_glm_test.R
 #add_pi_glm_test.R#
 .Rhistory
 add_ci_lognormal_test.R
+.Rproj.user/41647CCE/sdb/s-3B171B7A/lock_file
+.Rproj.user/41647CCE/session-persistent-state
+add_ci_lmer_test.R
+add_pi_lmer_test.R
+add_quantile_lm_test.R
+uncertain.Rproj
+add_quantile_lm_test.R
