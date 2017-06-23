@@ -3,9 +3,12 @@ library(tidyverse)
 tb <- cars
 fit <- lm(cars$dist~cars$speed)
 
+add_ci.lm(tb, fit, alpha = 0.05) %>%
+    add_ci.lm(fit, alpha = 0.1)
+
 tb <- add_quantile.lm(tb,fit, prob = 0.025) %>%
     add_quantile.lm(fit, prob = 0.975) %>% 
-    add_quantile.lm(fit, prob = 0.4) 
+    add_quantile.lm(fit, prob = 0.4) %>%
 
 tb <- add_quantile.lm(tb,fit, prob = 0.025)
 

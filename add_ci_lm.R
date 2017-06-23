@@ -10,10 +10,13 @@ add_ci.lm <- function(tb, fit, alpha = 0.05, ciNames = NULL){
         return(tb)
     }
     out <- predict(fit, tb, interval = "confidence", level = 1 - alpha)
-    if(is.null(tb[["pred"]])) tb[["pred"]] <- out[, 1]
-    tb[[ciNames[1]]] <- out[, 2]
-    tb[[ciNames[2]]] <- out[, 3]
-    tb
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- out[, 1]
+    if (is.null(tb[[ciNames[1]]]))
+        tb[[ciNames[1]]] <- out[, 2]
+    if (is.null(tb[[ciNames[2]]]))
+        tb[[ciNames[2]]] <- out[, 3]
+    return(tb)
     
 }
 

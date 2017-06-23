@@ -1,5 +1,6 @@
 ## This only really works well with very clean data
 ## This function presently does not incorporate anything about the fit
+
 mm_expander <- function(tb, fit){
     lst <- list()
     for (i in colnames(tb)){
@@ -9,8 +10,6 @@ mm_expander <- function(tb, fit){
             lst[[i]] <- unique(tb[[i]])
         else if (is.integer(tb[[i]]))
             lst[[i]] <- seq(min(tb[[i]]), max(tb[[i]]), by = 1)
-        else if (is.logical(tb[[i]]))
-            lst[[i]] <- c(TRUE, FALSE)
         else {
             next
             warning("There is a missing value or a data type that I cannot handle")

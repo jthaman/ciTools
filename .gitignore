@@ -24,3 +24,6 @@ add_probs_lmer_test.R
 .#mm_expander.R
 .#add_quantile_lm_test.R
 .#add_ci_lm.R
+add_probs_lm_test.R
+mm_expander_test.R
+add_quantile_lm_test.R
