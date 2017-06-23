@@ -2,10 +2,21 @@
 ## TODO : add Bootstrap method (not a primary concern)
 ## TODO : Add more families
 
-add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = c("LCB", "UCB"),
+add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = NULL,
                        type = "response", ciType = "parametric", bootReplicates = 1000){
+
+    if (is.null(ciNames)){
+        ciNames[1] <- paste("LCB-", alpha/2, sep = "")
+        ciNames[2] <- paste("UCB-", 1 - alpha/2, sep = "")
+    }
+    if ((ciNames[1] %in% colnames(tb))) {
+        warning ("These CIs may have already been appended to your dataframe")
+        return(tb)
+    }
+
     if ( !(fit$fit$family %in% c("normal", "poisson", "gamma", "binomial")))
         stop ("We don't support this glm family'")
+
     if (ciType == "bootstrap")
         stop ("not yet implemented")
     else if (ciType == "parametric")
