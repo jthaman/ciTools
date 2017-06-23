@@ -1,6 +1,34 @@
-##add_ci method for lme4/merMod objects
-parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
+## add_ci method for lme4/merMod objects
+## TODO: add the nice interval names
+
+add_ci.lmerMod <- function(tb, fit, 
+                           alpha = 0.05, ciType = "parametric", condition_RE = TRUE
+                           includeRanef = TRUE, ciNames = NULL, ...){
+
+    if (is.null(ciNames)){
+        ciNames[1] <- paste("LCB-", alpha/2, sep = "")
+        ciNames[2] <- paste("UCB-", 1 - alpha/2, sep = "")
+    }
+    if ((ciNames[1] %in% colnames(tb))) {
+        warning ("These CIs may have already been appended to your dataframe")
+        return(tb)
+    }
+
+    if(ciType == "bootstrap") 
+        bootstrap_ci_mermod(tb, fit, alpha, ciNames, ...)
+    else if(ciType == "parametric")
+        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef)
+    else
+        stop("Incorrect type specified!")
     
+}
+
+## this function should be used with exterme caution
+parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, condition_RE){
+    if (condition_RE == TRUE)
+        reform = NULL
+    if (condition_RE == FALSE)
+        reform = NA
     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
     vcovBetaHat <- vcov(fit)
     
@@ -9,17 +37,17 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
         sqrt()
     
     seRandom <- arm::se.ranef(fit)[[1]][1,]
-    rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) - (length(attributes(summary(fit)$varcor)$names) + 1)
+    rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
+        (length(attributes(summary(fit)$varcor)$names) + 1)
     if(includeRanef)
         seGlobal <- sqrt(seFixed^2 + seRandom^2)
     else
         seGlobal <- seFixed
     if(is.null(tb[["pred"]]))
-        tb <- modelr::add_predictions(tb, fit)
+        tb[["pred"]] <- predict(fit, tb, re.form = reform) 
     tb[[ciNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
     tb[[ciNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
     tb
-    
 }
 
 ## simulation method using predictInterval
