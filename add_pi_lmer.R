@@ -1,10 +1,11 @@
-## TODO: add pi method for lmer objects
+## add pi method for lmer objects
 
 add_pi.merMod <- function(tb, fit, 
                           alpha = 0.05, piType = "parametric", 
                           includeRanef = T, piNames = c("LPB", "UPB"), ...) {
     if(piType == "bootstrap") {
-        bootstrap_pi_mermod(tb, fit, alpha, piNames, ...)
+        stop ("This Type is not yet implemented")
+        ##bootstrap_pi_mermod(tb, fit, alpha, piNames, ...)
     } else if (piType == "parametric") {
         parametric_pi_mermod(tb, fit, alpha, piNames, includeRanef)
     } else if (piType == "simulation") {
@@ -14,9 +15,10 @@ add_pi.merMod <- function(tb, fit,
     }
 }
 
+## could make this the default procedure with warnings
 parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
-    
-    X <- model.matrix(fit)
+
+    X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
     vcovBetaHat <- vcov(fit)
     
     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 

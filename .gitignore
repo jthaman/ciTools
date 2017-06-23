@@ -19,3 +19,4 @@ add_pi_lmer_test.R
 add_quantile_lm_test.R
 uncertain.Rproj
 add_quantile_lm_test.R
+add_probs_lmer_test.R

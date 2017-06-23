@@ -2,6 +2,7 @@
 ## add option to use this since it's not a method
 
 get_sigma_mle <- function(tb, fit){
+
     X <- model.matrix(fit)
     out <- predict(fit, tb, se.fit = TRUE, interval = "confidence", level = 1 - alpha)
     rmse <- out$residual.scale

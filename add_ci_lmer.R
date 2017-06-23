@@ -1,7 +1,7 @@
 ##add_ci method for lme4/merMod objects
 parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
     
-    X <- model.matrix(fit)
+    X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
     vcovBetaHat <- vcov(fit)
     
     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
@@ -45,7 +45,7 @@ simulation_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 
     
 }
 mySumm <- function(.) {
-    predict(., newdata=sleepstudy, re.form=NULL)
+    predict(., newdata=tb, re.form=NULL)
 }
 
 sumBoot <- function(merBoot, alpha = alpha) {
@@ -60,50 +60,48 @@ sumBoot <- function(merBoot, alpha = alpha) {
 ## New Bootstrapping method with boorMer
 ## currently in progress
 
-bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 1000){
+## bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 1000){
     
-    if (includeRanef) 
-        use.u = FALSE
-    else 
-        use.u = TRUE
-    
-
+##     if (includeRanef) 
+##         use.u = FALSE
+##     else 
+##         use.u = TRUE
         
-    boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=use.u, type="parametric")
-    ci_out <- sumBoot(boot_obj, alpha) 
+##     boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=use.u, type="parametric")
+##     ci_out <- sumBoot(boot_obj, alpha) 
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- ci_out$fit
-    tb[[ciNames[1]]] <- ci_out$lwr
-    tb[[ciNames[2]]] <- ci_out$upr
-    tb
+##     if(is.null(tb[["pred"]]))
+##         tb[["pred"]] <- ci_out$fit
+##     tb[[ciNames[1]]] <- ci_out$lwr
+##     tb[[ciNames[2]]] <- ci_out$upr
+##     tb
     
-}
+## }
 
-##Bootstrap CIs for merMod objects
-##Note that the bootstrapping is done on the random effects only. 
+## ##Bootstrap CIs for merMod objects
+## ##Note that the bootstrapping is done on the random effects only. 
 
-oldbootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, nBS = 999){
+## oldbootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, nBS = 999){
     
-    X <- model.matrix(fit)
-    vcovBetaHat <- vcov(fit)
+##     X <- model.matrix(fit)
+##     vcovBetaHat <- vcov(fit)
     
-    seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
-        diag() %>%
-        sqrt()
+##     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
+##         diag() %>%
+##         sqrt()
     
-    wholePlotBS <- sample_ranefs(fit, nBS, alpha) 
-    if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
-    tb[[ciNames[1]]] <- tb[["pred"]] + qnorm(alpha/2) * seFixed + wholePlotBS[1]
-    tb[[ciNames[2]]] <- tb[["pred"]] + qnorm(1 - alpha/2) * seFixed + wholePlotBS[2]
-    tb
+##     wholePlotBS <- sample_ranefs(fit, nBS, alpha) 
+##     if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
+##     tb[[ciNames[1]]] <- tb[["pred"]] + qnorm(alpha/2) * seFixed + wholePlotBS[1]
+##     tb[[ciNames[2]]] <- tb[["pred"]] + qnorm(1 - alpha/2) * seFixed + wholePlotBS[2]
+##     tb
     
-}
+## }
 
-sample_ranefs <- function(fit, nBS, alpha){
-    if(length(ranef(fit)[[1]][[1]]) < 5) warning(
-                                             "Fewer than 5 whole plots; consider using parametric methods")
-    ranef(fit)[[1]][[1]] %>% 
-        base::sample(size = nBS, replace = T) %>%
-        quantile(probs = c(alpha/2, 1-alpha/2))
-}
+## sample_ranefs <- function(fit, nBS, alpha){
+##     if(length(ranef(fit)[[1]][[1]]) < 5) warning(
+##                                              "Fewer than 5 whole plots; consider using parametric methods")
+##     ranef(fit)[[1]][[1]] %>% 
+##         base::sample(size = nBS, replace = T) %>%
+##         quantile(probs = c(alpha/2, 1-alpha/2))
+## }
