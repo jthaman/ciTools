@@ -20,3 +20,7 @@ add_quantile_lm_test.R
 uncertain.Rproj
 add_quantile_lm_test.R
 add_probs_lmer_test.R
+.#mm_expander_test.R
+.#mm_expander.R
+.#add_quantile_lm_test.R
+.#add_ci_lm.R

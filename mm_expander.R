@@ -1,6 +1,5 @@
-library(tidyverse)
-
 ## This only really works well with very clean data
+## This function presently does not incorporate anything about the fit
 mm_expander <- function(tb, fit){
     lst <- list()
     for (i in colnames(tb)){
