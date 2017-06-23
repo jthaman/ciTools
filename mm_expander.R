@@ -3,9 +3,13 @@
 
 mm_expander <- function(tb, fit){
     tb <- na.omit(tb) ## is this okay?
+    pred_orig <- predict(fit, expanded)
+    tb <- mutate(tb, pred_orig)
     lst <- list()
     for (i in colnames(tb)){
-        if (is.double(tb[[i]]))
+        if (is.factor(tb[[i]]))
+            lst[[i]] <- unique(tb[[i]])
+        else if (is.double(tb[[i]]))
             lst[[i]] <- seq(min(tb[[i]]), max(tb[[i]]), length.out = 101)
         else if (is.character(tb[[i]]))
             lst[[i]] <- unique(tb[[i]])

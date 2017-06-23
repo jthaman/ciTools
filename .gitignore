@@ -33,3 +33,4 @@ add_quantile_lm_test.R
 .#add_ci_lmer.R
 .#add_ci_survreg_test.R
 .#add_pi_lmer.R
+add_ci_lmer_test.R

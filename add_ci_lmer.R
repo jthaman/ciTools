@@ -1,8 +1,7 @@
 ## add_ci method for lme4/merMod objects
-## TODO: add the nice interval names
 
 add_ci.lmerMod <- function(tb, fit, 
-                           alpha = 0.05, ciType = "parametric", condition_RE = TRUE
+                           alpha = 0.05, ciType = "parametric", condition_RE = TRUE,
                            includeRanef = TRUE, ciNames = NULL, ...){
 
     if (is.null(ciNames)){
@@ -14,10 +13,14 @@ add_ci.lmerMod <- function(tb, fit,
         return(tb)
     }
 
-    if(ciType == "bootstrap") 
-        bootstrap_ci_mermod(tb, fit, alpha, ciNames, ...)
-    else if(ciType == "parametric")
-        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef)
+    if (ciType == "bootstrap") 
+        stop ("The bootstrap method has not be implemented yet")
+        ##bootstrap_ci_mermod(tb, fit, alpha, ciNames, ...)
+    else if (ciType == "parametric")
+        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
+    else if (ciType == "sim")
+        sim_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
+
     else
         stop("Incorrect type specified!")
     
@@ -27,8 +30,9 @@ add_ci.lmerMod <- function(tb, fit,
 parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, condition_RE){
     if (condition_RE == TRUE)
         reform = NULL
-    if (condition_RE == FALSE)
+    else
         reform = NA
+    
     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
     vcovBetaHat <- vcov(fit)
     
@@ -51,39 +55,41 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, conditio
 }
 
 ## simulation method using predictInterval
-## Currently in Progress
+sim_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE, nSims = 1000) {
 
-simulation_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 1000) {
-
-    if (includeRanef) {
+    if (condition_RE) {
         which = "full"
+        reform = NULL
     } else {
         which = "fixed"
+        reform = NA
     }
 
     ci_out <- predictInterval(fit, tb, which = which, level = 1 - alpha,
                               n.sims = nSims,
-                              stat = "mean",
+                              stat = "median",
                               include.resid.var = FALSE)
 
-    if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
+    if(is.null(tb[["pred"]])) 
+        tb[["pred"]] <- predict(fit, tb, re.form = reform) 
     tb[[ciNames[1]]] <- ci_out$lwr
     tb[[ciNames[2]]] <- ci_out$upr
     tb
     
 }
-mySumm <- function(.) {
-    predict(., newdata=tb, re.form=NULL)
-}
 
-sumBoot <- function(merBoot, alpha = alpha) {
-    return(
-        data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
-                   lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
-                   upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)
-                   )
-    )
-}
+## mySumm <- function(.) {
+##     predict(., newdata=tb, re.form=NULL)
+## }
+
+## sumBoot <- function(merBoot, alpha = alpha) {
+##     return(
+##         data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
+##                    lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
+##                    upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)
+##                    )
+##     )
+## }
 
 ## New Bootstrapping method with boorMer
 ## currently in progress
