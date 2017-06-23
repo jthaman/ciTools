@@ -1,5 +1,4 @@
-## library(arm) needs to be installed
-
+## add_pi method for glm objects
 add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = c("LPB", "UPB"),
                        type = "response", method = "sim", nSims = 1000){
     if(fit$family$family == "binomial"){
@@ -8,8 +7,8 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = c("LPB", "UPB"),
     if(ciType == "sim"){
         sim_pi_glm(tb, fit, alpha, piNames, type, nSims, ...)
     }
-    ) else
-          if(!(method %in% c("sim"))) stop("Only Simulated prediction intervals are implemented for glm objects")
+    else if(!(method %in% c("sim")))
+        stop("Only Simulated prediction intervals are implemented for glm objects")
 }
 
 ## add_pi simulation method for glm

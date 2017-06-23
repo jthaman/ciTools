@@ -3,9 +3,12 @@
 ## TODO : options for Pr()
 ## TODO : change "Y" to the name of the response
 
-add_probs.lm <- function(tb, fit, quant, probName = NULL){
-    if (is.null(probName))
+add_probs.lm <- function(tb, fit, quant, probName = NULL,
+                         direction = "<"){
+    if (is.null(probName) && direction == "<")
         probName <- paste("Pr(Y < ", quant, ")", sep="")
+    if (is.null(probName) && direction == ">")
+        probName <- paste("Pr(Y > ", quant, ")", sep="")
     if ((probName %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe")
         return(tb)
@@ -17,7 +20,10 @@ add_probs.lm <- function(tb, fit, quant, probName = NULL){
     resid_var <- out$residual.scale^2
     se_pred <- sqrt(resid_var + se_fitted^2)
     t_quantile <- (quant - fitted) / se_pred
-    t_prob <- pt(q = t_quantile, df = residual_df)
+    if (direction == "<")
+        t_prob <- pt(q = t_quantile, df = residual_df)
+    if (direction == ">")
+        t_prob <- 1 - pt(q = t_quantile, df = residual_df)
     if (is.null(tb[["pred"]]))
         tb[["pred"]] <- fitted
     if (is.null(tb[[probName]]))

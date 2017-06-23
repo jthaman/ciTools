@@ -2,6 +2,7 @@
 ## This function presently does not incorporate anything about the fit
 
 mm_expander <- function(tb, fit){
+    tb <- na.omit(tb) ## is this okay?
     lst <- list()
     for (i in colnames(tb)){
         if (is.double(tb[[i]]))
