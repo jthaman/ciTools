@@ -19,7 +19,7 @@ add_ci.lmerMod <- function(tb, fit,
     else if (ciType == "parametric")
         parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
     else if (ciType == "sim")
-        sim_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
+        sim_ci_mermod(tb, fit, alpha, ciNames, condition_RE, ...)
 
     else
         stop("Incorrect type specified!")

@@ -28,42 +28,44 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = NULL,
 
 parametric_ci_glm <- function(tb, fit, alpha, ciNames, type = "response"){
 
-  inverselink <- fit$family$linkinv
-  if(type == "response"){
-    out <- glm_ci_response(tb, fit, alpha, inverselink) %>%
-      plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
-      select(-.se)
-  }
+    inverselink <- fit$family$linkinv
+    if(type == "response"){
+        out <- glm_ci_response(tb, fit, alpha, inverselink) %>%
+            plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
+            select(-.se)
+    }
 
-  if(type == "link"){
-    out <- glm_ci_linear_predictor(tb, fit, alpha) %>%
-      plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
-      select(-.se)
-  }
-  if(!(type %in% c("response", "link"))) top("Incorrect interval type specified!")
-  out
+    if(type == "link"){
+        out <- glm_ci_linear_predictor(tb, fit, alpha) %>%
+            plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
+            select(-.se)
+    }
+    if(!(type %in% c("response", "link"))) top("Incorrect interval type specified!")
+    out
 }
 
 glm_ci_response <- function(tb, fit, alpha, ilink){
 
-  if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
-  tb %>%
-    add_standard_error(fit) %>%
-    mutate(
-      lwr = ilink(pred + qt(alpha/2, df = fit$df.residual) * .se),
-      upr = ilink(pred + qt(1 - alpha/2, df = fit$df.residual) * .se)
-    )
+    if(is.null(tb[["pred"]]))
+        tb <- modelr::add_predictions(tb, fit)
+    tb %>%
+        add_standard_error(fit) %>%
+        mutate(
+            lwr = ilink(pred + qt(alpha/2, df = fit$df.residual) * .se),
+            upr = ilink(pred + qt(1 - alpha/2, df = fit$df.residual) * .se)
+        )
 
 }
 
 glm_ci_linear_predictor <- function(tb, fit, alpha){
 
-  if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
-  tb %>%
-    add_standard_error(fit) %>%
-    mutate(
-      lwr = pred + qt(alpha/2, df = fit$df.residual) * .se,
-      upr = pred + qt(1 - alpha/2, df = fit$df.residual) * .se
-    )
+    if(is.null(tb[["pred"]]))
+        tb <- modelr::add_predictions(tb, fit)
+    tb %>%
+        add_standard_error(fit) %>%
+        mutate(
+            lwr = pred + qt(alpha/2, df = fit$df.residual) * .se,
+            upr = pred + qt(1 - alpha/2, df = fit$df.residual) * .se
+        )
 
 }

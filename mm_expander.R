@@ -1,16 +1,16 @@
 ## This only really works well with very clean data
 ## This function presently does not incorporate anything about the fit
 
-mm_expander <- function(tb, fit){
+mm_expander <- function(tb, fit, dbls){
     tb <- na.omit(tb) ## is this okay?
-    pred_orig <- predict(fit, expanded)
+    pred_orig <- predict(fit, tb)
     tb <- mutate(tb, pred_orig)
     lst <- list()
     for (i in colnames(tb)){
         if (is.factor(tb[[i]]))
             lst[[i]] <- unique(tb[[i]])
         else if (is.double(tb[[i]]))
-            lst[[i]] <- seq(min(tb[[i]]), max(tb[[i]]), length.out = 101)
+            lst[[i]] <- seq(min(tb[[i]]), max(tb[[i]]), length.out = dbls)
         else if (is.character(tb[[i]]))
             lst[[i]] <- unique(tb[[i]])
         else if (is.integer(tb[[i]]))

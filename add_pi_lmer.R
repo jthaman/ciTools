@@ -1,24 +1,30 @@
 ## add pi method for lmer objects
 add_pi.lmerMod <- function(tb, fit, 
                           alpha = 0.05, piType = "parametric", condition_RE = TRUE,
-                          includeRanef = TRUE, piNames = c("LPB", "UPB"), ...) {
-    if(piType == "bootstrap") {
-        stop ("This Type is not yet implemented")
-        ##bootstrap_pi_mermod(tb, fit, alpha, piNames, ...)
-    } else if (piType == "parametric") {
-        parametric_pi_mermod(tb, fit, alpha, piNames, includeRanef)
-    } else if (piType == "simulation") {
-        simulation_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
-    } else if (!(piType %in% c("bootstrap", "parametric", "simulation"))) {
-        stop("Incorrect type specified!")
+                          includeRanef = TRUE, piNames = NULL, ...) {
+    if (is.null(piNames)){
+        piNames[1] <- paste("LPB-", alpha/2, sep = "")
+        piNames[2] <- paste("UPB-", 1 - alpha/2, sep = "")
     }
-}
+    if ((piNames[1] %in% colnames(tb))) {
+        warning ("These PIs may have already been appended to your dataframe")
+        return(tb)
+    }
+
+    if(piType == "sim") 
+        sim_pi_mermod(tb, fit, alpha, piNames, condition_RE, ...)
+    else if(piType == "parametric")
+        parametric_pi_mermod(tb, fit, alpha, piNames, includeRanef, condition_RE, ...)
+    else
+        stop("Incorrect type specified!")
+
+ }
 
 ## could make this the default procedure with warnings
 parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, condition_RE){
     if (condition_RE == TRUE)
         reform = NULL
-    if (condition_RE == FALSE)
+    else
         reform = NA
 
     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
@@ -44,20 +50,21 @@ parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, conditio
     
 }
 
-simulation_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 1000) {
+sim_pi_mermod <- function(tb, fit, alpha, piNames, condition_RE, nSims = 1000) {
 
-    if (includeRanef) {
+    if (condition_RE) {
         which = "full"
+        reform = NULL
     } else {
         which = "fixed"
+        reform = NA
     }
-
     pi_out <- predictInterval(fit, tb, which = which, level = 1 - alpha,
                               n.sims = nSims,
-                              stat = "mean",
+                              stat = "median",
                               include.resid.var = TRUE)
-
-    if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
     tb[[piNames[1]]] <- pi_out$lwr
     tb[[piNames[2]]] <- pi_out$upr
     tb
