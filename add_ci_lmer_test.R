@@ -26,14 +26,13 @@ u.full <- u[group]
 ##fit <- mm <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
 ##mm <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
 
-Ran_True <- add_pi.lmerMod(tb, mm, includeRanef = TRUE, condition_RE = TRUE)
+Ran_True <- add_ci.lmerMod(tb, mm, includeRanef = TRUE, condition_RE = TRUE)
+Ran_False <- add_ci.lmerMod(tb, mm, includeRanef = FALSE, condition_RE = FALSE)
 
-Ran_False <- add_pi.lmerMod(tb, mm, includeRanef = FALSE, condition_RE = FALSE)
+Ran_True_sim <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = TRUE, nSims = 1000)
+Ran_False_sim <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = FALSE, nSims = 1000)
 
-Ran_True_sim <- add_pi.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = TRUE, nSims = 1000)
-
-
-Ran_False_sim <- add_pi.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = FALSE, nSims = 1000)
+Ran_True_boot <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "bootstrap", condition_RE = TRUE, nSims = 1000)
 
 comp.data <- rbind(
     data.frame(Predict.Method="wald_w_ran", x=(1:nrow(Ran_True))-0.1, Ran_True),

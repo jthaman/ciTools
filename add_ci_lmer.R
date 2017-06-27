@@ -2,7 +2,7 @@
 
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, ciType = "parametric", condition_RE = TRUE,
-                           includeRanef = TRUE, ciNames = NULL, ...){
+                           includeRanef = TRUE, ciNames = NULL, nSims = 1000, ...){
 
     if (is.null(ciNames)){
         ciNames[1] <- paste("LCB-", alpha/2, sep = "")
@@ -14,12 +14,11 @@ add_ci.lmerMod <- function(tb, fit,
     }
 
     if (ciType == "bootstrap") 
-        stop ("The bootstrap method has not be implemented yet")
-        ##bootstrap_ci_mermod(tb, fit, alpha, ciNames, ...)
+        bootstrap_ci_mermod(tb, fit, alpha, ciNames, condition_RE, nSims, ...)
     else if (ciType == "parametric")
         parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
     else if (ciType == "sim")
-        sim_ci_mermod(tb, fit, alpha, ciNames, condition_RE, ...)
+        sim_ci_mermod(tb, fit, alpha, ciNames, condition_RE, nSims, ...)
 
     else
         stop("Incorrect type specified!")
@@ -78,39 +77,38 @@ sim_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE, nSims = 1000) {
     
 }
 
-## mySumm <- function(.) {
-##     predict(., newdata=tb, re.form=NULL)
-## }
+mySumm <- function(. , rform) {
+    predict(., newdata=tb, re.form=rform)
+}
 
-## sumBoot <- function(merBoot, alpha = alpha) {
-##     return(
-##         data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
-##                    lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
-##                    upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)
-##                    )
-##     )
-## }
+sumBoot <- function(merBoot, alpha = alpha) {
+    return(
+        data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
+                   lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
+                   upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)
+                   )
+    )
+}
 
-## New Bootstrapping method with boorMer
-## currently in progress
-
-## bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 1000){
+bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE = TRUE, nSims) {
     
-##     if (includeRanef) 
-##         use.u = FALSE
-##     else 
-##         use.u = TRUE
+    if (condition_RE) { 
+        rform = NULL
+    } else {
+        rform = NA
+    }
         
-##     boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=use.u, type="parametric")
-##     ci_out <- sumBoot(boot_obj, alpha) 
+    boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=FALSE, type="parametric", rform)
 
-##     if(is.null(tb[["pred"]]))
-##         tb[["pred"]] <- ci_out$fit
-##     tb[[ciNames[1]]] <- ci_out$lwr
-##     tb[[ciNames[2]]] <- ci_out$upr
-##     tb
+    ci_out <- sumBoot(boot_obj, alpha) 
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- ci_out$fit
+    tb[[ciNames[1]]] <- ci_out$lwr
+    tb[[ciNames[2]]] <- ci_out$upr
+    tb
     
-## }
+}
 
 ## ##Bootstrap CIs for merMod objects
 ## ##Note that the bootstrapping is done on the random effects only. 
