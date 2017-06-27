@@ -32,13 +32,13 @@ Ran_False <- add_ci.lmerMod(tb, mm, includeRanef = FALSE, condition_RE = FALSE)
 Ran_True_sim <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = TRUE, nSims = 1000)
 Ran_False_sim <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "sim", condition_RE = FALSE, nSims = 1000)
 
-Ran_True_boot <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "bootstrap", condition_RE = TRUE, nSims = 1000)
+Ran_True_boot <- add_ci.lmerMod(tb, mm, alpha = 0.05, ciType = "bootstrap", condition_RE = TRUE, nSims = 200)
 
 comp.data <- rbind(
-    data.frame(Predict.Method="wald_w_ran", x=(1:nrow(Ran_True))-0.1, Ran_True),
+    data.frame(Predict.Method="wald_w_ran", x=(1:nrow(Ran_True))-0.2, Ran_True),
     ##data.frame(Predict.Method="wald_wo_ran", x=(1:nrow(Ran_False))-0.2, Ran_False),
-    data.frame(Predict.Method="PI_w_ran", x=(1:nrow(Ran_True_sim))+0.1, Ran_True_sim)
-    ##data.frame(Predict.Method="PI_wo_ran", x=(1:nrow(Ran_False_sim))+0.2, Ran_False_sim)
+    data.frame(Predict.Method="PI_w_ran", x=(1:nrow(Ran_True_sim))+0.2, Ran_True_sim),
+    data.frame(Predict.Method="boot_w_ran", x=(1:nrow(Ran_True_boot))+0.4, Ran_True_boot)
 )
 
 ## ggplot(aes(x=x, y=pred, ymin=LCB.0.025, ymax=UCB.0.975, color=Predict.Method), data=comp.data[c(1:30,
@@ -53,7 +53,7 @@ comp.data <- rbind(
 ##   scale_color_brewer(type = "qual", palette = 2)
 
 ggplot(aes(x=x, y=pred, ymin=LCB.0.025, ymax=UCB.0.975, color=Predict.Method),
-       data=comp.data[c(group %in% c(1,2)),]) +
+       data=comp.data[c(group %in% c(1)),]) +
     geom_point() + 
     geom_linerange() +
     labs(x="Index", y="Prediction w/ 95% PI") +

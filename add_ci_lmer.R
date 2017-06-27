@@ -77,8 +77,8 @@ sim_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE, nSims = 1000) {
     
 }
 
-mySumm <- function(. , rform) {
-    predict(., newdata=tb, re.form=rform)
+mySumm <- function(.) {
+    predict(., newdata=tb, re.form = NULL)
 }
 
 sumBoot <- function(merBoot, alpha = alpha) {
@@ -90,6 +90,8 @@ sumBoot <- function(merBoot, alpha = alpha) {
     )
 }
 
+
+## only conditional estimation is supported right now
 bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE = TRUE, nSims) {
     
     if (condition_RE) { 
