@@ -2,11 +2,11 @@
 
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, ciType = "parametric", condition_RE = TRUE,
-                           includeRanef = TRUE, ciNames = NULL, nSims = 1000, ...){
+                           ciNames = NULL, nSims = 1000, ...){
 
     if (is.null(ciNames)){
-        ciNames[1] <- paste("LCB-", alpha/2, sep = "")
-        ciNames[2] <- paste("UCB-", 1 - alpha/2, sep = "")
+        ciNames[1] <- paste("LCB", alpha/2, sep = "")
+        ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
     if ((ciNames[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe")
@@ -16,7 +16,7 @@ add_ci.lmerMod <- function(tb, fit,
     if (ciType == "bootstrap") 
         bootstrap_ci_mermod(tb, fit, alpha, ciNames, condition_RE, nSims, ...)
     else if (ciType == "parametric")
-        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef, condition_RE, ...)
+        parametric_ci_mermod(tb, fit, alpha, ciNames, condition_RE, ...)
     else if (ciType == "sim")
         sim_ci_mermod(tb, fit, alpha, ciNames, condition_RE, nSims, ...)
 
@@ -26,7 +26,7 @@ add_ci.lmerMod <- function(tb, fit,
 }
 
 ## this function should be used with exterme caution
-parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, condition_RE){
+parametric_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE){
     if (condition_RE == TRUE)
         reform = NULL
     else
@@ -42,7 +42,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, conditio
     seRandom <- arm::se.ranef(fit)[[1]][1,]
     rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
         (length(attributes(summary(fit)$varcor)$names) + 1)
-    if(includeRanef)
+    if(condition_RE)
         seGlobal <- sqrt(seFixed^2 + seRandom^2)
     else
         seGlobal <- seFixed
@@ -78,7 +78,7 @@ sim_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE, nSims = 1000) {
 }
 
 mySumm <- function(.) {
-    predict(., newdata=tb, re.form = NULL)
+    predict(., newdata=tb)
 }
 
 sumBoot <- function(merBoot, alpha = alpha) {
@@ -100,7 +100,7 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE = TRUE, nS
         rform = NA
     }
         
-    boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=FALSE, type="parametric", rform)
+    boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=TRUE, type="parametric", rform)
 
     ci_out <- sumBoot(boot_obj, alpha) 
 

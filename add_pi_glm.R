@@ -1,11 +1,21 @@
 ## add_pi method for glm objects
-add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = c("LPB", "UPB"),
-                       type = "response", method = "sim", nSims = 1000){
-    if(fit$family$family == "binomial"){
-        stop("Prediction interval for Binomial response doesn't make sense")
+add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = NULL,
+                       type = "response", piType = "sim", nSims = 1000){
+
+    if (is.null(piNames)){
+        piNames[1] <- paste("LPB", alpha/2, sep = "")
+        piNames[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if(ciType == "sim"){
-        sim_pi_glm(tb, fit, alpha, piNames, type, nSims, ...)
+    if ((piNames[1] %in% colnames(tb))) {
+        warning ("These PIs may have already been appended to your dataframe")
+        return(tb)
+    }
+
+    if(fit$family$family == "binomial"){
+        stop("Prediction interval for Bernoulli response doesn't make sense")
+    }
+    if(piType == "sim"){
+        sim_pi_glm(tb, fit, alpha, piNames, type, nSims)
     }
     else if(!(method %in% c("sim")))
         stop("Only Simulated prediction intervals are implemented for glm objects")
@@ -15,7 +25,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = c("LPB", "UPB"),
 ## Generate fake data from the model to calculate prediction intervals
 ## TODO : hardcode more response distributions
 
-sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
+sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -39,7 +49,8 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims, ...){
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2)
     
     ## bind to the tibble and return
-    if(is.null(tb[["pred"]])) tb[["pred"]] <- out
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- out
     tb[[piNames[1]]] <- lwr
     tb[[piNames[2]]] <- upr
     tb

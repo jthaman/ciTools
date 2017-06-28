@@ -1,6 +1,5 @@
 ## add_probs method for lm objects
 ## TODO : Use t or Z distribution option
-## TODO : options for Pr()
 ## TODO : change "Y" to the name of the response
 
 add_probs.lm <- function(tb, fit, quant, probName = NULL,

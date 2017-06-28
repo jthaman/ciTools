@@ -1,12 +1,12 @@
 ## This only really works well with very clean data
-## This function presently does not incorporate anything about the fit
-
+## TODO : only expand over predictors!
 mm_expander <- function(tb, fit, dbls){
-    tb <- na.omit(tb) ## is this okay?
-    pred_orig <- predict(fit, tb)
-    tb <- mutate(tb, pred_orig)
+    tb <- na.omit(tb) 
+    pred <- predict(fit, tb)
+    tb <- mutate(tb, pred)
     lst <- list()
-    for (i in colnames(tb)){
+    cands <- intersect(colnames(tb), variable.names(fit))
+    for (i in cands){
         if (is.factor(tb[[i]]))
             lst[[i]] <- unique(tb[[i]])
         else if (is.double(tb[[i]]))
@@ -23,6 +23,7 @@ mm_expander <- function(tb, fit, dbls){
     expanded <- lst %>% crossing_
     pred <- predict(fit, expanded)
     expanded_pred <- mutate(expanded, pred)
-    rbind(tb, expanded_pred)
+    ##rbind(tb, expanded_pred)
+    expanded_pred
 }
 

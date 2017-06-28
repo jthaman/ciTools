@@ -2,7 +2,7 @@
 ## add option to use this since it's not a method
 ## we may consider using a t distribution here
 
-get_sigma_mle <- function(tb, fit){
+get_sigma_mle <- function(tb, fit, alpha){
     X <- model.matrix(fit)
     n <- NROW(X)
     out <- predict(fit, tb, se.fit = TRUE, interval = "confidence", level = 1 - alpha)
@@ -52,14 +52,14 @@ get_se_pred <- function(pred, Xpred, V, p){
 add_ci_lm_log <- function(tb, fit, alpha = 0.05, ciNames = NULL){
 
     if (is.null(ciNames)) {
-        ciNames[1] <- paste("LCB-", alpha/2, sep = "")
-        ciNames[2] <- paste("UCB-", 1 - alpha/2, sep = "")
+        ciNames[1] <- paste("LCB", alpha/2, sep = "")
+        ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
     if ((ciNames[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe")
         return(tb)
     }
-    sigma_mle <- get_sigma_mle(tb, fit)
+    sigma_mle <- get_sigma_mle(tb, fit, alpha)
     V <- create_cov_mat(sigma_mle, tb, fit)
     p <- pnorm(sigma_mle / 2)
     pred_list <- get_Xpred_list(tb, fit, p, sigma_mle)

@@ -1,9 +1,9 @@
 #add_pi method for lm
-dd_pi.lm <- function(tb, fit, alpha = 0.05, piNames = NULL){
+add_pi.lm <- function(tb, fit, alpha = 0.05, piNames = NULL){
     
     if (is.null(piNames)){
-        piNames[1] <- paste("LPB-", alpha/2, sep = "")
-        piNames[2] <- paste("UPB-", 1 - alpha/2, sep = "")
+        piNames[1] <- paste("LPB", alpha/2, sep = "")
+        piNames[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
     if ((piNames[1] %in% colnames(tb))) {
         warning ("These PIs may have already been appended to your dataframe")
