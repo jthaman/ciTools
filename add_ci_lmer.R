@@ -1,5 +1,4 @@
 ## add_ci method for lme4/merMod objects
-
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, ciType = "parametric", condition_RE = TRUE,
                            ciNames = NULL, nSims = 1000, ...){
@@ -19,7 +18,6 @@ add_ci.lmerMod <- function(tb, fit,
         parametric_ci_mermod(tb, fit, alpha, ciNames, condition_RE, ...)
     else if (ciType == "sim")
         sim_ci_mermod(tb, fit, alpha, ciNames, condition_RE, nSims, ...)
-
     else
         stop("Incorrect type specified!")
     
@@ -77,11 +75,11 @@ sim_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE, nSims = 1000) {
     
 }
 
-mySumm <- function(.) {
-    predict(., newdata=tb)
+lmer_preds <- function(fit) {
+    predict(fit, newdata=tb)
 }
 
-sumBoot <- function(merBoot, alpha = alpha) {
+apply_quantiles <- function(merBoot, alpha = alpha) {
     return(
         data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
                    lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
@@ -100,9 +98,9 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, ciNames, condition_RE = TRUE, nS
         rform = NA
     }
         
-    boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=TRUE, type="parametric", rform)
+    boot_obj <- lme4::bootMer(fit, lmer_preds, nsim=nSims, use.u=TRUE, type="parametric", rform)
 
-    ci_out <- sumBoot(boot_obj, alpha) 
+    ci_out <- apply_quantiles(boot_obj, alpha) 
 
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- ci_out$fit

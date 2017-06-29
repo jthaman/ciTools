@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Add CI generic function\n#'\n#' This is a generic function to append confidence intervals for the predicted\n#' values of a model fit to a data frame.\n#'\n#' @param tb A tibble or Data Frame\n#' @param fit An object or class lm, glm, or lmerMod\n#' @param alpha A real number between 0 and 1\n#' @param ciNames NULL or character vector of length two\n#' @return A data frame, tb, with predicted values, upper and lower confidence\n#'   bounds\n\nadd_ci <- function(tb, fit, alpha = 0.05, ciNames = NULL, ...){\n  UseMethod(\"add_ci\", fit)\n}\n",
+    "created" : 1498664693393.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4127516230",
+    "id" : "9768E0D6",
+    "lastKnownWriteTime" : 1498677291,
+    "last_content_update" : 1498677291769,
+    "path" : "U:/R code/uncertain/addr/R/add_ci.R",
+    "project_path" : "R/add_ci.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

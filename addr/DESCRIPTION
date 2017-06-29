@@ -1,0 +1,19 @@
+Package: addr
+Type: Package
+Title: Uncertainty Intervals, Quantiles, and Probabilities for Statistical Models
+Version: 0.1.0
+Author: John Haman
+Maintainer: John Haman <jhaman@ida.org>
+Description: Functions for automatically appending confidence intervals,
+    prediction intervals, and other quantities of interest to data frames. addr
+    has a "data frame first" syntax that allows for easy piping. Currently supported models
+    include linear and log-linear models, linear mixed models, and generalized linear models.
+Depends: 
+    tidyverse,
+    lme4,
+    merTools,
+    arm
+License: ?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1

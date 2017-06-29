@@ -1,4 +1,5 @@
 ## add pi method for lmer objects
+
 add_pi.lmerMod <- function(tb, fit, 
                           alpha = 0.05, piType = "parametric", condition_RE = TRUE,
                           piNames = NULL, ...) {
@@ -21,34 +22,47 @@ add_pi.lmerMod <- function(tb, fit,
  }
 
 ## could make this the default procedure with warnings
-parametric_pi_mermod <- function(tb, fit, alpha, piNames, condition_RE){
-    if (condition_RE == TRUE)
-        reform = NULL
-    else
-        reform = NA
+## parametric_pi_mermod <- function(tb, fit, alpha, piNames, condition_RE){
+##     if (condition_RE == TRUE)
+##         reform = NULL
+##     else
+##         reform = NA
 
-    X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
-    vcovBetaHat <- vcov(fit)
+##     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
+##     vcovBetaHat <- vcov(fit)
     
-    seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
-        diag() %>%
-        sqrt()
+##     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
+##         diag() %>%
+##         sqrt()
     
-    seRandom <- arm::se.ranef(fit)[[1]][1,]
-    rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
-        (length(attributes(summary(fit)$varcor)$names) + 1)
-    se_residual <- sigma(fit)
-    if(condition_RE)
-        seGlobal <- sqrt(seFixed^2 + seRandom^2 + se_residual^2)
-    else
-        seGlobal <- sqrt(seFixed^2 + se_residual^2)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform) 
-    tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
-    tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-    tb
+##     seRandom <- arm::se.ranef(fit)[[1]][1,]
+##     rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
+##         (length(attributes(summary(fit)$varcor)$names) + 1)
+##     simga_ <- sigma(fit)
+##     if(condition_RE)
+##         seGlobal <- sqrt(seFixed^2 + seRandom^2 + sigma_^2)
+##     else
+##         seGlobal <- sqrt(seFixed^2 + sigma_^2)
+##     if(is.null(tb[["pred"]]))
+##         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
+##     tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
+##     tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+##     tb
     
+## }
+
+parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
+  
+  rdf <- get_resid_df_mermod(fit)
+  seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
+  
+  if(includeRanef == F) re.form <- NA else re.form <- NULL
+  if(is.null(tb[["pred"]])) tb <- add_predictions2(tb, fit, re.form = re.form)
+  tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2,df = rdf) * seGlobal
+  tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+  tb
 }
+
 
 sim_pi_mermod <- function(tb, fit, alpha, piNames, condition_RE, nSims = 1000) {
 
