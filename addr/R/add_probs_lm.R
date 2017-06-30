@@ -1,12 +1,13 @@
 ## add_probs method for lm objects
-## TODO : Use t or Z distribution option
 ## TODO : change "Y" to the name of the response
 
 add_probs.lm <- function(tb, fit, quant, probName = NULL,
-                         direction = "<"){
-    if (is.null(probName) && direction == "<")
+                         comparison = "<", log_response = FALSE){
+    if (log_response)
+        quant <- log(quant)
+    if (is.null(probName) && comparison == "<")
         probName <- paste("Pr(Y < ", quant, ")", sep="")
-    if (is.null(probName) && direction == ">")
+    if (is.null(probName) && comparison == ">")
         probName <- paste("Pr(Y > ", quant, ")", sep="")
     if ((probName %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe")
@@ -19,9 +20,9 @@ add_probs.lm <- function(tb, fit, quant, probName = NULL,
     resid_var <- out$residual.scale^2
     se_pred <- sqrt(resid_var + se_fitted^2)
     t_quantile <- (quant - fitted) / se_pred
-    if (direction == "<")
+    if (comparison == "<")
         t_prob <- pt(q = t_quantile, df = residual_df)
-    if (direction == ">")
+    if (comparison == ">")
         t_prob <- 1 - pt(q = t_quantile, df = residual_df)
     if (is.null(tb[["pred"]]))
         tb[["pred"]] <- fitted

@@ -1,4 +1,5 @@
 ## Add pi method for lognormal objects
+## add back prediction using add_ci_lognormal
 add_pi_lm_log <- function(tb, fit, alpha = 0.05, piNames = NULL) {
  
     if (is.null(piNames)) {
@@ -11,8 +12,8 @@ add_pi_lm_log <- function(tb, fit, alpha = 0.05, piNames = NULL) {
     }
  
   out <- predict(fit, tb, interval = "prediction", level = 1 - alpha)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- exp(out[, 1])
+  ##  if(is.null(tb[["pred"]]))
+  ##      tb[["pred"]] <- exp(out[, 1])
   tb[[piNames[1]]] <- exp(out[, 2])
   tb[[piNames[2]]] <- exp(out[, 3])
   tb

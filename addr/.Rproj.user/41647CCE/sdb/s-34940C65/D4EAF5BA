@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "tb <- sleepstudy\nfit <- lmer(Reaction ~ Days + (1|Subject), data = sleepstudy)\n\nadd_probs(tb, fit, quant = 300, comparison = \"<\") %>% head\nadd_quantile(tb, fit, prob = 0.6)\nget_prediction_se_mermod(tb, fit)\n\n\nparametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){\n  \n  seFixed <- get_prediction_se_mermod(tb, fit)\n  seRandom <- arm::se.ranef(fit)[[1]][1,] \n  \n  rdf <- get_resid_df_mermod(fit)\n  \n  if(includeRanef)\n    seGlobal <- sqrt(seFixed^2 + seRandom^2)\n  else\n    seGlobal <- seFixed\n  \n  if(includeRanef == F)\n    re.form <- NA\n  else\n    re.form <- NULL\n  \n  if(is.null(tb[[\"pred\"]]))\n    tb[[\"pred\"]] <- predict(fit, tb, re.form = re.form)\n  tb[[ciNames[1]]] <- tb[[\"pred\"]] + qt(alpha/2, df = rdf) * seGlobal\n  tb[[ciNames[2]]] <- tb[[\"pred\"]] + qt(1 - alpha/2, df = rdf) * seGlobal\n  tb\n  \n}\n\n",
+    "created" : 1498769041151.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "863223446",
+    "id" : "D4EAF5BA",
+    "lastKnownWriteTime" : 8030597042934194811,
+    "last_content_update" : 1498826832762,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "marks" : "<:1,4\n>:1,4",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

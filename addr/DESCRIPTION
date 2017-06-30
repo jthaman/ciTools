@@ -8,7 +8,7 @@ Description: Functions for automatically appending confidence intervals,
     prediction intervals, and other quantities of interest to data frames. addr
     has a "data frame first" syntax that allows for easy piping. Currently supported models
     include linear and log-linear models, linear mixed models, and generalized linear models.
-Depends: 
+Imports: 
     tidyverse,
     lme4,
     merTools,

@@ -1,8 +1,7 @@
 ## add_ci method for lme4/merMod objects
-
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, ciType = "parametric", includeRanef = TRUE,
-                           ciNames = NULL, nSims = 1000, ...){
+                           ciNames = NULL, nSims = 200, ...){
 
     if (is.null(ciNames)){
         ciNames[1] <- paste("LCB", alpha/2, sep = "")
@@ -13,22 +12,19 @@ add_ci.lmerMod <- function(tb, fit,
         return(tb)
     }
 
-    if (ciType == "bootstrap") 
-        bootstrap_ci_mermod(tb, fit, alpha, ciNames, includeRanef, nSims, ...)
-    else if (ciType == "parametric")
-        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef, ...)
+    if (ciType == "parametric")
+        parametric_ci_mermod(tb, fit, alpha, ciNames, includeRanef)
     else if (ciType == "sim")
-        sim_ci_mermod(tb, fit, alpha, ciNames, includeRanef, nSims, ...)
-
+        sim_ci_mermod(tb, fit, alpha, ciNames, includeRanef, nSims)
     else
         stop("Incorrect type specified!")
-    
 }
 
+
 parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
-    
+   
     seFixed <- get_prediction_se_mermod(tb, fit)
-    seRandom <- arm::se.ranef(fit)[[1]][1,] #se of ranef(fit)
+    seRandom <- arm::se.ranef(fit)[[1]][1,] 
     
     rdf <- get_resid_df_mermod(fit)
     
@@ -37,13 +33,13 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
     else
         seGlobal <- seFixed
 
-    if(includeRanef == F)
-        re.form <- NA
-    else
+    if(includeRanef)
         re.form <- NULL
+    else
+        re.form <- NA
 
     if(is.null(tb[["pred"]]))
-        tb <- add_predictions2(tb, fit, re.form = re.form)
+        tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[ciNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
     tb[[ciNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
     tb
@@ -79,7 +75,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
 ## }
 
 ## simulation method using predictInterval
-sim_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 1000) {
+sim_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 200) {
 
     if (includeRanef) {
         which = "full"

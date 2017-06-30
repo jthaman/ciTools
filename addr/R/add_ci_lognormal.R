@@ -1,4 +1,4 @@
-## add ci for log linear models
+#dd# add ci for log linear models
 ## add option to use this since it's not a method
 ## we may consider using a t distribution here
 

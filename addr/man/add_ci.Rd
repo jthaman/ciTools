@@ -16,7 +16,8 @@ add_ci(tb, fit, alpha = 0.05, ciNames = NULL, ...)
 \item{ciNames}{NULL or character vector of length two}
 }
 \value{
-A Data Frame
+A data frame, tb, with predicted values, upper and lower confidence
+  bounds
 }
 \description{
 This is a generic function to append confidence intervals for the predicted
