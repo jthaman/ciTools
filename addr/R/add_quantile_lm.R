@@ -1,4 +1,4 @@
-## add_quantile method for lm objects
+#' @export
 
 add_quantile.lm <- function(tb, fit, prob, quantileName = NULL, log_response = FALSE){
     if (log_response)
@@ -25,7 +25,7 @@ add_quantile.lm <- function(tb, fit, prob, quantileName = NULL, log_response = F
         if (is.null(tb[["pred"]]))
             tb[["pred"]] <- fitted
         tb[[quantileName]] <- out_quantiles
-        return(tb)
+        as_data_frame(tb)
     }
 }
 

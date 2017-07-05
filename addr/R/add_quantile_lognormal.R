@@ -24,7 +24,7 @@ add_quantile_lm_log <- function(tb, fit, prob, quantileName = NULL) {
     #if(is.null(tb[["pred"]]))
        # tb[["pred"]] <- exp(fitted)
     tb[[quantileName]] <- out_quantiles
-    tb
+    as_data_frame(tb)
 }
 
 

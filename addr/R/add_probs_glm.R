@@ -1,4 +1,4 @@
-## add_probs method for glm objects
+#' @export
 
 add_probs.glm <- function(tb, fit, quant, probName = NULL, comparison = "<",
                           nSims = 200, ...){
@@ -22,7 +22,7 @@ add_probs.glm <- function(tb, fit, quant, probName = NULL, comparison = "<",
     }
 
     if (fit$family$family == "binomial"){
-        warning ("Be careful. You should only be asking for Pr(Y = 0) or Pr(Y = 1).")
+        warning ("Be careful. You should only be asking probabilities that are equivalent to Pr(Y = 0) or Pr(Y = 1).")
         probs_logistic(tb, fit, quant, probName, comparison)
     }
 
@@ -46,18 +46,7 @@ probs_logistic <- function(tb, fit, quant, probName, comparison, ...){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[probName]] <- probs
-    return(tb)
-}
-
-calc_prob <- function(x, quant, comparison){
-    if (comparison == "<")
-        mean(x < quant)
-    else if (comparison == ">")
-        mean(x > quant)
-    else if (comparison == "<=")
-        mean(x <= quant)
-    else
-        mean(x >= quant)
+    as_data_frame(tb)
 }
 
 sim_probs_pois <- function(tb, fit, quant, probName, nSims, comparison){
@@ -81,7 +70,7 @@ sim_probs_pois <- function(tb, fit, quant, probName, nSims, comparison){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[probName]] <- probs
-    tb
+    as_data_frame(tb)
 
 }
 

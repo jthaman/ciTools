@@ -1,4 +1,4 @@
-## add pi method for lmer objects
+#' @export
 add_pi.lmerMod <- function(tb, fit, 
                           alpha = 0.05, piType = "parametric", includeRanef = TRUE,
                           piNames = NULL, ...) {
@@ -34,7 +34,7 @@ parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2,df = rdf) * seGlobal
     tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-    tb
+    as_data_frame(tb)
 }
 
 ## parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
@@ -83,6 +83,6 @@ sim_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
         tb[["pred"]] <- predict(fit, tb, re.form = reform)
     tb[[piNames[1]]] <- pi_out$lwr
     tb[[piNames[2]]] <- pi_out$upr
-    tb
+    as_data_frame(tb)
     
 }

@@ -1,4 +1,4 @@
-##  add_quantile method for glm objects
+#' @export
 
 add_quantile.glm <- function(tb, fit, prob, quantileName = NULL, nSims = 200){
     if (prob <= 0 || prob >= 1)
@@ -42,7 +42,7 @@ sim_quantile_pois <- function(tb, fit, prob, quantileName, nSims){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[quantileName]] <- quants
-    tb
+    as_data_frame(tb)
 
 
 }

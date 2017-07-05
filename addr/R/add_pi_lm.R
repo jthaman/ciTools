@@ -1,4 +1,5 @@
-##add_pi method for lm
+#' @export
+
 add_pi.lm <- function(tb, fit, alpha = 0.05, piNames = NULL, log_response = FALSE){
     
     if (log_response)
@@ -20,7 +21,7 @@ add_pi.lm <- function(tb, fit, alpha = 0.05, piNames = NULL, log_response = FALS
             tb[[piNames[1]]] <- out[, 2]
         if (is.null(tb[[piNames[2]]]))
             tb[[piNames[2]]] <- out[, 3]
-        return(tb)
+        as_data_frame(tb)
     }
 }
 

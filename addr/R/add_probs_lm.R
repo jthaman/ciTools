@@ -1,10 +1,8 @@
-## add_probs method for lm objects
-## TODO : change "Y" to the name of the response
+#' @export
 
 add_probs.lm <- function(tb, fit, quant, probName = NULL,
                          comparison = "<", log_response = FALSE){
-    if (log_response)
-        quant <- log(quant)
+
     if (is.null(probName) && comparison == "<")
         probName <- paste("Pr(Y < ", quant, ")", sep="")
     if (is.null(probName) && comparison == ">")
@@ -13,6 +11,10 @@ add_probs.lm <- function(tb, fit, quant, probName = NULL,
         warning ("These probabilities may have already been appended to your dataframe")
         return(tb)
     }
+
+    if (log_response)
+        quant <- log(quant)
+
     out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
     fitted <- out$fit[,1]
     residual_df <- out$df
@@ -28,5 +30,5 @@ add_probs.lm <- function(tb, fit, quant, probName = NULL,
         tb[["pred"]] <- fitted
     if (is.null(tb[[probName]]))
         tb[[probName]] <- t_prob
-    return(tb)
+    as_data_frame(tb)
 }

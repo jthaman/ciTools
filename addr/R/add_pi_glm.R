@@ -1,4 +1,5 @@
-## add_pi method for glm objects
+#' @export
+
 add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = NULL,
                        type = "response", piType = "sim", nSims = 1000){
 
@@ -27,6 +28,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = NULL,
 }
 
 ## TODO : hardcode more response distributions
+## TODO : Smooth the prediction intervals
 
 sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims){
     nPreds <- NROW(tb)
@@ -46,12 +48,13 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims){
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2)
+
     
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[piNames[1]]] <- lwr
     tb[[piNames[2]]] <- upr
-    tb
+    as_data_frame(tb)
 
 }
 

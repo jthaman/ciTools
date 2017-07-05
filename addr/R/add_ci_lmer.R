@@ -1,4 +1,4 @@
-## add_ci method for lme4/merMod objects
+#' @export
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, ciType = "parametric", includeRanef = TRUE,
                            ciNames = NULL, nSims = 200, ...){
@@ -42,7 +42,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef){
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[ciNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
     tb[[ciNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-    tb
+    as_data_frame(tb)
     
 }
 
@@ -94,7 +94,7 @@ sim_ci_mermod <- function(tb, fit, alpha, ciNames, includeRanef, nSims = 200) {
         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
     tb[[ciNames[1]]] <- ci_out$lwr
     tb[[ciNames[2]]] <- ci_out$upr
-    tb
+    as_data_frame(tb)
     
 }
 

@@ -1,7 +1,7 @@
 {
     "installOptions" : {
         "installDependencies" : true,
-        "installFromRepository" : true,
+        "installFromRepository" : false,
         "libraryPath" : "C:/Users/jhaman/Documents/R/win-library/3.4"
     }
 }

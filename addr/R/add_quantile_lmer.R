@@ -1,4 +1,5 @@
-## add quantile method for lmer objects
+#' @export
+
 add_quantile.lmerMod <- function(tb, fit, 
                           prob, includeRanef = TRUE,
                           quantileName = NULL, ...) {
@@ -28,7 +29,7 @@ parametric_quantile_mermod <- function(tb, fit, prob, quantileName, includeRanef
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[quantileName]] <- tb[["pred"]] + qt(prob ,df = rdf) * seGlobal
-    tb
+    as_data_frame(tb)
 }
 
 

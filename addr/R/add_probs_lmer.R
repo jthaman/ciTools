@@ -1,4 +1,5 @@
-## add_probs method for lmer objects
+#' @export
+
 add_probs.lmerMod <- function(tb, fit, 
                               quant, probType = "parametric", 
                               includeRanef = TRUE, probName = NULL,
@@ -48,7 +49,7 @@ parametric_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comp
         t_prob <- 1 - pt(q = t_quantile, df = rdf)
 
     tb[[probName]] <- t_prob
-    tb
+    as_data_frame(tb)
 }
 
 
@@ -74,6 +75,6 @@ sim_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comparison,
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[probName]] <- probs
-    tb
+    as_data_frame(tb)
     
 }

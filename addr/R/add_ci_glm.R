@@ -1,9 +1,9 @@
-## add_ci method for GLMs
-## TODO : add Bootstrap method (not a primary concern)
-
+#' @export
 add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = NULL,
                        type = "response", ciType = "parametric"){
 
+    if (grepl("numerically 0 or 1", list(warnings())))
+        warning ("If there is perfect separation in your logistic regression, you shouldn't trust these confidence intervals")
     if (is.null(ciNames)){
         ciNames[1] <- paste("LCB", alpha/2, sep = "")
         ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
@@ -23,6 +23,7 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = NULL,
 
 parametric_ci_glm <- function(tb, fit, alpha, ciNames, type, ...){
     out <- predict(fit, tb, se.fit = TRUE)
+
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
     inverselink <- fit$family$linkinv
     if(type == "response"){
@@ -38,7 +39,7 @@ parametric_ci_glm <- function(tb, fit, alpha, ciNames, type, ...){
         tb[["pred"]] <- pred
     tb[[ciNames[1]]] <- lwr
     tb[[ciNames[2]]] <- upr
-    tb
+    as_data_frame(tb)
 
 }
 

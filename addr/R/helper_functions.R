@@ -15,7 +15,6 @@ make_formula <- function(fixedEffects, randomEffects, rvName = "y"){
     
 }
 
-
 add_predictions2 <- function (data, model, var = "pred", ...) {
     data[[var]] <- stats::predict(model, data, ...)
     data
@@ -47,5 +46,21 @@ get_pi_mermod_var <- function(tb, fit, includeRanef){
         return(sqrt(seFixed^2 + seG^2 + se_residual^2))
     else
         return(sqrt(seFixed^2 + sigmaG^2 + se_residual^2))
+}
+
+
+calc_prob <- function(x, quant, comparison){
+    if (comparison == "<")
+        mean(x < quant)
+    else if (comparison == ">")
+        mean(x > quant)
+    else if (comparison == "<=")
+        mean(x <= quant)
+    else if (comparison == ">=")
+        mean(x >= quant)
+    else if (comparison == "=")
+        mean (x == quant)
+    else
+        stop ("Cannot estimate this probability")
 }
 
