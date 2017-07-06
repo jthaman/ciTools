@@ -8,9 +8,9 @@ add_probs.lmerMod <- function(tb, fit,
         quant <- log(quant)
 
     if (is.null(probName) && comparison == "<")
-        probName <- paste("PrYless", quant, probType, sep="")
+        probName <- paste("PrYless", quant, sep="")
     if (is.null(probName) && comparison == ">")
-        probName <- paste("PrYgreater", quant, probType, sep="")
+        probName <- paste("PrYgreater", quant, sep="")
 
     if ((probName %in% colnames(tb))) {
         warning ("These Probabilities may have already been appended to your dataframe")
