@@ -9,7 +9,7 @@ dat <- sleepstudy
 fit1 <- lm(Reaction ~ Days, data = sleepstudy)
 add_ci(dat, fit1)
 add_pi(dat, fit1)
-add_probs(dat, fit1, quant = 200)
+add_probs(dat, fit1, quant = 200, comparison = "<")
 add_quantile(dat, fit1, p = 0.6)
 
 add_ci(dat, fit1) %>%
@@ -28,6 +28,7 @@ add_ci(dat, fit2)
 add_ci(dat, fit2, ciType = "sim")
 add_pi(dat, fit2)
 add_pi(dat, fit2, piType = "sim")
+add_pi(dat, fit2, piType = "secret_sim")
 add_probs(dat, fit2, quant = 400, comparison = ">")
 add_quantile(dat, fit2, prob = 0.7)
 

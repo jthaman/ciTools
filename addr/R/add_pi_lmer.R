@@ -15,6 +15,8 @@ add_pi.lmerMod <- function(tb, fit,
         sim_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
     else if(piType == "parametric")
         parametric_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
+    else if(piType == "sim_lme4")
+        simulate_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
     else
         stop("Incorrect type specified!")
 
@@ -83,6 +85,27 @@ sim_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
         tb[["pred"]] <- predict(fit, tb, re.form = reform)
     tb[[piNames[1]]] <- pi_out$lwr
     tb[[piNames[2]]] <- pi_out$upr
+    as_data_frame(tb)
+    
+}
+
+## method that uses simulate from lme4
+simulate_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
+
+    if (includeRanef) 
+        reform = NULL
+    else 
+        reform = NA
+
+    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- as.matrix(gg)
+    lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
+    upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    tb[[piNames[1]]] <- lwr
+    tb[[piNames[2]]] <- upr
     as_data_frame(tb)
     
 }

@@ -2,14 +2,15 @@ Package: addr
 Type: Package
 Title: Uncertainty Intervals, Quantiles, and Probabilities for Statistical Models
 Version: 0.1.0
-Author: John Haman
-Maintainer: John Haman <jhaman@ida.org>
-Description: Functions for automatically appending uncertainy intervals, and other
+Authors@R: as.person(c(
+    "John Haman <jhaman@ida.org> [aut, cre]", 
+    "Matthew Avery <mavery@ida.org> [aut]"
+  ))
+Description: Functions for automatically appending uncertainty intervals, and other
     quantities of interest to data frames. This package has a "data frame first" syntax
     that allows for easy piping. Currently supported models include linear and log-linear
-    models, linear mixed models, and some generalized linear models Poisson and Logistic
-    models.
-Imports: 
+    models, linear mixed models, Poisson and Logistic models.
+Imports:
     methods,
     stats,
     tidyverse,
