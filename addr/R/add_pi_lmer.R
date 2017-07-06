@@ -3,8 +3,8 @@ add_pi.lmerMod <- function(tb, fit,
                           alpha = 0.05, piType = "parametric", includeRanef = TRUE,
                           piNames = NULL, ...) {
     if (is.null(piNames)){
-        piNames[1] <- paste("LPB", alpha/2, sep = "")
-        piNames[2] <- paste("UPB", 1 - alpha/2, sep = "")
+        piNames[1] <- paste("LPB", alpha/2, piType, sep = "")
+        piNames[2] <- paste("UPB", 1 - alpha/2, piType, sep = "")
     }
     if ((piNames[1] %in% colnames(tb))) {
         warning ("These PIs may have already been appended to your dataframe")

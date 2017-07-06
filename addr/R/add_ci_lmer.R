@@ -4,8 +4,8 @@ add_ci.lmerMod <- function(tb, fit,
                            ciNames = NULL, nSims = 200, ...){
 
     if (is.null(ciNames)){
-        ciNames[1] <- paste("LCB", alpha/2, sep = "")
-        ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
+        ciNames[1] <- paste("LCB", alpha/2, ciType, sep = "")
+        ciNames[2] <- paste("UCB", 1 - alpha/2, ciType, sep = "")
     }
     if ((ciNames[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe")
