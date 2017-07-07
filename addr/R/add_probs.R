@@ -14,14 +14,17 @@
 #' @param tb A tibble or Data Frame on which to append probabilities
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are
 #'     made with this object.
-#' @param quant A double. A quantile of the response distribution.
-#' @param name NULL or character vector of length one. If
-#'     \code{NULL}, probabilities will automatically be named by
+#' @param q A double. A quantile of the response distribution.
+#' @param name NULL or character vector of length one. If \code{NULL},
+#'     probabilities will automatically be named by
 #'     \code{add_probs()}, otherwise, the probabilities will be named
 #'     \code{name} in the returned tibble
-#' @param comparison Default is "<". Must be "<" or ">" for
-#'     linear, log-linear and linear mixed models. If \code{fit} is a
-#'     glm, then comparison may also be "<=", ">=", or "=".
+#' @param comparison A character vector of length one. If
+#'     \code{comparison = "<"}, then Pr(Y|x < q) is calculated for
+#'     each observation in \code{tb}. Default is "<". Must be "<" or
+#'     ">" for linear, log-linear and linear mixed models. If
+#'     \code{fit} is a glm, then comparison may also be "<=", ">=", or
+#'     "=".
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
@@ -30,15 +33,15 @@
 #' # linear regression
 #' fit1 <- lm(dist ~ speed, data = cars)
 #' # Calculate Pr(dist < 40) for each observation in cars
-#' add_probs(cars, fit1, quant = 40)
+#' add_probs(cars, fit1, q = 40)
 #' # Poisson regression
 #' fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
 #' # Calculate Pr(dist >= 40) for each observation in cars
-#' add_probs(cars, fit2, quant = 40, comparison = ">=")
+#' add_probs(cars, fit2, q = 40, comparison = ">=")
 #' 
 #' @export
 
-add_probs <- function(tb, fit, quant, name = NULL, comparison, ...){
+add_probs <- function(tb, fit, q, name = NULL, comparison, ...){
     UseMethod("add_probs", fit)
 }
 

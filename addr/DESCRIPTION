@@ -17,7 +17,7 @@ Depends:
     lme4,
     merTools,
     arm
-License: MIT
+License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

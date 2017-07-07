@@ -1,10 +1,10 @@
 ## add quantile function for log-linear models
 ## add back predictions using add_ci_lognormal
-add_quantile_lm_log <- function(tb, fit, prob, name = NULL) {
-    if (prob <= 0 || prob >= 1)
-        stop ("prob should be in (0,1)")
+add_quantile_lm_log <- function(tb, fit, p, name = NULL) {
+    if (p <= 0 || p >= 1)
+        stop ("p should be in (0,1)")
     if (is.null(name)) {
-        name <- paste("quantile", prob, sep = "")
+        name <- paste("quantile", p, sep = "")
     }
 
     if ((name %in% colnames(tb))) {
@@ -18,7 +18,7 @@ add_quantile_lm_log <- function(tb, fit, prob, name = NULL) {
     se_fitted <- out$se.fit
     resid_var <- out$residual.scale^2
     se_pred <- sqrt(resid_var + se_fitted^2)
-    t_quantile <- qt(p = prob, df = residual_df)
+    t_quantile <- qt(p = p, df = residual_df)
     out_quantiles <- exp(fitted + se_pred * t_quantile)
 
     #if(is.null(tb[["pred"]]))

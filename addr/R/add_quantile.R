@@ -15,14 +15,15 @@
 #' @param tb A tibble or Data Frame on which to append probabilities
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are
 #'     made with this object.
-#' @param prob A double. A probability that determines the quantile.
-#' @param name NULL or character vector of length one. If
-#'     \code{NULL}, quantiles will automatically be named by
-#'     \code{add_quantile()}, otherwise, the quantiles will be named
-#'     \code{quantileName} in the returned tibble
+#' @param p A double. A probability that determines the
+#'     quantile. Must be between 0 and 1.
+#' @param name NULL or character vector of length one. If \code{NULL},
+#'     quantiles will automatically be named by \code{add_quantile()},
+#'     otherwise, the quantiles will be named \code{quantileName} in
+#'     the returned tibble
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values and
-#'     quantiles attached.
+#' @return A tibble, \code{tb}, with predicted values and quantiles
+#'     attached.
 #' 
 #' @examples
 #' # linear regression
@@ -36,7 +37,7 @@
 #' 
 #' @export
 
-add_quantile <- function(tb, fit, prob, name = NULL, ...){
+add_quantile <- function(tb, fit, p, name = NULL, ...){
   UseMethod("add_quantile", fit)
 }
 

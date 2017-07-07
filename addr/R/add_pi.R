@@ -3,7 +3,9 @@
 #' This is a generic function to append prediction intervals to a data
 #' frame. A prediction interval is made for each observation in
 #' \code{tb} with respect to the model \code{fit}. These intervals are
-#' then appended to \code{tb} and returned to the user as a tibble.
+#' then appended to \code{tb} and returned to the user as a
+#' tibble. \code{fit} can be a linear model, log-linear mode, linear
+#' mixed model, or Poisson model.
 #'
 #' @param tb A tibble or Data Frame on which to make predictions.
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are

@@ -4,7 +4,7 @@
 \alias{add_probs}
 \title{Add Probabilities to Data Frames}
 \usage{
-add_probs(tb, fit, quant, name = NULL, comparison, ...)
+add_probs(tb, fit, q, name = NULL, comparison, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}
@@ -12,16 +12,19 @@ add_probs(tb, fit, quant, name = NULL, comparison, ...)
 \item{fit}{An object of class lm, glm, or lmerMod. Predictions are
 made with this object.}
 
-\item{quant}{A double. A quantile of the response distribution.}
+\item{q}{A double. A quantile of the response distribution.}
 
-\item{name}{NULL or character vector of length one. If
-\code{NULL}, probabilities will automatically be named by
+\item{name}{NULL or character vector of length one. If \code{NULL},
+probabilities will automatically be named by
 \code{add_probs()}, otherwise, the probabilities will be named
-\code{probName} in the returned tibble}
+\code{name} in the returned tibble}
 
-\item{comparison}{Default is "<". Must be "<" or ">" for
-linear, log-linear and linear mixed models. If \code{fit} is a
-glm, then comparison may also be "<=", ">=", or "=".}
+\item{comparison}{A character vector of length one. If
+\code{comparison = "<"}, then Pr(Y|x < q) is calculated for
+each observation in \code{tb}. Default is "<". Must be "<" or
+">" for linear, log-linear and linear mixed models. If
+\code{fit} is a glm, then comparison may also be "<=", ">=", or
+"=".}
 
 \item{...}{Additional arguments}
 }
@@ -31,8 +34,8 @@ A tibble, \code{tb}, with predicted values and
 }
 \description{
 This is a generic function to append event probabilities to a data
-frame. An event probability, such as Pr(Response < 10), is
-generated for the fitted value of each observation in
+frame. An event probability, such as Pr(Response|Covariates < 10),
+is generated for the fitted value of each observation in
 \code{tb}. These probabilities are then appended to \code{tb} and
 returned to the user as a tibble.
 }
@@ -40,10 +43,10 @@ returned to the user as a tibble.
 # linear regression
 fit1 <- lm(dist ~ speed, data = cars)
 # Calculate Pr(dist < 40) for each observation in cars
-add_probs(cars, fit1, quant = 40)
+add_probs(cars, fit1, q = 40)
 # Poisson regression
 fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
 # Calculate Pr(dist >= 40) for each observation in cars
-add_probs(cars, fit2, quant = 40, comparison = ">=")
+add_probs(cars, fit2, q = 40, comparison = ">=")
 
 }

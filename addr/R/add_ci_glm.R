@@ -1,4 +1,4 @@
-#' Confidence Intervals for the Expected Response of Generalized Linear Models
+#' Confidence Intervals for Expected Response of Generalized Linear Models
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
@@ -27,12 +27,13 @@
 #'
 #' @examples
 #' # Poisson Regression
-#' # Append a 50% confidence interval for the expected response to
 #' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
+#' # Append a 50% confidence interval for the expected response
 #' add_ci.glm(cars, fit1, alpha = 0.5)
 #' 
 #' # Logistic Regression
 #' fit2 <- glm(I(dist > 20) ~ speed, data = cars, family = "binomial")
+#' # Append a 50% confidence interval for the expected response
 #' add_ci.glm(cbind(cars, I(dist > 20), fit2, alpha = 0.5)
 #'
 #' @export
