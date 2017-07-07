@@ -1,28 +1,71 @@
+#' Prediction Intervals for the Response of Linear Mixed Models
+#'
+#' This function is one of the methods for \code{add_pi}, and is
+#' called automatically when \code{add_pi} is used on a \code{fit} of
+#' class \code{lmerMod}. It is recommended that one use parametric
+#' prediction intervals when modeling with a random intercept
+#' LMM. Otherwise prediction intervals may be simulated using one of
+#' two methods. \code{"sim"} indicates that \code{predictInterval}
+#' from \code{merTools} should be used to simulate responses to form
+#' prediction intervals, and \code{"sim_lme4"} indicates that
+#' \code{simulate.merMod} should be used to simulate predictions.
+#' 
+#' @param tb A tibble or Data Frame.
+#' @param fit An object of class \code{lmerMod}.
+#' @param alpha A real number between 0 and 1. Controls the confidence
+#'     level of the interval estimates.
+#' @param names NULL or character vector of length two. If
+#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{add_pi}, otherwise, the lower prediction bound will be
+#'     named \code{names[1]} and the upper prediction bound will be
+#'     named \code{names[2]}.
+#' @param type A string, either \code{"parametric"}, \code{"sim"},
+#'     \code{"sim_lme4"}.
+#' @param includeRanef A logical. Set whether the predictions and
+#'     intervals should be made conditional on the random effects. If
+#'     \code{FALSE}, random effects will not be included.
+#' @param nSims A positive integer. If \code{type = "sim"} or
+#'     \code{type = "sim_lme4"}, \code{nSims} will determine the
+#'     number of simulated draws to make.
+#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#'     prediction bounds attached.
+#'
+#' @examples
+#' \dontrun{
+#' data(sleepstudy) ## included in lme4
+#' tb <- sleepstudy
+#' fit1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+#' add_pi.lmerMod(tb, fit1)
+#' add_pi.lmerMod(tb, fit1, type = "sim")
+#' add_pi.lmerMod(tb, fit1, type = "sim_lme4")
+#' }
+#' 
 #' @export
+
 add_pi.lmerMod <- function(tb, fit, 
-                          alpha = 0.05, piType = "parametric", includeRanef = TRUE,
-                          piNames = NULL, ...) {
-    if (is.null(piNames)){
-        piNames[1] <- paste("LPB", alpha/2, sep = "")
-        piNames[2] <- paste("UPB", 1 - alpha/2, sep = "")
+                          alpha = 0.05, type = "parametric", includeRanef = TRUE,
+                          names = NULL, ...) {
+    if (is.null(names)){
+        names[1] <- paste("LPB", alpha/2, sep = "")
+        names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((piNames[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(tb))) {
         warning ("These PIs may have already been appended to your dataframe")
         return(tb)
     }
 
-    if(piType == "sim") 
-        sim_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
-    else if(piType == "parametric")
-        parametric_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
-    else if(piType == "sim_lme4")
-        simulate_pi_mermod(tb, fit, alpha, piNames, includeRanef, ...)
+    if(type == "sim") 
+        sim_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
+    else if(type == "parametric")
+        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
+    else if(type == "sim_lme4")
+        simulate_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
     else
         stop("Incorrect type specified!")
 
  }
 
-parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
+parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -34,12 +77,12 @@ parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
 
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
-    tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2,df = rdf) * seGlobal
-    tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+    tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2,df = rdf) * seGlobal
+    tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
     as_data_frame(tb)
 }
 
-## parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
+## parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
 ##     if (includeRanef == TRUE)
 ##         reform = NULL
 ##     else
@@ -62,13 +105,13 @@ parametric_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef){
 ##         seGlobal <- sqrt(seFixed^2 + se_residual^2)
 ##     if(is.null(tb[["pred"]]))
 ##         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
-##     tb[[piNames[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
-##     tb[[piNames[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+##     tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
+##     tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
 ##     tb
     
 ## }
 
-sim_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
+sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
 
     if (includeRanef) {
         which = "full"
@@ -83,14 +126,14 @@ sim_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
                               include.resid.var = TRUE)
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = reform)
-    tb[[piNames[1]]] <- pi_out$lwr
-    tb[[piNames[2]]] <- pi_out$upr
+    tb[[names[1]]] <- pi_out$lwr
+    tb[[names[2]]] <- pi_out$upr
     as_data_frame(tb)
     
 }
 
 ## method that uses simulate from lme4
-simulate_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 200) {
+simulate_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
 
     if (includeRanef) 
         reform = NULL
@@ -104,8 +147,8 @@ simulate_pi_mermod <- function(tb, fit, alpha, piNames, includeRanef, nSims = 20
 
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = reform)
-    tb[[piNames[1]]] <- lwr
-    tb[[piNames[2]]] <- upr
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
     as_data_frame(tb)
     
 }

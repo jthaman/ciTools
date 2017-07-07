@@ -16,7 +16,7 @@
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are
 #'     made with this object.
 #' @param prob A double. A probability that determines the quantile.
-#' @param quantileName NULL or character vector of length one. If
+#' @param name NULL or character vector of length one. If
 #'     \code{NULL}, quantiles will automatically be named by
 #'     \code{add_quantile()}, otherwise, the quantiles will be named
 #'     \code{quantileName} in the returned tibble
@@ -35,7 +35,8 @@
 #' add_quantile(cars, fit2, prob = 0.5)
 #' 
 #' @export
-add_quantile <- function(tb, fit, prob, quantileName = NULL, ...){
+
+add_quantile <- function(tb, fit, prob, name = NULL, ...){
   UseMethod("add_quantile", fit)
 }
 

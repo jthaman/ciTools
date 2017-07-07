@@ -1,41 +1,41 @@
 #' @export
 
-add_probs.glm <- function(tb, fit, quant, probName = NULL, comparison = "<",
+add_probs.glm <- function(tb, fit, quant, name = NULL, comparison = "<",
                           nSims = 200, ...){
 
-    if (is.null(probName) && comparison == "<")
-        probName <- paste("Pr(Y < ", quant, ")", sep="")
-    else if (is.null(probName) && comparison == ">")
-        probName <- paste("Pr(Y > ", quant, ")", sep="")
-    else if (is.null(probName) && comparison == "<=")
-        probName <- paste("Pr(Y <= ", quant, ")", sep="")
-    else if (is.null(probName) && comparison == ">=")
-        probName <- paste("Pr(Y >= ", quant, ")", sep="")
-    else if (is.null(probName) && comparison == "=")
-        probName <- paste("Pr(Y = ", quant, ")", sep="")
+    if (is.null(name) && comparison == "<")
+        name <- paste("Pr(Y < ", quant, ")", sep="")
+    else if (is.null(name) && comparison == ">")
+        name <- paste("Pr(Y > ", quant, ")", sep="")
+    else if (is.null(name) && comparison == "<=")
+        name <- paste("Pr(Y <= ", quant, ")", sep="")
+    else if (is.null(name) && comparison == ">=")
+        name <- paste("Pr(Y >= ", quant, ")", sep="")
+    else if (is.null(name) && comparison == "=")
+        name <- paste("Pr(Y = ", quant, ")", sep="")
     else
         stop ("Cannot understand this probability statement")
 
-    if ((probName %in% colnames(tb))) {
+    if ((name %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe")
         return(tb)
     }
 
     if (fit$family$family == "binomial"){
         warning ("Be careful. You should only be asking probabilities that are equivalent to Pr(Y = 0) or Pr(Y = 1).")
-        probs_logistic(tb, fit, quant, probName, comparison)
+        probs_logistic(tb, fit, quant, name, comparison)
     }
 
     else if (fit$family$family == "poisson"){
         warning("The response is not continuous, so estimated probabilities are only approximate")
-        sim_probs_pois(tb, fit, quant, probName, nSims, comparison)
+        sim_probs_pois(tb, fit, quant, name, nSims, comparison)
     }
 
     else
         stop("This family is not supported")
 }
 
-probs_logistic <- function(tb, fit, quant, probName, comparison, ...){
+probs_logistic <- function(tb, fit, quant, name, comparison, ...){
     inverselink <- fit$family$linkinv
     out <- predict(fit, tb, se.fit = TRUE)
     out <- inverselink(out$fit)
@@ -45,11 +45,11 @@ probs_logistic <- function(tb, fit, quant, probName, comparison, ...){
         probs <- out
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
-    tb[[probName]] <- probs
+    tb[[name]] <- probs
     as_data_frame(tb)
 }
 
-sim_probs_pois <- function(tb, fit, quant, probName, nSims, comparison){
+sim_probs_pois <- function(tb, fit, quant, name, nSims, comparison){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -69,7 +69,7 @@ sim_probs_pois <- function(tb, fit, quant, probName, nSims, comparison){
     
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
-    tb[[probName]] <- probs
+    tb[[name]] <- probs
     as_data_frame(tb)
 
 }

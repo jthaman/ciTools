@@ -1,15 +1,15 @@
 #' @export
 
-add_quantile.glm <- function(tb, fit, prob, quantileName = NULL, nSims = 200){
+add_quantile.glm <- function(tb, fit, prob, name = NULL, nSims = 200){
     if (prob <= 0 || prob >= 1)
         stop ("prob should be in (0,1)")
-    if (is.null(quantileName))
-        quantileName <- paste("quantile", prob, sep="")
-    if (quantileName %in% colnames(tb)) {
+    if (is.null(name))
+        name <- paste("quantile", prob, sep="")
+    if (name %in% colnames(tb)) {
         warning ("These quantiles may have already been appended to your dataframe")
         return(tb)
     }
-    if ((quantileName %in% colnames(tb))) {
+    if ((name %in% colnames(tb))) {
         warning ("These quantiles may have already been appended to your dataframe")
         return(tb)
     }
@@ -18,11 +18,11 @@ add_quantile.glm <- function(tb, fit, prob, quantileName = NULL, nSims = 200){
     }
     if (fit$family$family == "poisson"){
         warning ("The response is not continuous, so estimated quantiles are only approximate")
-        sim_quantile_pois(tb, fit, prob, quantileName, nSims)
+        sim_quantile_pois(tb, fit, prob, name, nSims)
     }
 }
 
-sim_quantile_pois <- function(tb, fit, prob, quantileName, nSims){
+sim_quantile_pois <- function(tb, fit, prob, name, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -37,11 +37,11 @@ sim_quantile_pois <- function(tb, fit, prob, quantileName, nSims){
             }
     }
 
-    quants <- apply(sim_response, 1, FUN = quantile, probs = prob)
+    quants <- apply(sim_response, 1, FUN = quantile, probs = prob, type = 1)
 
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
-    tb[[quantileName]] <- quants
+    tb[[name]] <- quants
     as_data_frame(tb)
 
 

@@ -4,7 +4,7 @@
 \alias{add_pi}
 \title{Add Prediction Intervals to Data Frames}
 \usage{
-add_pi(tb, fit, alpha = 0.05, piNames = NULL, ...)
+add_pi(tb, fit, alpha = 0.05, names = NULL, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to make predictions.}
@@ -15,7 +15,7 @@ made with this object.}
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{piNames}{NULL or character vector of length two. If
+\item{names}{NULL or character vector of length two. If
 \code{NULL}, prediction bounds will automatically be named by
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{piNames[1]} and the upper prediction bound will be

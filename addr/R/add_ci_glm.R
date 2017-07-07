@@ -1,32 +1,70 @@
+#' Confidence Intervals for the Expected Response of Generalized Linear Models
+#'
+#' This function is one of the methods for \code{add_ci}, and is
+#' called automatically when \code{add_ci} is used on a \code{fit} of
+#' class \code{glm}. Confidence Intervals are determined by making an
+#' interval on the scale of the linear predictor, then applying the
+#' inverse link function from the model fit.
+#'
+#' @param tb A tibble or Data Frame.
+#' @param fit An object of class \code{glm}.
+#' @param alpha A real number between 0 and 1. Controls the confidence
+#'     level of the interval estimates.
+#' @param names NULL or character vector of length two. If
+#'     \code{NULL}, confidence bounds will automatically be named by
+#'     \code{add_ci}, otherwise, the lower confidence bound will be
+#'     named \code{names[1]} and the upper confidence bound will be
+#'     named \code{names[2]}.
+#' @param type A string, either \code{"parametric"} or
+#'     \code{"bootstrap"}.  but at the moment, the bootstrap method is
+#'     not implemented.
+#' @param response A logical. If \code{TRUE}, the confidence intervals
+#'     will be determined for the expected response, if \code{FALSE},
+#'     confidence intervals will be made on the scale of the linear
+#'     predictor.
+#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#'     confidence bounds attached.
+#'
+#' @examples
+#' # Poisson Regression
+#' # Append a 50% confidence interval for the expected response to
+#' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
+#' add_ci.glm(cars, fit1, alpha = 0.5)
+#' 
+#' # Logistic Regression
+#' fit2 <- glm(I(dist > 20) ~ speed, data = cars, family = "binomial")
+#' add_ci.glm(cbind(cars, I(dist > 20), fit2, alpha = 0.5)
+#'
 #' @export
-add_ci.glm <- function(tb, fit, alpha = 0.05, ciNames = NULL,
-                       type = "response", ciType = "parametric"){
+
+add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
+                      response = TRUE, type = "parametric"){
 
     if (grepl("numerically 0 or 1", list(warnings())))
         warning ("If there is perfect separation in your logistic regression, you shouldn't trust these confidence intervals")
-    if (is.null(ciNames)){
-        ciNames[1] <- paste("LCB", alpha/2, sep = "")
-        ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
+    if (is.null(names)){
+        names[1] <- paste("LCB", alpha/2, sep = "")
+        names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
-    if ((ciNames[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe")
         return(tb)
     }
-    if (ciType == "bootstrap")
+    if (type == "bootstrap")
         stop ("not yet implemented")
-    else if (ciType == "parametric")
-        parametric_ci_glm(tb, fit, alpha, ciNames, type,)
+    else if (type == "parametric")
+        parametric_ci_glm(tb, fit, alpha, names, response)
     else
-        if(!(ciType %in% c("bootstrap", "parametric"))) stop("Incorrect interval type specified!")
+        if(!(type %in% c("bootstrap", "parametric"))) stop("Incorrect interval type specified!")
 
 }
 
-parametric_ci_glm <- function(tb, fit, alpha, ciNames, type, ...){
+parametric_ci_glm <- function(tb, fit, alpha, names, response, ...){
     out <- predict(fit, tb, se.fit = TRUE)
 
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
     inverselink <- fit$family$linkinv
-    if(type == "response"){
+    if (response){
         upr <- inverselink(out$fit + crit_val * out$se.fit)
         lwr <- inverselink(out$fit - crit_val * out$se.fit)
         pred <- inverselink(out$fit)
@@ -37,25 +75,25 @@ parametric_ci_glm <- function(tb, fit, alpha, ciNames, type, ...){
     }
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- pred
-    tb[[ciNames[1]]] <- lwr
-    tb[[ciNames[2]]] <- upr
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
     as_data_frame(tb)
 
 }
 
 
-## parametric_ci_glm <- function(tb, fit, alpha, ciNames, type = "response"){
+## parametric_ci_glm <- function(tb, fit, alpha, names, type = "response"){
 
 ##     inverselink <- fit$family$linkinv
 ##     if(type == "response"){
 ##         out <- glm_ci_response(tb, fit, alpha, inverselink) %>%
-##             plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
+##             plyr::rename(c("lwr" = names[1], "upr" = names[2])) %>%
 ##             select(-.se)
 ##     }
 
 ##     if(type == "link"){
 ##         out <- glm_ci_linear_predictor(tb, fit, alpha) %>%
-##             plyr::rename(c("lwr" = ciNames[1], "upr" = ciNames[2])) %>%
+##             plyr::rename(c("lwr" = names[1], "upr" = names[2])) %>%
 ##             select(-.se)
 ##     }
 ##     if(!(type %in% c("response", "link"))) top("Incorrect interval type specified!")

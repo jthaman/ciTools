@@ -1,7 +1,3 @@
-#dd# add ci for log linear models
-## add option to use this since it's not a method
-## we may consider using a t distribution here
-
 get_sigma_mle <- function(tb, fit, alpha){
     X <- model.matrix(fit)
     n <- NROW(X)
@@ -49,13 +45,13 @@ get_se_pred <- function(pred, Xpred, V, p){
     se_pred
 }
 
-add_ci_lm_log <- function(tb, fit, alpha = 0.05, ciNames = NULL){
+add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL){
 
-    if (is.null(ciNames)) {
-        ciNames[1] <- paste("LCB", alpha/2, sep = "")
-        ciNames[2] <- paste("UCB", 1 - alpha/2, sep = "")
+    if (is.null(names)) {
+        names[1] <- paste("LCB", alpha/2, sep = "")
+        names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
-    if ((ciNames[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe")
         return(tb)
     }
@@ -74,10 +70,10 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, ciNames = NULL){
     
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- pred
-    if (is.null(tb[[ciNames[1]]]))
-        tb[[ciNames[1]]] <- lwr
-    if (is.null(tb[[ciNames[2]]]))
-        tb[[ciNames[2]]] <- upr
+    if (is.null(tb[[names[1]]]))
+        tb[[names[1]]] <- lwr
+    if (is.null(tb[[names[2]]]))
+        tb[[names[2]]] <- upr
 
     as_data_frame(tb)
 }

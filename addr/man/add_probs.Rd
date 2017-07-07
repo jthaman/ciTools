@@ -4,7 +4,7 @@
 \alias{add_probs}
 \title{Add Probabilities to Data Frames}
 \usage{
-add_probs(tb, fit, quant, probName = NULL, comparison, ...)
+add_probs(tb, fit, quant, name = NULL, comparison, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}
@@ -14,7 +14,7 @@ made with this object.}
 
 \item{quant}{A double. A quantile of the response distribution.}
 
-\item{probName}{NULL or character vector of length one. If
+\item{name}{NULL or character vector of length one. If
 \code{NULL}, probabilities will automatically be named by
 \code{add_probs()}, otherwise, the probabilities will be named
 \code{probName} in the returned tibble}

@@ -1,34 +1,34 @@
 #' @export
 
 add_probs.lmerMod <- function(tb, fit, 
-                              quant, probType = "parametric", 
-                              includeRanef = TRUE, probName = NULL,
+                              quant, type = "parametric", 
+                              includeRanef = TRUE, name = NULL,
                               comparison = "<", nSims = 200, log_response = FALSE, ...) {
     if (log_response)
         quant <- log(quant)
 
-    if (is.null(probName) && comparison == "<")
-        probName <- paste("PrYless", quant, sep="")
-    if (is.null(probName) && comparison == ">")
-        probName <- paste("PrYgreater", quant, sep="")
+    if (is.null(name) && comparison == "<")
+        name <- paste("Pr_less_", quant, sep="")
+    if (is.null(name) && comparison == ">")
+        name <- paste("Pr_greater_", quant, sep="")
 
-    if ((probName %in% colnames(tb))) {
+    if ((name %in% colnames(tb))) {
         warning ("These Probabilities may have already been appended to your dataframe")
         return(tb)
     }
 
-    if(probType == "bootstrap") 
+    if(type == "bootstrap") 
         stop ("this Type is not yet implemented")
-    else if (probType == "parametric") 
-        parametric_probs_mermod(tb, fit, quant, probName, includeRanef, comparison, ...)
-    else if (probType == "sim") 
-        sim_probs_mermod(tb, fit, quant, probName, includeRanef, comparison, nSims, ...)
+    else if (type == "parametric") 
+        parametric_probs_mermod(tb, fit, quant, name, includeRanef, comparison, ...)
+    else if (type == "sim") 
+        sim_probs_mermod(tb, fit, quant, name, includeRanef, comparison, nSims, ...)
     else  
         stop("Incorrect type specified!")
     
 }
 
-parametric_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comparison){
+parametric_probs_mermod <- function(tb, fit, quant, name, includeRanef, comparison){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -48,12 +48,12 @@ parametric_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comp
     if (comparison == ">")
         t_prob <- 1 - pt(q = t_quantile, df = rdf)
 
-    tb[[probName]] <- t_prob
+    tb[[name]] <- t_prob
     as_data_frame(tb)
 }
 
 
-sim_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comparison, nSims = 200) {
+sim_probs_mermod <- function(tb, fit, quant, name, includeRanef, comparison, nSims = 200) {
 
     if (includeRanef) {
         which <-  "full"
@@ -74,7 +74,7 @@ sim_probs_mermod <- function(tb, fit, quant, probName, includeRanef, comparison,
 
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
-    tb[[probName]] <- probs
+    tb[[name]] <- probs
     as_data_frame(tb)
     
 }

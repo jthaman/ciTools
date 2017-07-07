@@ -17,7 +17,7 @@
 #'     made with this object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param ciNames NULL or character vector of length two. If
+#' @param names NULL or character vector of length two. If
 #'     \code{NULL}, confidence bounds will automatically be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{ciNames[1]} and the upper confidence bound will be
@@ -40,6 +40,7 @@
 #' add_ci(cars, fit2)
 #' 
 #' @export
-add_ci <- function(tb, fit, alpha = 0.05, ciNames = NULL, ...){
+
+add_ci <- function(tb, fit, alpha = 0.05, names = NULL, ...){
   UseMethod("add_ci", fit)
 }

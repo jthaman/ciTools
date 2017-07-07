@@ -1,13 +1,48 @@
+#' Prediction Intervals for Generalized Linear Models
+#'
+#' This function is one of the methods for \code{add_pi}, and is
+#' called automatically when \code{add_pi} is used on a \code{fit} of
+#' class \code{glm}. Prediction Intervals are generated through
+#' simulation. At the moment, only prediction intervals for Poisson
+#' GLMs with the log link function are supported. Do not try to use
+#' this function with a logistic regression, as those prediction
+#' intervals are nonsensical.
+#'
+#' @details Note that if the response is count data, e.g. the response
+#'     is modeled with a Poisson regression, prediction intervals are
+#'     only approximate.
+#' 
+#' @param tb A tibble or Data Frame.
+#' @param fit An object of class \code{glm}.
+#' @param alpha A real number between 0 and 1. Controls the confidence
+#'     level of the interval estimates.
+#' @param names NULL or character vector of length two. If
+#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{add_pi}, otherwise, the lower prediction bound will be
+#'     named \code{names[1]} and the upper prediction bound will be
+#'     named \code{names[2]}.
+#' @param type A string. Currently must be \code{"sim"}.
+#' @param nSims A positive integer. Determines the number of
+#'     simulations to run.
+#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#'     prediction bounds attached.
+#'
+#' @examples
+#' # Poisson Regression
+#' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
+#' add_pi.glm(cars, fit1, alpha = 0.5)
+#' 
 #' @export
 
-add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = NULL,
-                       type = "response", piType = "sim", nSims = 1000){
 
-    if (is.null(piNames)){
-        piNames[1] <- paste("LPB", alpha/2, sep = "")
-        piNames[2] <- paste("UPB", 1 - alpha/2, sep = "")
+add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
+                       type= "sim", nSims = 1000){
+
+    if (is.null(names)) {
+        names[1] <- paste("LPB", alpha/2, sep = "")
+        names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((piNames[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(tb))) {
         warning ("These PIs may have already been appended to your dataframe")
         return(tb)
     }
@@ -20,17 +55,17 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, piNames = NULL,
         warning("The response is not continuous, so Prediction Intervals are only approximate")
     }
 
-    if(piType == "sim"){
-        sim_pi_glm(tb, fit, alpha, piNames, type, nSims)
+    if(type == "sim"){
+        sim_pi_glm(tb, fit, alpha, names, nSims)
     }
-    else if(!(method %in% c("sim")))
+    else if(!(type %in% c("sim")))
         stop("Only Simulated prediction intervals are implemented for glm objects")
 }
 
 ## TODO : hardcode more response distributions
 ## TODO : Smooth the prediction intervals
 
-sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims){
+sim_pi_glm <- function(tb, fit, alpha, names, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -46,14 +81,14 @@ sim_pi_glm <- function(tb, fit, alpha, piNames, type, nSims){
             }
     }
 
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2)
-    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2)
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
+    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
     
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
-    tb[[piNames[1]]] <- lwr
-    tb[[piNames[2]]] <- upr
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
     as_data_frame(tb)
 
 }

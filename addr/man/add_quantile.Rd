@@ -4,7 +4,7 @@
 \alias{add_quantile}
 \title{Add Regression Quantiles to Data Frames}
 \usage{
-add_quantile(tb, fit, prob, quantileName = NULL, ...)
+add_quantile(tb, fit, prob, name = NULL, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}
@@ -14,7 +14,7 @@ made with this object.}
 
 \item{prob}{A double. A probability that determines the quantile.}
 
-\item{quantileName}{NULL or character vector of length one. If
+\item{name}{NULL or character vector of length one. If
 \code{NULL}, quantiles will automatically be named by
 \code{add_quantile()}, otherwise, the quantiles will be named
 \code{quantileName} in the returned tibble}

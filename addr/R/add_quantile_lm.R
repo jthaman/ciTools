@@ -1,16 +1,16 @@
 #' @export
 
-add_quantile.lm <- function(tb, fit, prob, quantileName = NULL, log_response = FALSE){
+add_quantile.lm <- function(tb, fit, prob, name = NULL, log_response = FALSE){
     if (log_response)
-        add_quantile_lm_log(tb, fit, prob, quantileName)
+        add_quantile_lm_log(tb, fit, prob, name)
     else {
         if (prob == 0.5)
             warning ("The 0.5 quantile is equal to the fitted values")
         if (prob <= 0 || prob >= 1)
             stop ("prob should be in (0,1)")
-        if (is.null(quantileName))
-            quantileName <- paste("quantile", prob, sep="")
-        if (quantileName %in% colnames(tb)) {
+        if (is.null(name))
+            name <- paste("quantile", prob, sep="")
+        if (name %in% colnames(tb)) {
             warning ("These quantiles may have already been appended to your dataframe")
             return(tb)
         }
@@ -24,7 +24,7 @@ add_quantile.lm <- function(tb, fit, prob, quantileName = NULL, log_response = F
         out_quantiles <- fitted + se_pred * t_quantile
         if (is.null(tb[["pred"]]))
             tb[["pred"]] <- fitted
-        tb[[quantileName]] <- out_quantiles
+        tb[[name]] <- out_quantiles
         as_data_frame(tb)
     }
 }

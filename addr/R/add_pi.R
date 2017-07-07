@@ -10,7 +10,7 @@
 #'     made with this object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param piNames NULL or character vector of length two. If
+#' @param names NULL or character vector of length two. If
 #'     \code{NULL}, prediction bounds will automatically be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{piNames[1]} and the upper prediction bound will be
@@ -28,7 +28,8 @@
 #' add_pi(cars, fit2)
 #' 
 #' @export
-add_pi <- function(tb, fit, alpha = 0.05, piNames = NULL, ...){
+
+add_pi <- function(tb, fit, alpha = 0.05, names = NULL, ...){
   UseMethod("add_pi", fit)
 }
 

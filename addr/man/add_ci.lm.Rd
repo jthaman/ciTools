@@ -4,7 +4,7 @@
 \alias{add_ci.lm}
 \title{Confidence Intervals for Linear Model Predictions.}
 \usage{
-\method{add_ci}{lm}(tb, fit, alpha = 0.05, ciNames = NULL,
+\method{add_ci}{lm}(tb, fit, alpha = 0.05, names = NULL,
   log_response = FALSE)
 }
 \arguments{
@@ -16,17 +16,15 @@ made with this object.}
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{ciNames}{NULL or character vector of length two. If
+\item{names}{NULL or character vector of length two. If
 \code{NULL}, confidence bounds will automatically be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
-named \code{ciNames[1]} and the upper confidence bound will be
-named \code{ciNames[2]}.}
+named \code{names[1]} and the upper confidence bound will be
+named \code{names[2]}.}
 
 \item{log_response}{logical. If TRUE, confidence intervals will be
 generated for the prediction made with a log-linear model:
 \eqn{\log(Y) = X\beta + \epsilon}}
-
-\item{...}{Additional arguments}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -37,8 +35,6 @@ This function is one of the methods for \code{add_ci}.
 }
 \examples{
 # linear regression
-# Append a 50\% confidence interval for the expected response to
-#cars
 fit1 <- lm(dist ~ speed, data = cars)
 add_ci(cars, fit1, alpha = 0.5)
 
