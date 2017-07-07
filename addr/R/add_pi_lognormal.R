@@ -16,7 +16,7 @@ add_pi_lm_log <- function(tb, fit, alpha = 0.05, names = NULL) {
   ##      tb[["pred"]] <- exp(out[, 1])
   tb[[names[1]]] <- exp(out[, 2])
   tb[[names[2]]] <- exp(out[, 3])
-  as_data_frame(tb)
+  tibble::as_data_frame(tb)
   
 }
 

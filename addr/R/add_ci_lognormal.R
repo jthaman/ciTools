@@ -75,7 +75,7 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL){
     if (is.null(tb[[names[2]]]))
         tb[[names[2]]] <- upr
 
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 }
 
 

@@ -6,10 +6,6 @@
 #' \code{tb}. These probabilities are then appended to \code{tb} and
 #' returned to the user as a tibble.
 #'
-#' @import lme4
-#' @import tidyverse
-#' @import merTools 
-#' @import arm
 #'
 #' @param tb A tibble or Data Frame on which to append probabilities
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are

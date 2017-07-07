@@ -49,7 +49,7 @@ add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE){
         if (is.null(tb[["pred"]]))
             tb[["pred"]] <- fitted
         tb[[name]] <- out_quantiles
-        as_data_frame(tb)
+        tibble::as_data_frame(tb)
     }
 }
 

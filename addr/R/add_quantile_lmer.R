@@ -1,8 +1,7 @@
 #' Quantiles for the Response of a Linear Mixed Model
 #'
 #' This function is one of the methods for
-#' \code{add_quantile}. Currently, only a parametric method is
-#' supported.
+#' \code{add_quantile}. 
 #' 
 #' @param tb A tibble or Data Frame.
 #' @param fit An object of class lm. Predictions are made with this
@@ -14,14 +13,18 @@
 #'     otherwise, they will be named \code{name}
 #' @param includeRanef Should the quantiles be calculated condition on
 #'     the random effects?
+#' @param type A character vector of length one. Options are
+#'     \code{"parametric"} or \code{"sim"}
+#' @param nSims A positive integer. Set the number of simulations to
+#'     perform.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #' 
 #' @export
 
 add_quantile.lmerMod <- function(tb, fit, 
-                          p, includeRanef = TRUE,
-                          name = NULL, ...) {
+                          p, includeRanef = TRUE, type = "parametric",
+                          name = NULL, nSims = 200, ...) {
 
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -32,7 +35,12 @@ add_quantile.lmerMod <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe")
         return(tb)
     }
-    parametric_quantile_mermod(tb, fit, p, name, includeRanef, ...)
+    if (type == "parametric")
+        parametric_quantile_mermod(tb, fit, p, name, includeRanef, ...)
+    else if (type == "sim")
+        simulate_quantile_mermod(tb, fit, p, name, includeRanef, nSims, ...)
+    else
+        stop ("Incorrect type specified")
  }
 
 parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef){
@@ -48,7 +56,23 @@ parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[name]] <- tb[["pred"]] + qt(p ,df = rdf) * seGlobal
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 }
 
 
+simulate_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims = 200) {
+
+    if (includeRanef) 
+        reform = NULL
+    else 
+        reform = NA
+
+    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- as.matrix(gg)
+    quant <- apply(gg, 1, FUN = quantile, probs = p)
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    tb[[name]] <- quant
+    tibble::as_data_frame(tb)
+}

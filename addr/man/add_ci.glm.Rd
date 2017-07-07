@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_ci_glm.R
 \name{add_ci.glm}
 \alias{add_ci.glm}
-\title{Confidence Intervals for the Expected Response of Generalized Linear Models}
+\title{Confidence Intervals for Expected Response of Generalized Linear Models}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL, response = TRUE,
   type = "parametric")
@@ -43,12 +43,13 @@ inverse link function from the model fit.
 }
 \examples{
 # Poisson Regression
-# Append a 50\% confidence interval for the expected response to
 fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
+# Append a 50\% confidence interval for the expected response
 add_ci.glm(cars, fit1, alpha = 0.5)
 
 # Logistic Regression
 fit2 <- glm(I(dist > 20) ~ speed, data = cars, family = "binomial")
+# Append a 50\% confidence interval for the expected response
 add_ci.glm(cbind(cars, I(dist > 20), fit2, alpha = 0.5)
 
 }

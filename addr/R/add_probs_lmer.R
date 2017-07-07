@@ -13,7 +13,8 @@
 #'     otherwise, the probabilities will be named \code{name} in the
 #'     returned tibble.
 #' @param q A double. A quantile of the response variable
-#' @param type A string, either \code{"parametric"} or \code{"sim"}
+#' @param type A string, either \code{"parametric"} , \code{"sim"}, or
+#'     \code{"sim_lme4"}.
 #' @param includeRanef A logical. Set whether the predictions and
 #'     intervals should be made conditional on the random effects. If
 #'     \code{FALSE}, random effects will not be included.
@@ -54,9 +55,11 @@ add_probs.lmerMod <- function(tb, fit,
     if(type == "bootstrap") 
         stop ("this Type is not yet implemented")
     else if (type == "parametric") 
-        parametric_probs_mermod(tb, fit, q, name, includeRanef, comparison, ...)
+        parametric_probs_mermod(tb, fit, q, name, includeRanef, comparison)
     else if (type == "sim") 
-        sim_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims, ...)
+        sim_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims)
+    else if (type == "sim_lme4")
+        sim_lme4_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims)
     else  
         stop("Incorrect type specified!")
     
@@ -83,7 +86,7 @@ parametric_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison){
         t_prob <- 1 - pt(q = t_quantile, df = rdf)
 
     tb[[name]] <- t_prob
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 }
 
 
@@ -109,6 +112,24 @@ sim_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims =
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[name]] <- probs
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
     
+}
+
+sim_lme4_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims){
+
+    if (includeRanef) 
+        reform = NULL
+    else 
+        reform = NA
+
+    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- as.matrix(gg)
+    probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    tb[[name]] <- probs
+    tibble::as_data_frame(tb)
+
 }

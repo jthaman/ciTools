@@ -6,11 +6,13 @@
 #' \code{tb}. These confidence intervals are then appended to
 #' \code{tb} and returned to the user as a tibble.
 #'
-#'
+#' @import stats
 #' @import lme4
-#' @import tidyverse
-#' @import merTools 
-#' @import arm
+#' @importFrom magrittr %>% 
+#' @importFrom tibble as_data_frame
+#' @importFrom merTools predictInterval
+#' @importFrom arm se.ranef
+#' @importFrom arm sim
 #'
 #' @param tb A tibble or Data Frame on which to make predictions.
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are

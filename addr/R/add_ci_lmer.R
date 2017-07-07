@@ -83,7 +83,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
         tb[["pred"]] <- predict(fit, tb, re.form = re.form)
     tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
     tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
     
 }
 
@@ -135,7 +135,7 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
     
 }
 

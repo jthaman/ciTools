@@ -10,10 +10,11 @@ Description: Functions to append uncertainty intervals, and other
     quantities of interest to data frames. This package has a "data frame first" syntax
     that allows for easy piping. Currently supported models include linear and log-linear
     models, linear mixed models, Poisson and Logistic models.
-Depends:
+Imports:
     methods,
     stats,
-    tidyverse,
+    magrittr,
+    tibble,
     lme4,
     merTools,
     arm

@@ -49,7 +49,7 @@ add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE)
             tb[[names[1]]] <- out[, 2]
         if (is.null(tb[[names[2]]]))
             tb[[names[2]]] <- out[, 3]
-        as_data_frame(tb)
+        tibble::as_data_frame(tb)
     }
 }
 

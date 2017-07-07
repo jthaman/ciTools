@@ -15,7 +15,8 @@
 
 \item{q}{A double. A quantile of the response variable}
 
-\item{type}{A string, either \code{"parametric"} or \code{"sim"}}
+\item{type}{A string, either \code{"parametric"} , \code{"sim"}, or
+\code{"sim_lme4"}.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
 intervals should be made conditional on the random effects. If

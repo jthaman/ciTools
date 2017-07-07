@@ -78,7 +78,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, response, ...){
         tb[["pred"]] <- pred
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 
 }
 

@@ -61,5 +61,5 @@ add_probs.lm <- function(tb, fit, q, name = NULL,
         tb[["pred"]] <- fitted
     if (is.null(tb[[name]]))
         tb[[name]] <- t_prob
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 }

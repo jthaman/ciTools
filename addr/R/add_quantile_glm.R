@@ -68,7 +68,7 @@ sim_quantile_pois <- function(tb, fit, p, name, nSims){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[name]] <- quants
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 
 
 }

@@ -75,7 +75,7 @@ probs_logistic <- function(tb, fit, q, name, comparison, ...){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[name]] <- probs
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 }
 
 sim_probs_pois <- function(tb, fit, q, name, nSims, comparison){
@@ -99,7 +99,7 @@ sim_probs_pois <- function(tb, fit, q, name, nSims, comparison){
     if(is.null(tb[["pred"]]))
         tb[["pred"]] <- out
     tb[[name]] <- probs
-    as_data_frame(tb)
+    tibble::as_data_frame(tb)
 
 }
 
