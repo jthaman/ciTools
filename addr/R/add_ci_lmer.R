@@ -57,32 +57,33 @@ add_ci.lmerMod <- function(tb, fit,
         parametric_ci_mermod(tb, fit, alpha, names, includeRanef)
     else if (type == "sim")
         sim_ci_mermod(tb, fit, alpha, names, includeRanef, nSims)
+    else if (type == "boot")
+        bootstrap_ci_mermod(tb, fit, alpha, names, includeRanef, nSims)
     else
         stop("Incorrect type specified!")
 }
 
 
 parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
-   
+    
     seFixed <- get_prediction_se_mermod(tb, fit)
     seRandom <- arm::se.ranef(fit)[[1]][1,] 
     
     rdf <- get_resid_df_mermod(fit)
     
-    if(includeRanef)
-        seGlobal <- sqrt(seFixed^2 + seRandom^2)
-    else
-        seGlobal <- seFixed
-
-    if(includeRanef)
+    if(includeRanef) {
         re.form <- NULL
-    else
-        re.form <- NA
+        seGlobal <- sqrt(seFixed^2 + seRandom^2)
+    } else {
+        re.form <-  NA
+        seGlobal <- seFixed
+    }
 
+    out <- predict(fit, tb, re.form = re.form)
     if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = re.form)
-    tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
-    tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+        tb[["pred"]] <- out
+    tb[[names[1]]] <- out + qt(alpha/2, df = rdf) * seGlobal
+    tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
     tibble::as_data_frame(tb)
     
 }
@@ -139,40 +140,27 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
     
 }
 
-## mySumm <- function(.) {
-##     predict(., newdata=tb)
-## }
-
-## sumBoot <- function(merBoot, alpha = alpha) {
-##     return(
-##         data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
-##                    lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
-##                    upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)
-##                    )
-##     )
-## }
-
-
-## ## only conditional estimation is supported right now
-## bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef = TRUE, nSims) {
+bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims) {
     
-##     if (includeRanef) { 
-##         rform = NULL
-##     } else {
-##         rform = NA
-##     }
+    if (includeRanef) { 
+        rform = NULL
+        my_pred <- my_pred_full
+    } else {
+        rform = NA
+        my_pred <- my_pred_fixed
+    }
         
-##     boot_obj <- lme4::bootMer(fit, mySumm, nsim=nSims, use.u=TRUE, type="parametric", rform)
+    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
 
-##     ci_out <- sumBoot(boot_obj, alpha) 
+    ci_out <- boot_quants(boot_obj, alpha) 
 
-##     if(is.null(tb[["pred"]]))
-##         tb[["pred"]] <- ci_out$fit
-##     tb[[names[1]]] <- ci_out$lwr
-##     tb[[names[2]]] <- ci_out$upr
-##     tb
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- ci_out$fit
+    tb[[names[1]]] <- ci_out$lwr
+    tb[[names[2]]] <- ci_out$upr
+    tb
     
-## }
+}
 
 ## ##Bootstrap CIs for merMod objects
 ## ##Note that the bootstrapping is done on the random effects only. 

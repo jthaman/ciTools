@@ -41,7 +41,8 @@ make.}
 a log-linear mixed model.}
 }
 \value{
-A tibble, \code{tb}, with probabilities attached.
+A tibble, \code{tb}, with predictions and probabilities
+    attached.
 }
 \description{
 This function is one of the methods for \code{add_probs}, and is

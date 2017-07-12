@@ -75,10 +75,11 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
     else
         re.form <- NA
 
+    out <- predict(fit, tb, re.form = re.form)
     if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = re.form)
-    tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2,df = rdf) * seGlobal
-    tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
+        tb[["pred"]] <- out
+    tb[[names[1]]] <- out + qt(alpha/2,df = rdf) * seGlobal
+    tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
     tibble::as_data_frame(tb)
 }
 

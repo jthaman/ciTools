@@ -61,6 +61,22 @@ calc_prob <- function(x, quant, comparison){
     else if (comparison == "=")
         mean (x == quant)
     else
-        stop ("Cannot estimate this probability")
+        stop ("Malformed probability statement, comparison must be <, >, =, <=, or >=")
+}
+
+
+my_pred_full <- function(fit) {
+    predict(fit, newdata=tb, re.form = NULL)
+}
+
+my_pred_fixed <- function(fit) {
+    predict(fit, newdata=tb, re.form = NA)
+}
+
+boot_quants <- function(merBoot, alpha) {
+    return(
+        data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),
+                   lwr = apply(merBoot$t, 2, quantile, probs = alpha / 2),
+                   upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)))
 }
 

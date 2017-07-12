@@ -26,7 +26,8 @@ the random effects?}
 quantiles will automatically be named by \code{add_quantile},
 otherwise, they will be named \code{name}}
 
-\item{nSims}{A positive integer. Set the number of simulations to perform.}
+\item{nSims}{A positive integer. Set the number of simulations to
+perform.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower

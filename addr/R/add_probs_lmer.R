@@ -28,7 +28,8 @@
 #'     then \code{comparison} may also be "<=", ">=", or "=".
 #' @param log_response A logical. Set to \code{TRUE} if your model is
 #'     a log-linear mixed model.
-#' @return A tibble, \code{tb}, with probabilities attached.
+#' @return A tibble, \code{tb}, with predictions and probabilities
+#'     attached.
 #'
 #' 
 #' @export
