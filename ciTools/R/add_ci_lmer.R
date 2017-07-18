@@ -127,10 +127,10 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
         reform = NA
     }
 
-    ci_out <- predictInterval(fit, tb, which = which, level = 1 - alpha,
+    ci_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 1 - alpha,
                               n.sims = nSims,
                               stat = "median",
-                              include.resid.var = FALSE)
+                              include.resid.var = FALSE))
 
     if(is.null(tb[["pred"]])) 
         tb[["pred"]] <- predict(fit, tb, re.form = reform) 

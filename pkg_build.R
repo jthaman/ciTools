@@ -1,12 +1,12 @@
 ### Prepare addr
 library(devtools)
 library(roxygen2)
-roxygenise("x:/addr/addr")
-devtools::build("x:/addr/addr")
-devtools::install("x:/addr/addr", dependencies = TRUE)
-devtools::load_all("x:/addr/addr")
-##devtools::check("x:/addr/addr")
-library(addr)
+roxygenise("x:/ciTools/ciTools")
+devtools::build("x:/ciTools/ciTools")
+devtools::install("x:/ciTools/ciTools", dependencies = TRUE)
+##devtools::load_all("x:/ciTools/ciTools")
+##devtools::check("x:/ciTools/ciTools")
+library(ciTools)
 
 # Linear Regression
 ## dat <- lme4::sleepstudy

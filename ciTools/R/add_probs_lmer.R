@@ -76,10 +76,11 @@ parametric_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison){
     else
         re.form <- NA
 
+    out <- predict(fit, tb, re.form = re.form)
     if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = re.form)
+        tb[["pred"]] <- out
     
-    t_quantile <- (q - tb[["pred"]]) / seGlobal
+    t_quantile <- (q - out) / seGlobal
 
     if (comparison == "<")
         t_prob <- pt(q = t_quantile, df = rdf)
@@ -101,11 +102,11 @@ sim_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims =
         re.form <- NA
     }
 
-    pi_out <- predictInterval(fit, tb, which = which, level = 0.95,
+    pi_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 0.95,
                               n.sims = nSims,
                               stat = "median",
                               include.resid.var = TRUE,
-                              returnSims = TRUE)
+                              returnSims = TRUE))
     
     store_sim <- attributes(pi_out)$sim.results
     probs <- apply(store_sim, 1, FUN = calc_prob, quant = q, comparison = comparison)

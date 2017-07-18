@@ -5,7 +5,8 @@
 \title{Prediction Intervals for the Response of Linear Mixed Models}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, type = "parametric",
-  includeRanef = TRUE, names = NULL, ...)
+  includeRanef = TRUE, names = NULL, log_response = FALSE, nSims = 200,
+  ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -27,6 +28,10 @@ intervals should be made conditional on the random effects. If
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
+
+\item{log_response}{A logical, indicating if the response is on log
+scale in the model. If \code{TRUE}, prediction intervals will
+be returned on the response scale.}
 
 \item{nSims}{A positive integer. If \code{type = "sim"} or
 \code{type = "sim_lme4"}, \code{nSims} will determine the

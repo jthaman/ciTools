@@ -71,7 +71,6 @@ sim_pi_glm <- function(tb, fit, alpha, names, nSims){
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- inverselink(predict(fit, tb))
-    fitted_values <- fit$family$linkinv
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
 

@@ -1,4 +1,4 @@
-Package: addr
+Package: ciTools
 Type: Package
 Title: Uncertainty Intervals, Quantiles, and Probabilities for Statistical Models
 Version: 0.1.0

@@ -27,6 +27,9 @@
 #' @param nSims A positive integer. If \code{type = "sim"} or
 #'     \code{type = "sim_lme4"}, \code{nSims} will determine the
 #'     number of simulated draws to make.
+#' @param log_response A logical, indicating if the response is on log
+#'     scale in the model. If \code{TRUE}, prediction intervals will
+#'     be returned on the response scale.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
@@ -44,7 +47,7 @@
 
 add_pi.lmerMod <- function(tb, fit, 
                           alpha = 0.05, type = "parametric", includeRanef = TRUE,
-                          names = NULL, ...) {
+                          names = NULL, log_response = FALSE, nSims = 200, ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
@@ -55,17 +58,46 @@ add_pi.lmerMod <- function(tb, fit,
     }
 
     if(type == "sim") 
-        sim_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
+        sim_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, ...)
     else if(type == "parametric")
-        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
+        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, ...)
     else if(type == "sim_lme4")
-        simulate_pi_mermod(tb, fit, alpha, names, includeRanef, ...)
+        lme4_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, ...)
     else
         stop("Incorrect type specified!")
 
  }
 
-parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
+sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response) {
+
+    if (includeRanef) {
+        which = "full"
+        reform = NULL
+    } else {
+        which = "fixed"
+        reform = NA
+    }
+
+    pi_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 1 - alpha,
+                              n.sims = nSims,
+                              stat = "median",
+                              include.resid.var = TRUE))
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    tb[[names[1]]] <- pi_out$lwr
+    tb[[names[2]]] <- pi_out$upr
+    if (log_response){
+        tb[["pred"]] <- exp(predict(fit, tb, re.form = reform))
+        tb[[names[1]]] <- exp(tb[[names[1]]])
+        tb[[names[2]]] <- exp(tb[[names[2]]])
+    }
+
+    tibble::as_data_frame(tb)
+    
+}
+
+parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_response){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -80,6 +112,37 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
         tb[["pred"]] <- out
     tb[[names[1]]] <- out + qt(alpha/2,df = rdf) * seGlobal
     tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
+    if (log_response){
+        tb[["pred"]] <- exp(out)
+        tb[[names[1]]] <- exp(tb[[names[1]]])
+        tb[[names[2]]] <- exp(tb[[names[2]]])
+    }
+    tibble::as_data_frame(tb)
+}
+
+
+
+lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response) {
+
+    if (includeRanef) 
+        reform = NULL
+    else 
+        reform = NA
+
+    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- as.matrix(gg)
+    lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
+    upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
+
+    if(is.null(tb[["pred"]]))
+        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    if (log_response){
+        tb[["pred"]] <- exp(predict(fit, tb, re.form = reform))
+        tb[[names[1]]] <- exp(tb[[names[1]]])
+        tb[[names[2]]] <- exp(tb[[names[2]]])
+    }
     tibble::as_data_frame(tb)
 }
 
@@ -112,44 +175,7 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
     
 ## }
 
-sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
 
-    if (includeRanef) {
-        which = "full"
-        reform = NULL
-    } else {
-        which = "fixed"
-        reform = NA
-    }
-    pi_out <- predictInterval(fit, tb, which = which, level = 1 - alpha,
-                              n.sims = nSims,
-                              stat = "median",
-                              include.resid.var = TRUE)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform)
-    tb[[names[1]]] <- pi_out$lwr
-    tb[[names[2]]] <- pi_out$upr
-    tibble::as_data_frame(tb)
-    
-}
 
 ## method that uses simulate from lme4
-simulate_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
 
-    if (includeRanef) 
-        reform = NULL
-    else 
-        reform = NA
-
-    gg <- simulate(fit, re.form = reform, nsim = nSims)
-    gg <- as.matrix(gg)
-    lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
-    upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
-
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform)
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
-    
-}

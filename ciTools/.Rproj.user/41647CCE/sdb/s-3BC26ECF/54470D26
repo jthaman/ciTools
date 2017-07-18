@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "Package: addr\nType: Package\nTitle: Uncertainty Intervals, Quantiles, and Probabilities for Statistical Models\nVersion: 0.1.0\nAuthors@R: as.person(c(\n    \"John Haman <jhaman@ida.org> [aut, cre]\", \n    \"Matthew Avery <mavery@ida.org> [aut]\"\n  ))\nDescription: Functions for automatically appending uncertainty intervals, and other\n    quantities of interest to data frames. This package has a \"data frame first\" syntax\n    that allows for easy piping. Currently supported models include linear and log-linear\n    models, linear mixed models, Poisson and Logistic models.\nImports:\n    methods,\n    stats,\n    tidyverse,\n    lme4,\n    merTools,\n    arm\nLicense: MIT\nEncoding: UTF-8\nLazyData: true\nRoxygenNote: 6.0.1\n",
+    "created" : 1499276449191.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3097690560",
+    "id" : "54470D26",
+    "lastKnownWriteTime" : 1499283137,
+    "last_content_update" : 1499283137774,
+    "path" : "U:/R code/uncertain/addr/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "dcf"
+}
