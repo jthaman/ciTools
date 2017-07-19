@@ -52,8 +52,7 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL){
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
     if ((names[1] %in% colnames(tb))) {
-        warning ("These CIs may have already been appended to your dataframe")
-        return(tb)
+        warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
     sigma_mle <- get_sigma_mle(tb, fit, alpha)
     V <- create_cov_mat(sigma_mle, tb, fit)

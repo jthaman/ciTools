@@ -43,8 +43,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
     if ((names[1] %in% colnames(tb))) {
-        warning ("These PIs may have already been appended to your dataframe")
-        return(tb)
+        warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
     if(fit$family$family == "binomial"){

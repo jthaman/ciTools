@@ -39,8 +39,7 @@ add_probs.lm <- function(tb, fit, q, name = NULL,
     if (is.null(name) && comparison == ">")
         name <- paste("prob_greater_than", q, sep="")
     if ((name %in% colnames(tb))) {
-        warning ("These probabilities may have already been appended to your dataframe")
-        return(tb)
+        warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
     }
 
     if (log_response)

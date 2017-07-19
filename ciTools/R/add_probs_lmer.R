@@ -49,8 +49,7 @@ add_probs.lmerMod <- function(tb, fit,
         q <- log(q)
 
     if ((name %in% colnames(tb))) {
-        warning ("These Probabilities may have already been appended to your dataframe")
-        return(tb)
+        warning ("These Probabilities may have already been appended to your dataframe. Overwriting.")
     }
 
     if(type == "bootstrap") 

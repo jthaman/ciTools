@@ -31,13 +31,8 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, nSims = 200){
         stop ("p should be in (0,1)")
     if (is.null(name))
         name <- paste("quantile", p, sep="")
-    if (name %in% colnames(tb)) {
-        warning ("These quantiles may have already been appended to your dataframe")
-        return(tb)
-    }
     if ((name %in% colnames(tb))) {
-        warning ("These quantiles may have already been appended to your dataframe")
-        return(tb)
+        warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (fit$family$family == "binomial"){
        stop ("Quantiles for Logistic Regression don't make sense") 

@@ -53,8 +53,7 @@ add_pi.lmerMod <- function(tb, fit,
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
     if ((names[1] %in% colnames(tb))) {
-        warning ("These PIs may have already been appended to your dataframe")
-        return(tb)
+        warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
     if(type == "sim") 

@@ -54,8 +54,7 @@ add_ci.lmerMod <- function(tb, fit,
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
     if ((names[1] %in% colnames(tb))) {
-        warning ("These CIs may have already been appended to your dataframe")
-        return(tb)
+        warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
 
     if (type == "parametric")
@@ -164,7 +163,8 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims) {
         tb[["pred"]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
-    tb
+    ##rm(.tb_temp1234567890) 
+    as_data_frame(tb)
     
 }
 

@@ -46,8 +46,7 @@ add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
         stop ("Cannot understand this probability statement")
 
     if ((name %in% colnames(tb))) {
-        warning ("These probabilities may have already been appended to your dataframe")
-        return(tb)
+        warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
     }
 
     if (fit$family$family == "binomial"){

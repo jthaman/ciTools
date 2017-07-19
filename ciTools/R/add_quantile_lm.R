@@ -35,8 +35,7 @@ add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE){
         if (is.null(name))
             name <- paste("quantile", p, sep="")
         if (name %in% colnames(tb)) {
-            warning ("These quantiles may have already been appended to your dataframe")
-            return(tb)
+            warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
         }
         out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
         fitted <- out$fit[,1]

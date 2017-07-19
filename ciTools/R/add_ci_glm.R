@@ -48,8 +48,7 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
     if ((names[1] %in% colnames(tb))) {
-        warning ("These CIs may have already been appended to your dataframe")
-        return(tb)
+        warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
     if (type == "bootstrap")
         stop ("not yet implemented")

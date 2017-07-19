@@ -8,8 +8,7 @@ add_quantile_lm_log <- function(tb, fit, p, name = NULL) {
     }
 
     if ((name %in% colnames(tb))) {
-        warning ("These quantiles may have already been appended to your dataframe")
-        return(tb)
+        warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     
     out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)

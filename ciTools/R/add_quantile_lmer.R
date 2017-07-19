@@ -32,8 +32,7 @@ add_quantile.lmerMod <- function(tb, fit,
         name <- paste("quantile", p, sep = "")
     }
     if ((name %in% colnames(tb))) {
-        warning ("These quantiles may have already been appended to your dataframe")
-        return(tb)
+        warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (type == "parametric")
         parametric_quantile_mermod(tb, fit, p, name, includeRanef, ...)
