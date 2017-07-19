@@ -64,13 +64,12 @@ calc_prob <- function(x, quant, comparison){
         stop ("Malformed probability statement, comparison must be <, >, =, <=, or >=")
 }
 
-
 my_pred_full <- function(fit) {
-    predict(fit, newdata=tb, re.form = NULL)
+    predict(fit, newdata=.tb_temp1234567890, re.form = NULL)
 }
 
 my_pred_fixed <- function(fit) {
-    predict(fit, newdata=tb, re.form = NA)
+    predict(fit, newdata=.tb_temp1234567890, re.form = NA)
 }
 
 boot_quants <- function(merBoot, alpha) {

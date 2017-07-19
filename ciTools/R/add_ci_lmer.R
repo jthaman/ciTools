@@ -17,15 +17,20 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
-#' @param type A string, either \code{"parametric"} or
-#'     \code{"bootstrap"}. But at the moment, the bootstrap method is
-#'     not implemented.
+#' @param type A string, either \code{"parametric"},
+#'     \code{"bootstrap"}, or \code{"sim"}. If \code{type = "sim"},
+#'     then \code{add_ci} calls the function \code{predictInterval}
+#'     from \code{merTools}. If \code{type = "boot"}, then
+#'     \code{add_ci} calls the function \code{bootMer} from
+#'     \code{lme4}.
 #' @param includeRanef A logical. Set whether the predictions and
 #'     intervals should be made conditional on the random effects. If
 #'     \code{FALSE}, random effects will not be included.
 #' @param nSims A positive integer. If \code{type = "sim"},
 #'     \code{nSims} will determine the number of simulated draws to
-#'     make.
+#'     make. This controls the number of bootstrap replicates if
+#'     \code{type = "boot"}, or the number of simulated draws if
+#'     \code{type = "sim"}.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
@@ -141,7 +146,8 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
 }
 
 bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims) {
-    
+
+    .tb_temp1234567890 <<- tb
     if (includeRanef) { 
         rform = NULL
         my_pred <- my_pred_full
