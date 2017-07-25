@@ -35,14 +35,28 @@ A tibble, \code{tb}, with predicted values, upper and lower
 \description{
 This function is one of the methods for \code{add_pi}, and is
 called automatically when \code{add_pi} is used on a \code{fit} of
-class \code{glm}. Prediction Intervals are generated through
-simulation. At the moment, only prediction intervals for Poisson
-GLMs with the log link function are supported. Do not try to use
-this function with a logistic regression, as those prediction
-intervals are nonsensical.
+class \code{glm}.
 }
 \details{
-Note that if the response is count data, e.g. the response
-    is modeled with a Poisson regression, prediction intervals are
-    only approximate.
+Prediction Intervals are generated through simulation via the
+function \code{sim} in the package \code{arm}. At the moment, only
+prediction intervals for Poisson GLMs with the log link function
+are supported. Note that if the response is count data, e.g. the
+response is modeled with a Poisson regression, prediction intervals
+are only approximate.
+}
+\examples{
+# Poisson Regression
+fit <- glm(dist ~ speed, data = cars, family = "poisson")
+add_pi(cars, fit)
+add_pi(cars, fit, alpha = 0.5)
+add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+
+}
+\seealso{
+\code{{\link{add_ci.glm}}} for confidence intervals for
+    \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+    probabilities of \code{glm} objects, and
+    \code{\link{add_quantile.glm}} for response quantiles of
+    \code{glm} objects.
 }

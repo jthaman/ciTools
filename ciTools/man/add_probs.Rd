@@ -48,6 +48,11 @@ in each method, consult
   \item \code{\link{add_probs.glm}} for generalized linear regression response probabilities
   \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
 }
+
+The probabilities that \code{add_probs} calculates are on the
+distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
+same distribution as a prediction interval, not the distribution of
+a confidence interval.
 }
 \examples{
 fit <- lm(dist ~ speed, data = cars)

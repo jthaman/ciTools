@@ -43,6 +43,11 @@ in each method, consult
   \item \code{\link{add_quantile.glm}} for generalized linear regression response quantiles
   \item \code{\link{add_quantile.lmerMod}} for linear mixed models response quantiles
 }
+
+The quantiles that \code{add_quantile} calculates are on the
+distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
+same distribution as a prediction interval, not the distribution of
+a confidence interval.
 }
 \examples{
 fit <- lm(dist ~ speed, data = cars)

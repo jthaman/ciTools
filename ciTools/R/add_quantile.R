@@ -33,6 +33,11 @@
 #'   \item \code{\link{add_quantile.lmerMod}} for linear mixed models response quantiles
 #' }
 #'
+#' The quantiles that \code{add_quantile} calculates are on the
+#' distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
+#' same distribution as a prediction interval, not the distribution of
+#' a confidence interval.
+
 #' @param tb A tibble or Data Frame on which to append probabilities
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are
 #'     made with this object.

@@ -34,3 +34,20 @@ This function is one of the methods for
 compute the quantiles of the response of a Poisson regression with
 the log link function.
 }
+\details{
+Quantiles are GLMs are determined by \code{add_quantile} through a
+simulation using the function \code{sim} from the package
+\code{arm}.
+}
+\examples{
+fit <- glm(dist ~ speed, data = cars, family = "poisson")
+add_quantile(cars, fit, p = 0.3)
+add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
+
+}
+\seealso{
+\code{{\link{add_ci.lm}}} for confidence intervals for
+    \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+    intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
+    for response probabilities of \code{lm} objects.
+}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_probs_lm.R
 \name{add_probs.lm}
 \alias{add_probs.lm}
-\title{Event Probabilities for Linear Models}
+\title{Response Probabilities for Linear Models}
 \usage{
 \method{add_probs}{lm}(tb, fit, q, name = NULL, comparison = "<",
   log_response = FALSE, ...)
@@ -20,14 +20,13 @@ probabilities will automatically be named by
 \code{add_probs()}, otherwise, the probabilities will be named
 \code{name} in the returned tibble}
 
-\item{comparison}{A character vector of length one. If
-\code{comparison = "<"}, then Pr(Y|x < q) is calculated for
-each observation in \code{tb}. Must be "<" or ">" for linear,
-log-linear and linear mixed models. If \code{fit} is a glm,
-then \code{comparison} may also be "<=", ">=", or "=".}
+\item{comparison}{\code{"<", or ">"}. If \code{comparison = "<"},
+then Pr(Y|x < q) is calculated for each observation in
+\code{tb}. Otherwise, Pr(Y|x > q) is calculated.}
 
-\item{log_response}{A logical. If TRUE, then the quantile
-\code{t} will be transformed to the log scale.}
+\item{log_response}{A logical. Default is \code{FALSE}, set to
+\code{TRUE} if the model is log-linear: \eqn{\log{Y} = X \beta
++ \epsilon}.}
 
 \item{...}{Additional arguments.}
 }
@@ -37,5 +36,19 @@ A tibble, \code{tb}, with predicted values and
 }
 \description{
 This is the method \code{add_probs} uses if the model fit is
-linear.  Probabilities are calculated using the t-distribution.
+linear.  Probabilities are calculated parametrically, using a
+pivotal quantity.
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_probs(cars, fit, q = 20)
+add_probs(cars, fit, q = 30, comparison = ">")
+
+}
+\seealso{
+\code{{\link{add_ci.lm}}} for confidence intervals for
+    \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+    intervals of \code{lm} objects, and
+    \code{\link{add_quantile.lm}} for response quantiles of
+    \code{lm} objects.
 }

@@ -32,5 +32,24 @@ A tibble, \code{tb}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{
-This function is one of the methods for \code{add_quantile}.
+This function is one of the methods for \code{add_quantile}. It is
+automatically called when \code{add_quantile} is applied to objects
+of class \code{lm}.
+}
+\details{
+Quantiles for linear models are determined parametrically, more or
+less the same way that prediction intervals for this class of
+models is determined.
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_quantile(cars, fit, p = 0.7)
+add_quantile(cars, fit, p = 0.7, name = "my_quantile")
+
+}
+\seealso{
+\code{{\link{add_ci.lm}}} for confidence intervals for
+    \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+    intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
+    for response probabilities of \code{lm} objects.
 }

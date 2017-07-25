@@ -27,11 +27,12 @@ add_ci(dat, fit2)
 add_ci(dat, fit2, type = "sim")
 add_pi(dat, fit2)
 add_pi(dat, fit2, type = "sim") %>%
-add_pi(fit2, type = "sim_lme4")
+add_pi(fit2, type = "parametric")
 add_probs(dat, fit2, q = 400, comparison = ">")
 add_probs(dat, fit2, q = 400, comparison = ">", type = "sim", nSims = 1000) %>%
-add_probs(fit2, q = 400, comparison = ">", type = "sim_lme4", nSims = 1000)
+add_probs(fit2, q = 400, comparison = ">", type = "boot", nSims = 1000)
 add_quantile(dat, fit2, p = 0.7)
+add_quantile(dat, fit2, p = 0.7, type = "boot")
 add_quantile(dat, fit2, p = 0.7, type = "sim")
 
 # Without Random Effects

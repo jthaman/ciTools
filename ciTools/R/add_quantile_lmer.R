@@ -17,8 +17,16 @@
 
 #' Quantiles for the Response of a Linear Mixed Model
 #'
-#' This function is one of the methods for
-#' \code{add_quantile}. 
+#' This function is one of the methods for \code{add_quantile} and it
+#' automatically called when \code{add_quantile} is called on an
+#' object of class \code{lmerMod}.
+#'
+#' \code{add_qauntile} may use three different for determining
+#' quantiles: a parametric method, a simulation method (via
+#' \code{merTools::predictInterval}), or a parametric bootstrap method
+#' (via \code{lme4::simulate}). The default and recommened method is
+#' parametric bootstrap, which corresponds to setting \code{type =
+#' "boot"}.
 #' 
 #' @param tb A tibble or Data Frame.
 #' @param fit An object of class lm. Predictions are made with this
@@ -34,16 +42,34 @@
 #'     \code{"parametric"} or \code{"sim"}
 #' @param nSims A positive integer. Set the number of simulations to
 #'     perform.
+#' @param log_response A logical. Set to \code{TRUE} if the model is a
+#'     log-linear mixed model.
+#' @param yhatName A string. Determines the name of column of
+#'     predictions.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
+#' 
+#' @seealso \code{{\link{add_ci.lmerMod}}} for confidence intervals
+#'     for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
+#'     prediction intervals of \code{lmerMod} objects, and
+#'     \code{\link{add_probs.lmerMod}} for response probabilities of
+#'     \code{lmerMod} objects.
+#'
+#' @examples
+#' dat <- lme4::sleepstudy
+#' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+#' add_quantile(dat, fit, p = 0.5)
+#' add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
+#' add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
 #' 
 #' @export
 
 add_quantile.lmerMod <- function(tb, fit, 
                                  p, name = NULL, includeRanef = TRUE,
-                                 type = "parametric",
-                                 nSims = 200, ...) {
+                                 type = "boot",
+                                 nSims = 200, log_response = FALSE,
+                                 yhatName = "pred", ...) {
 
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -54,14 +80,16 @@ add_quantile.lmerMod <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (type == "parametric")
-        parametric_quantile_mermod(tb, fit, p, name, includeRanef)
-    else if (type == "sim_lme4")
-        simulate_quantile_mermod(tb, fit, p, name, includeRanef, nSims)
+        parametric_quantile_mermod(tb, fit, p, name, includeRanef, log_response, yhatName)
+    else if (type == "boot")
+        boot_quantile_mermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
+    else if (type == "sim")
+        sim_quantile_mermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
     else
         stop ("Incorrect type specified")
  }
 
-parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef){
+parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef, log_response, yhatName){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -71,14 +99,20 @@ parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef){
     else
         re.form <- NA
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = re.form)
-    tb[[name]] <- tb[["pred"]] + qt(p ,df = rdf) * seGlobal
+    out <- predict(fit, tb, re.form = re.form)
+    quant <- out + qt(p ,df = rdf) * seGlobal
+    if (log_response)
+        out <- exp(out)
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
+    tb[[name]] <- quant
+    if(log_response)
+        tb[[name]]<- exp(quant)
     tibble::as_data_frame(tb)
 }
 
 
-simulate_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims = 200) {
+boot_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) 
         reform = NULL
@@ -89,8 +123,47 @@ simulate_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims = 200
     gg <- as.matrix(gg)
     quant <- apply(gg, 1, FUN = quantile, probs = p)
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    out <- predict(fit, tb, re.form = reform)
+    if (log_response)
+        out <- exp(out)
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[name]] <- quant
+    if (log_response)
+        tb[[name]]<- exp(quant)
     tibble::as_data_frame(tb)
+}
+
+
+sim_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
+
+    if (includeRanef) {
+        which = "full"
+        reform = NULL
+    } else {
+        which = "fixed"
+        reform = NA
+    }
+
+    pi <- suppressWarnings(predictInterval(fit, tb, which = which, level = 0.95,
+                              n.sims = nSims,
+                              stat = "median",
+                              include.resid.var = TRUE,
+                              returnSims = TRUE))
+
+    store_sim <- attributes(pi)$sim.results
+    quant <- apply(store_sim, 1, FUN = quantile, p = p)
+    out <- predict(fit, tb, re.form = reform)
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
+    tb[[name]] <- quant
+
+    if (log_response){
+        tb[[yhatName]] <- exp(out)
+        tb[[name]] <- exp(quant)
+    }
+
+    tibble::as_data_frame(tb)
+    
 }

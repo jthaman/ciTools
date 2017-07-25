@@ -5,7 +5,8 @@
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
 \method{add_quantile}{lmerMod}(tb, fit, p, name = NULL, includeRanef = TRUE,
-  type = "parametric", nSims = 200, ...)
+  type = "boot", nSims = 200, log_response = FALSE, yhatName = "pred",
+  ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -29,6 +30,12 @@ the random effects?}
 \item{nSims}{A positive integer. Set the number of simulations to
 perform.}
 
+\item{log_response}{A logical. Set to \code{TRUE} if the model is a
+log-linear mixed model.}
+
+\item{yhatName}{A string. Determines the name of column of
+predictions.}
+
 \item{...}{Additional arguments.}
 }
 \value{
@@ -36,6 +43,30 @@ A tibble, \code{tb}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{
-This function is one of the methods for
-\code{add_quantile}.
+This function is one of the methods for \code{add_quantile} and it
+automatically called when \code{add_quantile} is called on an
+object of class \code{lmerMod}.
+}
+\details{
+\code{add_qauntile} may use three different for determining
+quantiles: a parametric method, a simulation method (via
+\code{merTools::predictInterval}), or a parametric bootstrap method
+(via \code{lme4::simulate}). The default and recommened method is
+parametric bootstrap, which corresponds to setting \code{type =
+"boot"}.
+}
+\examples{
+dat <- lme4::sleepstudy
+fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+add_quantile(dat, fit, p = 0.5)
+add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
+add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
+
+}
+\seealso{
+\code{{\link{add_ci.lmerMod}}} for confidence intervals
+    for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
+    prediction intervals of \code{lmerMod} objects, and
+    \code{\link{add_probs.lmerMod}} for response probabilities of
+    \code{lmerMod} objects.
 }

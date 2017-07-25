@@ -2,11 +2,11 @@
 % Please edit documentation in R/add_pi_lmer.R
 \name{add_pi.lmerMod}
 \alias{add_pi.lmerMod}
-\title{Prediction Intervals for the Response of Linear Mixed Models}
+\title{Prediction Intervals for the Fitted Values of Linear Mixed Models}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  type = "parametric", includeRanef = TRUE, log_response = FALSE,
-  nSims = 200, yhatName = "pred", ...)
+  type = "boot", includeRanef = TRUE, log_response = FALSE, nSims = 200,
+  yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -23,10 +23,10 @@ named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
 \item{type}{A string, either \code{"parametric"}, \code{"sim"},
-\code{"sim_lme4"}.}
+\code{"boot"}.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
-intervals should be made conditional on the random effects. If
+intervals should be conditioned on the random effects. If
 \code{FALSE}, random effects will not be included.}
 
 \item{log_response}{A logical, indicating if the response is on log
@@ -34,7 +34,7 @@ scale in the model. If \code{TRUE}, prediction intervals will
 be returned on the response scale.}
 
 \item{nSims}{A positive integer. If \code{type = "sim"} or
-\code{type = "sim_lme4"}, \code{nSims} will determine the
+\code{type = "boot"}, \code{nSims} will determine the
 number of simulated draws to make.}
 
 \item{yhatName}{A character vector of length one. Names of the
@@ -49,11 +49,31 @@ A tibble, \code{tb}, with predicted values, upper and lower
 \description{
 This function is one of the methods for \code{add_pi}, and is
 called automatically when \code{add_pi} is used on a \code{fit} of
-class \code{lmerMod}. It is recommended that one use parametric
-prediction intervals when modeling with a random intercept
-LMM. Otherwise prediction intervals may be simulated using one of
-two methods. \code{"sim"} indicates that \code{predictInterval}
-from \code{merTools} should be used to simulate responses to form
-prediction intervals, and \code{"sim_lme4"} indicates that
-\code{simulate.merMod} should be used to simulate predictions.
+class \code{lmerMod}.
+}
+\details{
+It is recommended that one use parametric prediction intervals when
+modeling with a random intercept LMM. Otherwise prediction
+intervals may be simulated using one of two methods. \code{"sim"}
+indicates that \code{predictInterval} from \code{merTools} should
+be used to simulate responses to form prediction intervals, and
+\code{"boot"} indicates that \code{simulate.merMod} should be
+used to simulate predictions. The recommended method for
+determining prediction intervals is parametric bootstrap, which
+corresponds to \code{type = "boot"}.
+}
+\examples{
+dat <- lme4::sleepstudy
+fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+add_pi(dat, fit, alpha = 0.5)
+add_pi(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
+add_pi(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+
+}
+\seealso{
+\code{{\link{add_ci.lmerMod}}} for confidence intervals
+    for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+    conditional probabilities of \code{lmerMod} objects, and
+    \code{\link{add_quantile.lmerMod}} for response quantiles of
+    \code{lmerMod} objects.
 }

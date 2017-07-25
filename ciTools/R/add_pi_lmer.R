@@ -15,17 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Prediction Intervals for the Response of Linear Mixed Models
+#' Prediction Intervals for the Fitted Values of Linear Mixed Models
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{lmerMod}. It is recommended that one use parametric
-#' prediction intervals when modeling with a random intercept
-#' LMM. Otherwise prediction intervals may be simulated using one of
-#' two methods. \code{"sim"} indicates that \code{predictInterval}
-#' from \code{merTools} should be used to simulate responses to form
-#' prediction intervals, and \code{"sim_lme4"} indicates that
-#' \code{simulate.merMod} should be used to simulate predictions.
+#' class \code{lmerMod}.
+#'
+#' It is recommended that one use parametric prediction intervals when
+#' modeling with a random intercept LMM. Otherwise prediction
+#' intervals may be simulated using one of two methods. \code{"sim"}
+#' indicates that \code{predictInterval} from \code{merTools} should
+#' be used to simulate responses to form prediction intervals, and
+#' \code{"boot"} indicates that \code{simulate.merMod} should be
+#' used to simulate predictions. The recommended method for
+#' determining prediction intervals is parametric bootstrap, which
+#' corresponds to \code{type = "boot"}.
 #' 
 #' @param tb A tibble or Data Frame.
 #' @param fit An object of class \code{lmerMod}.
@@ -37,12 +41,12 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param type A string, either \code{"parametric"}, \code{"sim"},
-#'     \code{"sim_lme4"}.
+#'     \code{"boot"}.
 #' @param includeRanef A logical. Set whether the predictions and
-#'     intervals should be made conditional on the random effects. If
+#'     intervals should be conditioned on the random effects. If
 #'     \code{FALSE}, random effects will not be included.
 #' @param nSims A positive integer. If \code{type = "sim"} or
-#'     \code{type = "sim_lme4"}, \code{nSims} will determine the
+#'     \code{type = "boot"}, \code{nSims} will determine the
 #'     number of simulated draws to make.
 #' @param log_response A logical, indicating if the response is on log
 #'     scale in the model. If \code{TRUE}, prediction intervals will
@@ -53,11 +57,24 @@
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
+#' @seealso \code{{\link{add_ci.lmerMod}}} for confidence intervals
+#'     for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+#'     conditional probabilities of \code{lmerMod} objects, and
+#'     \code{\link{add_quantile.lmerMod}} for response quantiles of
+#'     \code{lmerMod} objects.
+#'
+#' @examples
+#' dat <- lme4::sleepstudy
+#' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+#' add_pi(dat, fit, alpha = 0.5)
+#' add_pi(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
+#' add_pi(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+#' 
 #' @export
 
 add_pi.lmerMod <- function(tb, fit, 
                            alpha = 0.05, names = NULL,
-                           type = "parametric", includeRanef = TRUE,
+                           type = "boot", includeRanef = TRUE,
                           log_response = FALSE, nSims = 200,
                           yhatName = "pred", ...) {
     if (is.null(names)){
@@ -72,8 +89,8 @@ add_pi.lmerMod <- function(tb, fit,
         sim_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else if(type == "parametric")
         parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
-    else if(type == "sim_lme4")
-        lme4_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
+    else if(type == "boot")
+        boot_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else
         stop("Incorrect type specified!")
 
@@ -135,7 +152,7 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_respon
 
 
 
-lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
+boot_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) 
         reform = NULL
@@ -161,37 +178,4 @@ lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_respo
     }
     tibble::as_data_frame(tb)
 }
-
-## parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef){
-##     if (includeRanef == TRUE)
-##         reform = NULL
-##     else
-##         reform = NA
-
-##     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
-##     vcovBetaHat <- vcov(fit)
-    
-##     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
-##         diag() %>%
-##         sqrt()
-    
-##     seRandom <- arm::se.ranef(fit)[[1]][1,]
-##     rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
-##         (length(attributes(summary(fit)$varcor)$names) + 1)
-##     se_residual <- sigma(fit)
-##     if(includeRanef)
-##         seGlobal <- sqrt(seFixed^2 + seRandom^2 + se_residual^2)
-##     else
-##         seGlobal <- sqrt(seFixed^2 + se_residual^2)
-##     if(is.null(tb[["pred"]]))
-##         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
-##     tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
-##     tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-##     tb
-    
-## }
-
-
-
-## method that uses simulate from lme4
 

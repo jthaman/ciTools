@@ -21,6 +21,11 @@
 #' \code{add_quantile}. Currently, you can only use this function to
 #' compute the quantiles of the response of a Poisson regression with
 #' the log link function.
+#'
+#' Quantiles are GLMs are determined by \code{add_quantile} through a
+#' simulation using the function \code{sim} from the package
+#' \code{arm}.
+#'
 #' 
 #' @param tb A tibble or Data Frame.
 #' @param fit An object of class lm. Predictions are made with this
@@ -36,6 +41,15 @@
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
+#' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
+#'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+#'     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
+#'     for response probabilities of \code{lm} objects.
+#'
+#' @examples
+#' fit <- glm(dist ~ speed, data = cars, family = "poisson")
+#' add_quantile(cars, fit, p = 0.3)
+#' add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
 #' 
 #' @export
 

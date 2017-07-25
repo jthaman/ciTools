@@ -23,9 +23,9 @@ named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
 \item{log_response}{logical. If TRUE, prediction intervals will be
-generated for the prediction made with a log-linear model:
-\eqn{\log(Y) = X\beta + \epsilon}. These intervals will be on
-the scale of the original response, Y.}
+generated at the \emph{response level} of a log-linear model:
+\eqn{\log(Y) = X\beta + \epsilon}. Again, these intervals will
+be on the scale of the original response, Y.}
 
 \item{...}{Additional arguments.}
 }
@@ -34,7 +34,29 @@ A tibble, \code{tb}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{
-This function is one of the methods for \code{add_pi}. This
-function is essentially a wrapper for the \code{predict} function
-in \code{R}.
+This function is one of the methods for \code{add_pi} and is
+automatically called when an object is class \code{lm} is inputted
+to \code{add_pi}.
+}
+\details{
+Prediction intervals for \code{lm} objects are calculated
+parametrically, this functions is essentially just a wrapper for
+\code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
+linear model. If \code{log_response = TRUE}, prediction intervals
+for the response are calculated parametrically, then the
+exponential function is applied to transform them to the original
+scale.
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_pi(cars, fit)
+add_pi(cars, fit, alpha = 0.5)
+add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+}
+\seealso{
+\code{{\link{add_ci.lm}}} for confidence intervals for
+    \code{lm} objects. \code{\link{add_probs.lm}} for conditional
+    probabilities of \code{lm} objects, and
+    \code{\link{add_quantile.lm}} for response quantiles of
+    \code{lm} objects.
 }

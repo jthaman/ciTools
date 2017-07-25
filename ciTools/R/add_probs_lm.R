@@ -15,10 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Event Probabilities for Linear Models
+#' Response Probabilities for Linear Models
 #'
 #' This is the method \code{add_probs} uses if the model fit is
-#' linear.  Probabilities are calculated using the t-distribution.
+#' linear.  Probabilities are calculated parametrically, using a
+#' pivotal quantity.
 #' 
 #'
 #' @param tb A tibble or Data Frame on which to append probabilities
@@ -29,18 +30,27 @@
 #'     probabilities will automatically be named by
 #'     \code{add_probs()}, otherwise, the probabilities will be named
 #'     \code{name} in the returned tibble
-#' @param comparison A character vector of length one. If
-#'     \code{comparison = "<"}, then Pr(Y|x < q) is calculated for
-#'     each observation in \code{tb}. Must be "<" or ">" for linear,
-#'     log-linear and linear mixed models. If \code{fit} is a glm,
-#'     then \code{comparison} may also be "<=", ">=", or "=".
-#' @param log_response A logical. If TRUE, then the quantile
-#'     \code{t} will be transformed to the log scale.
+#' @param comparison \code{"<", or ">"}. If \code{comparison = "<"},
+#'     then Pr(Y|x < q) is calculated for each observation in
+#'     \code{tb}. Otherwise, Pr(Y|x > q) is calculated.
+#' @param log_response A logical. Default is \code{FALSE}, set to
+#'     \code{TRUE} if the model is log-linear: \eqn{\log{Y} = X \beta
+#'     + \epsilon}.
 #' @param ... Additional arguments.
 #' 
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
 #' 
+#' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
+#'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+#'     intervals of \code{lm} objects, and
+#'     \code{\link{add_quantile.lm}} for response quantiles of
+#'     \code{lm} objects.
+#'
+#' @examples
+#' fit <- lm(dist ~ speed, data = cars)
+#' add_probs(cars, fit, q = 20)
+#' add_probs(cars, fit, q = 30, comparison = ">")
 #' 
 #' @export
 
