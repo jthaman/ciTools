@@ -24,7 +24,7 @@
 
 add_quantile.lmerMod <- function(tb, fit, 
                           p, includeRanef = TRUE, type = "parametric",
-                          name = NULL, nSims = 200, ...) {
+                          name = NULL, nSims = 200) {
 
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -35,9 +35,9 @@ add_quantile.lmerMod <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (type == "parametric")
-        parametric_quantile_mermod(tb, fit, p, name, includeRanef, ...)
-    else if (type == "sim")
-        simulate_quantile_mermod(tb, fit, p, name, includeRanef, nSims, ...)
+        parametric_quantile_mermod(tb, fit, p, name, includeRanef)
+    else if (type == "sim_lme4")
+        simulate_quantile_mermod(tb, fit, p, name, includeRanef, nSims)
     else
         stop ("Incorrect type specified")
  }

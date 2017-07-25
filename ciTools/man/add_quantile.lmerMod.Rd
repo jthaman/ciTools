@@ -5,7 +5,7 @@
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
 \method{add_quantile}{lmerMod}(tb, fit, p, includeRanef = TRUE,
-  type = "parametric", name = NULL, nSims = 200, ...)
+  type = "parametric", name = NULL, nSims = 200)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}

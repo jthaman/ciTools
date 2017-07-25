@@ -5,7 +5,7 @@
 \title{Event Probabilities for Generalized Linear Models}
 \usage{
 \method{add_probs}{glm}(tb, fit, q, name = NULL, comparison = "<",
-  nSims = 200, ...)
+  nSims = 200)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}

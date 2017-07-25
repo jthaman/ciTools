@@ -6,7 +6,7 @@
 \usage{
 \method{add_probs}{lmerMod}(tb, fit, q, type = "parametric",
   includeRanef = TRUE, name = NULL, comparison = "<", nSims = 200,
-  log_response = FALSE, ...)
+  log_response = FALSE)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}

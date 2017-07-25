@@ -59,7 +59,7 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
 
 }
 
-parametric_ci_glm <- function(tb, fit, alpha, names, response, ...){
+parametric_ci_glm <- function(tb, fit, alpha, names, response){
     out <- predict(fit, tb, se.fit = TRUE)
 
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)

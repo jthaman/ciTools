@@ -46,15 +46,12 @@ sim_study_ci <- function(n, fixed_ef, sigma_y, sigma_g, group_no, sims,
                 boot_coverage_prob = mean(success_boot)))
 }
 
-
-
-system.time(results <- sim_study_ci(n = 250, fixed_ef = c(1,1), sigma_y = 1,
-                         sigma_g = 1, group_no = 5,
+system.time(results <- sim_study_ci(n = 500, fixed_ef = c(1,1), sigma_y = 1,
+                         sigma_g = 1, group_no = 50, sims = 50, bootSims = 200,
                          includeRanef = TRUE, alpha = 0.5)); results
 
 ## n = 500, sims = 25, bootsims = 200 : 115 secs
 ## n = 500 and sims = 100, bootsims = 200 : 8 mins
-
 
 sim_study_pi <- function(n, fixed_ef, sigma_y, sigma_g, group_no, sims,
                          bootSims, includeRanef, alpha){
@@ -109,8 +106,3 @@ system.time(results <- sim_study_pi(n = 250, fixed_ef = c(1,1), sigma_y = 1,
                          sigma_g = 1, group_no = 5,
                          sims = 100, bootSims = 200,
                          includeRanef = TRUE, alpha = 0.5)); results
-
-
-
-
-

@@ -31,6 +31,7 @@
 #'     make. This controls the number of bootstrap replicates if
 #'     \code{type = "boot"}, or the number of simulated draws if
 #'     \code{type = "sim"}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
@@ -47,7 +48,7 @@
 
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, type = "parametric", includeRanef = TRUE,
-                           names = NULL, nSims = 200, ...){
+                           names = NULL, nSims = 200, yhatName = "pred"){
 
     if (is.null(names)){
         names[1] <- paste("LCB", alpha/2, sep = "")
@@ -58,17 +59,17 @@ add_ci.lmerMod <- function(tb, fit,
     }
 
     if (type == "parametric")
-        parametric_ci_mermod(tb, fit, alpha, names, includeRanef)
+        parametric_ci_mermod(tb, fit, alpha, names, includeRanef, yhatName)
     else if (type == "sim")
-        sim_ci_mermod(tb, fit, alpha, names, includeRanef, nSims)
+        sim_ci_mermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else if (type == "boot")
-        bootstrap_ci_mermod(tb, fit, alpha, names, includeRanef, nSims)
+        bootstrap_ci_mermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
 
 
-parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
+parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
     
     seFixed <- get_prediction_se_mermod(tb, fit)
     seRandom <- arm::se.ranef(fit)[[1]][1,] 
@@ -84,8 +85,8 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
     }
 
     out <- predict(fit, tb, re.form = re.form)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- out + qt(alpha/2, df = rdf) * seGlobal
     tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
     tibble::as_data_frame(tb)
@@ -121,7 +122,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
 ## }
 
 ## simulation method using predictInterval
-sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
+sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200, yhatName) {
 
     if (includeRanef) {
         which = "full"
@@ -136,15 +137,16 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200) {
                               stat = "median",
                               include.resid.var = FALSE))
 
-    if(is.null(tb[["pred"]])) 
-        tb[["pred"]] <- predict(fit, tb, re.form = reform) 
+    out <- predict(fit, tb, re.form = reform) 
+    if(is.null(tb[[yhatName]])) 
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
     tibble::as_data_frame(tb)
     
 }
 
-bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims) {
+bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
 
     .tb_temp1234567890 <<- tb
     if (includeRanef) { 
@@ -159,11 +161,11 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims) {
 
     ci_out <- boot_quants(boot_obj, alpha) 
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- ci_out$fit
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
-    ##rm(.tb_temp1234567890) 
+    rm(.tb_temp1234567890) 
     as_data_frame(tb)
     
 }

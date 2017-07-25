@@ -38,7 +38,7 @@
 add_probs.lmerMod <- function(tb, fit, 
                               q, type = "parametric", 
                               includeRanef = TRUE, name = NULL,
-                              comparison = "<", nSims = 200, log_response = FALSE, ...) {
+                              comparison = "<", nSims = 200, log_response = FALSE) {
   
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")

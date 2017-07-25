@@ -30,7 +30,7 @@
 #' @export
 
 add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
-                          nSims = 200, ...){
+                          nSims = 200){
 
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")
@@ -63,7 +63,7 @@ add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
         stop("This family is not supported")
 }
 
-probs_logistic <- function(tb, fit, q, name, comparison, ...){
+probs_logistic <- function(tb, fit, q, name, comparison){
     inverselink <- fit$family$linkinv
     out <- predict(fit, tb, se.fit = TRUE)
     out <- inverselink(out$fit)

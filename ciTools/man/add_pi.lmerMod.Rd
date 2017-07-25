@@ -6,7 +6,7 @@
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, type = "parametric",
   includeRanef = TRUE, names = NULL, log_response = FALSE, nSims = 200,
-  ...)
+  yhatName = "pred")
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -36,6 +36,9 @@ be returned on the response scale.}
 \item{nSims}{A positive integer. If \code{type = "sim"} or
 \code{type = "sim_lme4"}, \code{nSims} will determine the
 number of simulated draws to make.}
+
+\item{yhatName}{A character vector of length one. Names of the
+column of predictions from \code{fit} on \code{tb}.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower

@@ -5,7 +5,7 @@
 \title{Confidence Intervals for the Response of Linear Mixed Models}
 \usage{
 \method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, type = "parametric",
-  includeRanef = TRUE, names = NULL, nSims = 200, ...)
+  includeRanef = TRUE, names = NULL, nSims = 200, yhatName = "pred")
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -15,9 +15,12 @@
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{type}{A string, either \code{"parametric"} or
-\code{"bootstrap"}. But at the moment, the bootstrap method is
-not implemented.}
+\item{type}{A string, either \code{"parametric"},
+\code{"bootstrap"}, or \code{"sim"}. If \code{type = "sim"},
+then \code{add_ci} calls the function \code{predictInterval}
+from \code{merTools}. If \code{type = "boot"}, then
+\code{add_ci} calls the function \code{bootMer} from
+\code{lme4}.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
 intervals should be made conditional on the random effects. If
@@ -31,7 +34,11 @@ named \code{names[2]}.}
 
 \item{nSims}{A positive integer. If \code{type = "sim"},
 \code{nSims} will determine the number of simulated draws to
-make.}
+make. This controls the number of bootstrap replicates if
+\code{type = "boot"}, or the number of simulated draws if
+\code{type = "sim"}.}
+
+\item{yhatName}{A string. Name of the predictions vector.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower

@@ -30,6 +30,8 @@
 #' @param log_response A logical, indicating if the response is on log
 #'     scale in the model. If \code{TRUE}, prediction intervals will
 #'     be returned on the response scale.
+#' @param yhatName A character vector of length one. Names of the
+#'     column of predictions from \code{fit} on \code{tb}.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
@@ -47,7 +49,8 @@
 
 add_pi.lmerMod <- function(tb, fit, 
                           alpha = 0.05, type = "parametric", includeRanef = TRUE,
-                          names = NULL, log_response = FALSE, nSims = 200, ...) {
+                          names = NULL, log_response = FALSE, nSims = 200,
+                          yhatName = "pred") {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
@@ -57,17 +60,17 @@ add_pi.lmerMod <- function(tb, fit,
     }
 
     if(type == "sim") 
-        sim_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, ...)
+        sim_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else if(type == "parametric")
-        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, ...)
+        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
     else if(type == "sim_lme4")
-        lme4_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, ...)
+        lme4_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else
         stop("Incorrect type specified!")
 
  }
 
-sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response) {
+sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) {
         which = "full"
@@ -82,12 +85,14 @@ sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_respon
                               stat = "median",
                               include.resid.var = TRUE))
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    out <- predict(fit, tb, re.form = reform)
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- pi_out$lwr
     tb[[names[2]]] <- pi_out$upr
+
     if (log_response){
-        tb[["pred"]] <- exp(predict(fit, tb, re.form = reform))
+        tb[[yhatName]] <- exp(predict(fit, tb, re.form = reform))
         tb[[names[1]]] <- exp(tb[[names[1]]])
         tb[[names[2]]] <- exp(tb[[names[2]]])
     }
@@ -96,7 +101,7 @@ sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_respon
     
 }
 
-parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_response){
+parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -107,12 +112,12 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_respon
         re.form <- NA
 
     out <- predict(fit, tb, re.form = re.form)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- out + qt(alpha/2,df = rdf) * seGlobal
     tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
     if (log_response){
-        tb[["pred"]] <- exp(out)
+        tb[[yhatName]] <- exp(out)
         tb[[names[1]]] <- exp(tb[[names[1]]])
         tb[[names[2]]] <- exp(tb[[names[2]]])
     }
@@ -121,7 +126,7 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_respon
 
 
 
-lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response) {
+lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) 
         reform = NULL
@@ -133,12 +138,15 @@ lme4_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_respo
     lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
     upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- predict(fit, tb, re.form = reform)
+    out <- predict(fit, tb, re.form = reform)
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
+
     if (log_response){
-        tb[["pred"]] <- exp(predict(fit, tb, re.form = reform))
+        tb[[yhatName]] <- exp(out)
         tb[[names[1]]] <- exp(tb[[names[1]]])
         tb[[names[2]]] <- exp(tb[[names[2]]])
     }
