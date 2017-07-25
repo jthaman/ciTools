@@ -19,18 +19,16 @@
 #'     linear mixed models. If \code{fit} is a glm, then
 #'     \code{comparison} may also be "<=", ">=", or "=".
 #' @param nSims A positive integer. 
+#' @param ... Additional arguments.
+#' 
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
 #' 
-#' @examples
-#' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-#' add_probs.glm(cars, fit1, q = 40, comparison = "<")
-#' add_probs.glm(cars, fit1, q = 40, comparison = ">=")
 #' 
 #' @export
 
 add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
-                          nSims = 200){
+                          nSims = 200, ...){
 
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")

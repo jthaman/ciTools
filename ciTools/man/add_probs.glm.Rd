@@ -5,7 +5,7 @@
 \title{Event Probabilities for Generalized Linear Models}
 \usage{
 \method{add_probs}{glm}(tb, fit, q, name = NULL, comparison = "<",
-  nSims = 200)
+  nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}
@@ -27,6 +27,8 @@ linear mixed models. If \code{fit} is a glm, then
 \code{comparison} may also be "<=", ">=", or "=".}
 
 \item{nSims}{A positive integer.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values and
@@ -37,10 +39,4 @@ This is the method \code{add_probs} uses if the model fit is an
 object of class \code{glm}. Probabilities are determined through
 simulation, using the same method as \code{add_pi.glm}. Currently,
 only logistic and poisson regression are supported.
-}
-\examples{
-fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-add_probs.glm(cars, fit1, q = 40, comparison = "<")
-add_probs.glm(cars, fit1, q = 40, comparison = ">=")
-
 }

@@ -1,9 +1,7 @@
 library(devtools)
-library(roxygen2)
-roxygenise("x:/ciTools/ciTools")
+devtools::document("x:/ciTools/ciTools")
 devtools::build("x:/ciTools/ciTools")
 devtools::install("x:/ciTools/ciTools", dependencies = TRUE)
 library(ciTools)
-#devtools::load_all("x:/ciTools/ciTools")
+devtools::load_all("x:/ciTools/ciTools")
 devtools::check("x:/ciTools/ciTools")
-

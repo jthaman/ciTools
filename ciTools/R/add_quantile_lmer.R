@@ -17,14 +17,16 @@
 #'     \code{"parametric"} or \code{"sim"}
 #' @param nSims A positive integer. Set the number of simulations to
 #'     perform.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #' 
 #' @export
 
 add_quantile.lmerMod <- function(tb, fit, 
-                          p, includeRanef = TRUE, type = "parametric",
-                          name = NULL, nSims = 200) {
+                                 p, name = NULL, includeRanef = TRUE,
+                                 type = "parametric",
+                                 nSims = 200, ...) {
 
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")

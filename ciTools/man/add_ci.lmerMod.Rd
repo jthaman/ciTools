@@ -4,8 +4,9 @@
 \alias{add_ci.lmerMod}
 \title{Confidence Intervals for the Response of Linear Mixed Models}
 \usage{
-\method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, type = "parametric",
-  includeRanef = TRUE, names = NULL, nSims = 200, yhatName = "pred")
+\method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
+  type = "parametric", includeRanef = TRUE, nSims = 200,
+  yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -14,6 +15,12 @@
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
+
+\item{names}{NULL or character vector of length two. If
+\code{NULL}, confidence bounds will automatically be named by
+\code{add_ci}, otherwise, the lower confidence bound will be
+named \code{names[1]} and the upper confidence bound will be
+named \code{names[2]}.}
 
 \item{type}{A string, either \code{"parametric"},
 \code{"bootstrap"}, or \code{"sim"}. If \code{type = "sim"},
@@ -26,12 +33,6 @@ from \code{merTools}. If \code{type = "boot"}, then
 intervals should be made conditional on the random effects. If
 \code{FALSE}, random effects will not be included.}
 
-\item{names}{NULL or character vector of length two. If
-\code{NULL}, confidence bounds will automatically be named by
-\code{add_ci}, otherwise, the lower confidence bound will be
-named \code{names[1]} and the upper confidence bound will be
-named \code{names[2]}.}
-
 \item{nSims}{A positive integer. If \code{type = "sim"},
 \code{nSims} will determine the number of simulated draws to
 make. This controls the number of bootstrap replicates if
@@ -39,6 +40,8 @@ make. This controls the number of bootstrap replicates if
 \code{type = "sim"}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -52,14 +55,4 @@ confidence intervals when modeling with a random intercept
 LMM. Otherwise confidence intervals may be simulated (type =
 \code{"sim"}) via \code{predictInterval} from \code{merTools}. A
 bootstrap method may be included in the future.
-}
-\examples{
-\dontrun{
-data(sleepstudy) ## included in lme4
-tb <- sleepstudy
-fit1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
-add_ci(tb, fit1)
-add_ci(tb, fit1, type = "sim")
-}
-
 }

@@ -4,8 +4,8 @@
 \alias{add_quantile.lmerMod}
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
-\method{add_quantile}{lmerMod}(tb, fit, p, includeRanef = TRUE,
-  type = "parametric", name = NULL, nSims = 200)
+\method{add_quantile}{lmerMod}(tb, fit, p, name = NULL, includeRanef = TRUE,
+  type = "parametric", nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -16,18 +16,20 @@ object.}
 \item{p}{A real number between 0 and 1. Sets the probability for
 which to calculate the quantiles.}
 
+\item{name}{NULL or character vector of length one. If \code{NULL},
+quantiles will automatically be named by \code{add_quantile},
+otherwise, they will be named \code{name}}
+
 \item{includeRanef}{Should the quantiles be calculated condition on
 the random effects?}
 
 \item{type}{A character vector of length one. Options are
 \code{"parametric"} or \code{"sim"}}
 
-\item{name}{NULL or character vector of length one. If \code{NULL},
-quantiles will automatically be named by \code{add_quantile},
-otherwise, they will be named \code{name}}
-
 \item{nSims}{A positive integer. Set the number of simulations to
 perform.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower

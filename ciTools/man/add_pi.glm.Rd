@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Generalized Linear Models}
 \usage{
 \method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL, type = "sim",
-  nSims = 1000)
+  nSims = 1000, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -25,6 +25,8 @@ named \code{names[2]}.}
 
 \item{nSims}{A positive integer. Determines the number of
 simulations to run.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -43,10 +45,4 @@ intervals are nonsensical.
 Note that if the response is count data, e.g. the response
     is modeled with a Poisson regression, prediction intervals are
     only approximate.
-}
-\examples{
-# Poisson Regression
-fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-add_pi.glm(cars, fit1, alpha = 0.5)
-
 }

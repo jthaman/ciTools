@@ -32,23 +32,17 @@
 #'     \code{type = "boot"}, or the number of simulated draws if
 #'     \code{type = "sim"}.
 #' @param yhatName A string. Name of the predictions vector.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @examples
-#' \dontrun{
-#' data(sleepstudy) ## included in lme4
-#' tb <- sleepstudy
-#' fit1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
-#' add_ci(tb, fit1)
-#' add_ci(tb, fit1, type = "sim")
-#' }
 #' 
 #' @export
 
 add_ci.lmerMod <- function(tb, fit, 
-                           alpha = 0.05, type = "parametric", includeRanef = TRUE,
-                           names = NULL, nSims = 200, yhatName = "pred"){
+                           alpha = 0.05, names = NULL, type = "parametric",
+                           includeRanef = TRUE,
+                           nSims = 200, yhatName = "pred", ...){
 
     if (is.null(names)){
         names[1] <- paste("LCB", alpha/2, sep = "")
@@ -146,9 +140,12 @@ sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200, yhat
     
 }
 
+ciTools_data <- new.env(parent = emptyenv())
+
 bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
 
-    .tb_temp1234567890 <<- tb
+   ciTools_data$tb_temp <- tb 
+
     if (includeRanef) { 
         rform = NULL
         my_pred <- my_pred_full
@@ -165,7 +162,6 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhat
         tb[[yhatName]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
-    rm(.tb_temp1234567890) 
     as_data_frame(tb)
     
 }

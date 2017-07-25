@@ -18,17 +18,13 @@
 #'     generated for the prediction made with a log-linear model:
 #'     \eqn{\log(Y) = X\beta + \epsilon}. These intervals will be on
 #'     the scale of the original response, Y.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
-#'
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' add_pi.lm(cars, fit1, alpha = 0.5)
 #' 
 #' @export
 
-add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE){
+add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE, ...){
     
     if (log_response)
         add_pi_lm_log(tb, fit, alpha, names)

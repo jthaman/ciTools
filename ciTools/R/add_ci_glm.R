@@ -22,24 +22,15 @@
 #'     will be determined for the expected response, if \code{FALSE},
 #'     confidence intervals will be made on the scale of the linear
 #'     predictor.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @examples
-#' # Poisson Regression
-#' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-#' # Append a 50% confidence interval for the expected response
-#' add_ci.glm(cars, fit1, alpha = 0.5)
 #' 
-#' # Logistic Regression
-#' fit2 <- glm(I(dist > 20) ~ speed, data = cars, family = "binomial")
-#' # Append a 50% confidence interval for the expected response
-#' add_ci.glm(cbind(cars, I(dist > 20), fit2, alpha = 0.5)
-#'
 #' @export
 
 add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
-                      response = TRUE, type = "parametric"){
+                      response = TRUE, type = "parametric", ...){
 
     if (grepl("numerically 0 or 1", list(warnings())))
         warning ("If there is perfect separation in your logistic regression, you shouldn't trust these confidence intervals")

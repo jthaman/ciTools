@@ -28,6 +28,8 @@
 #'     then \code{comparison} may also be "<=", ">=", or "=".
 #' @param log_response A logical. Set to \code{TRUE} if your model is
 #'     a log-linear mixed model.
+#' @param ... Additional arguments.
+#' 
 #' @return A tibble, \code{tb}, with predictions and probabilities
 #'     attached.
 #'
@@ -36,9 +38,9 @@
 
 
 add_probs.lmerMod <- function(tb, fit, 
-                              q, type = "parametric", 
-                              includeRanef = TRUE, name = NULL,
-                              comparison = "<", nSims = 200, log_response = FALSE) {
+                              q, name = NULL, comparison = "<", type = "parametric",
+                              includeRanef = TRUE,
+                              nSims = 200, log_response = FALSE, ...) {
   
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")

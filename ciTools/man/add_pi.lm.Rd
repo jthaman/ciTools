@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Model Predictions.}
 \usage{
 \method{add_pi}{lm}(tb, fit, alpha = 0.05, names = NULL,
-  log_response = FALSE)
+  log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -26,6 +26,8 @@ named \code{names[2]}.}
 generated for the prediction made with a log-linear model:
 \eqn{\log(Y) = X\beta + \epsilon}. These intervals will be on
 the scale of the original response, Y.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -35,10 +37,4 @@ A tibble, \code{tb}, with predicted values, upper and lower
 This function is one of the methods for \code{add_pi}. This
 function is essentially a wrapper for the \code{predict} function
 in \code{R}.
-}
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-add_pi.lm(cars, fit1, alpha = 0.5)
-
 }

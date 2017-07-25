@@ -19,20 +19,16 @@
 #'     then \code{comparison} may also be "<=", ">=", or "=".
 #' @param log_response A logical. If TRUE, then the quantile
 #'     \code{t} will be transformed to the log scale.
+#' @param ... Additional arguments.
+#' 
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
 #' 
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' # Calculate Pr(dist < 40) for each observation in cars
-#' add_probs(cars, fit1, q = 40)
-#' add_probs(cars, fit1, q = 50, comparison = ">")
 #' 
 #' @export
 
 add_probs.lm <- function(tb, fit, q, name = NULL,
-                         comparison = "<", log_response = FALSE){
+                         comparison = "<", log_response = FALSE, ...){
 
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")

@@ -4,9 +4,9 @@
 \alias{add_pi.lmerMod}
 \title{Prediction Intervals for the Response of Linear Mixed Models}
 \usage{
-\method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, type = "parametric",
-  includeRanef = TRUE, names = NULL, log_response = FALSE, nSims = 200,
-  yhatName = "pred")
+\method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
+  type = "parametric", includeRanef = TRUE, log_response = FALSE,
+  nSims = 200, yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -16,18 +16,18 @@
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
+\item{names}{NULL or character vector of length two. If
+\code{NULL}, prediction bounds will automatically be named by
+\code{add_pi}, otherwise, the lower prediction bound will be
+named \code{names[1]} and the upper prediction bound will be
+named \code{names[2]}.}
+
 \item{type}{A string, either \code{"parametric"}, \code{"sim"},
 \code{"sim_lme4"}.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
 intervals should be made conditional on the random effects. If
 \code{FALSE}, random effects will not be included.}
-
-\item{names}{NULL or character vector of length two. If
-\code{NULL}, prediction bounds will automatically be named by
-\code{add_pi}, otherwise, the lower prediction bound will be
-named \code{names[1]} and the upper prediction bound will be
-named \code{names[2]}.}
 
 \item{log_response}{A logical, indicating if the response is on log
 scale in the model. If \code{TRUE}, prediction intervals will
@@ -39,6 +39,8 @@ number of simulated draws to make.}
 
 \item{yhatName}{A character vector of length one. Names of the
 column of predictions from \code{fit} on \code{tb}.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -54,15 +56,4 @@ two methods. \code{"sim"} indicates that \code{predictInterval}
 from \code{merTools} should be used to simulate responses to form
 prediction intervals, and \code{"sim_lme4"} indicates that
 \code{simulate.merMod} should be used to simulate predictions.
-}
-\examples{
-\dontrun{
-data(sleepstudy) ## included in lme4
-tb <- sleepstudy
-fit1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
-add_pi.lmerMod(tb, fit1)
-add_pi.lmerMod(tb, fit1, type = "sim")
-add_pi.lmerMod(tb, fit1, type = "sim_lme4")
-}
-
 }

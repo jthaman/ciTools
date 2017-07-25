@@ -25,15 +25,6 @@
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
 #' 
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' # Calculate Pr(dist < 40) for each observation in cars
-#' add_probs(cars, fit1, q = 40)
-#' # Poisson regression
-#' fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
-#' # Calculate Pr(dist >= 40) for each observation in cars
-#' add_probs(cars, fit2, q = 40, comparison = ">=")
 #' 
 #' @export
 

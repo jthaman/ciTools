@@ -4,9 +4,9 @@
 \alias{add_probs.lmerMod}
 \title{Response Probabilities for Linear Mixed Models}
 \usage{
-\method{add_probs}{lmerMod}(tb, fit, q, type = "parametric",
-  includeRanef = TRUE, name = NULL, comparison = "<", nSims = 200,
-  log_response = FALSE)
+\method{add_probs}{lmerMod}(tb, fit, q, name = NULL, comparison = "<",
+  type = "parametric", includeRanef = TRUE, nSims = 200,
+  log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -14,13 +14,6 @@
 \item{fit}{An object of class \code{lmerMod}.}
 
 \item{q}{A double. A quantile of the response variable}
-
-\item{type}{A string, either \code{"parametric"} , \code{"sim"}, or
-\code{"sim_lme4"}.}
-
-\item{includeRanef}{A logical. Set whether the predictions and
-intervals should be made conditional on the random effects. If
-\code{FALSE}, random effects will not be included.}
 
 \item{name}{NULL or character vector of length two. If \code{NULL},
 probabilities will automatically be named by \code{add_pi},
@@ -33,12 +26,21 @@ each observation in \code{tb}. Must be "<" or ">" for linear,
 log-linear and linear mixed models. If \code{fit} is a glm,
 then \code{comparison} may also be "<=", ">=", or "=".}
 
+\item{type}{A string, either \code{"parametric"} , \code{"sim"}, or
+\code{"sim_lme4"}.}
+
+\item{includeRanef}{A logical. Set whether the predictions and
+intervals should be made conditional on the random effects. If
+\code{FALSE}, random effects will not be included.}
+
 \item{nSims}{A positive integer. If \code{type = "sim"}
 \code{nSims} will determine the number of simulated draws to
 make.}
 
 \item{log_response}{A logical. Set to \code{TRUE} if your model is
 a log-linear mixed model.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predictions and probabilities

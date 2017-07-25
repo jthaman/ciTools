@@ -4,7 +4,7 @@
 \alias{add_quantile.glm}
 \title{Quantiles for the Response of a Generalized Linear Model}
 \usage{
-\method{add_quantile}{glm}(tb, fit, p, name = NULL, nSims = 200)
+\method{add_quantile}{glm}(tb, fit, p, name = NULL, nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -21,6 +21,8 @@ otherwise, they will be named \code{name}}
 
 \item{nSims}{A positive integer. Set the number of simulated draws
 to use.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -31,11 +33,4 @@ This function is one of the methods for
 \code{add_quantile}. Currently, you can only use this function to
 compute the quantiles of the response of a Poisson regression with
 the log link function.
-}
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-# Calculate the 0.30 quantile of dist | speed.
-add_quantile.lm(cars, fit1, p = 0.3)
-
 }

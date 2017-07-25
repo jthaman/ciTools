@@ -1,23 +1,26 @@
+
 get_x_matrix_mermod <- function(tb, fit){
-  
-  ob <- fit@frame
-  cols2add <- names(ob)[!(names(ob) %in% names(tb))]
-  for(cn in cols2add){
-    tb[[cn]] <- 0
-  }
-  model.matrix(reformulate(attributes(terms(fit))$term.labels), bind_rows(tb, ob))[1:nrow(tb), ]
-  
+
+    ##This function is necessary to avoid cases where the new data upon
+    ##which CIs are generated does not contain all levels for one or more
+    ##factors from the original data set. New and old data sets are
+    ##appended, the model matrix is generated, and the function returns
+    ##only the rows corresponding to the new data.
+    
+    model.matrix(reformulate(attributes(terms(fit))$term.labels), 
+                 dplyr::bind_rows(fit@frame, tb))[-(1:nrow(fit@frame)), ]
+    
 }
 
 
 get_prediction_se_mermod <- function(tb, fit){
-  
-  X <- get_x_matrix_mermod(tb, fit)
-  vcovBetaHat <- vcov(fit) %>%
-    as.matrix
-  X %*% vcovBetaHat %*% t(X) %>% 
-    diag %>%
-    sqrt
+    
+    X <- get_x_matrix_mermod(tb, fit)
+    vcovBetaHat <- vcov(fit) %>%
+        as.matrix
+    X %*% vcovBetaHat %*% t(X) %>% 
+        diag %>%
+            sqrt
 }
 
 make_formula <- function(fixedEffects, randomEffects, rvName = "y"){
@@ -40,13 +43,13 @@ get_resid_df_mermod <- function(fit){
 }
 
 ## not useful, consider removal
-get_residual_se <- function(fit){
-    fit %>%
-        VarCorr %>%
-        as.data.frame %>%
-        last %>%
-        last
-}
+## get_residual_se <- function(fit){
+##     fit %>%
+##         VarCorr %>%
+##         as.data.frame %>%
+##         last %>%
+##         last
+## }
 
 
 get_pi_mermod_var <- function(tb, fit, includeRanef){
@@ -78,11 +81,11 @@ calc_prob <- function(x, quant, comparison){
 }
 
 my_pred_full <- function(fit) {
-    predict(fit, newdata=.tb_temp1234567890, re.form = NULL)
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL)
 }
 
 my_pred_fixed <- function(fit) {
-    predict(fit, newdata=.tb_temp1234567890, re.form = NA)
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA)
 }
 
 boot_quants <- function(merBoot, alpha) {

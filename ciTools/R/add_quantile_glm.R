@@ -15,18 +15,14 @@
 #'     otherwise, they will be named \code{name}
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' # Calculate the 0.30 quantile of dist | speed.
-#' add_quantile.lm(cars, fit1, p = 0.3)
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, nSims = 200){
+add_quantile.glm <- function(tb, fit, p, name = NULL, nSims = 200, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))

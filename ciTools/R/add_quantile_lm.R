@@ -14,17 +14,14 @@
 #'     for the prediction made with a log-linear model: \eqn{\log(Y) =
 #'     X\beta + \epsilon}. These quantiles will be on the scale of the
 #'     original response, Y.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' add_quantile.lm(cars, fit1, alpha = 0.5)
 #' 
 #' @export
 
-add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE){
+add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE, ...){
     if (log_response)
         add_quantile_lm_log(tb, fit, p, name)
     else {

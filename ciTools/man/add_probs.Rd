@@ -39,14 +39,3 @@ is generated for the fitted value of each observation in
 \code{tb}. These probabilities are then appended to \code{tb} and
 returned to the user as a tibble.
 }
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-# Calculate Pr(dist < 40) for each observation in cars
-add_probs(cars, fit1, q = 40)
-# Poisson regression
-fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
-# Calculate Pr(dist >= 40) for each observation in cars
-add_probs(cars, fit2, q = 40, comparison = ">=")
-
-}

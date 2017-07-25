@@ -34,14 +34,28 @@ for the fitted value of each observation in \code{tb}. Quantiles
 are then appended to \code{tb} and returned to the user as a
 tibble.
 }
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-# Calculate the 0.2 quantile of dist
-add_quantile(cars, fit1, prob = 0.2)
-# Poisson regression
-fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
-# Calculate the median of the response variable, dist.
-add_quantile(cars, fit2, prob = 0.5)
+\details{
+For more specific information about the arguments that are useful
+in each method, consult
 
+\itemize{
+  \item \code{\link{add_quantile.lm}} for linear regression response quantiles
+  \item \code{\link{add_quantile.glm}} for generalized linear regression response quantiles
+  \item \code{\link{add_quantile.lmerMod}} for linear mixed models response quantiles
+}
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_quantile(cars, fit, p = 0.4)
+fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+add_quantile(cars, fit2, p = 0.4)
+fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+add_quantile(lme4::sleepstudy, fit3, p = 0.4)
+
+
+}
+\seealso{
+\code{\link{add_ci}} for confidence intervals,
+    \code{\link{add_probs}} for response level probabilities, and
+    \code{\link{add_pi}} for prediction intervals
 }

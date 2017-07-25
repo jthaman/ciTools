@@ -5,7 +5,7 @@
 \title{Event Probabilities for Linear Models}
 \usage{
 \method{add_probs}{lm}(tb, fit, q, name = NULL, comparison = "<",
-  log_response = FALSE)
+  log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame on which to append probabilities}
@@ -28,6 +28,8 @@ then \code{comparison} may also be "<=", ">=", or "=".}
 
 \item{log_response}{A logical. If TRUE, then the quantile
 \code{t} will be transformed to the log scale.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values and
@@ -36,12 +38,4 @@ A tibble, \code{tb}, with predicted values and
 \description{
 This is the method \code{add_probs} uses if the model fit is
 linear.  Probabilities are calculated using the t-distribution.
-}
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-# Calculate Pr(dist < 40) for each observation in cars
-add_probs(cars, fit1, q = 40)
-add_probs(cars, fit1, q = 50, comparison = ">")
-
 }

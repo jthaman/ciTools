@@ -4,7 +4,8 @@
 \alias{add_quantile.lm}
 \title{Quantiles for the Response of a Linear Model}
 \usage{
-\method{add_quantile}{lm}(tb, fit, p, name = NULL, log_response = FALSE)
+\method{add_quantile}{lm}(tb, fit, p, name = NULL, log_response = FALSE,
+  ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -23,6 +24,8 @@ otherwise, they will be named \code{name}}
 for the prediction made with a log-linear model: \eqn{\log(Y) =
 X\beta + \epsilon}. These quantiles will be on the scale of the
 original response, Y.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -30,10 +33,4 @@ A tibble, \code{tb}, with predicted values, upper and lower
 }
 \description{
 This function is one of the methods for \code{add_quantile}.
-}
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-add_quantile.lm(cars, fit1, alpha = 0.5)
-
 }

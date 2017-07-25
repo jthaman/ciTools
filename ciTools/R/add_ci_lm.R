@@ -15,17 +15,14 @@
 #' @param log_response logical. If TRUE, confidence intervals will be
 #'     generated for the prediction made with a log-linear model:
 #'     \eqn{\log(Y) = X\beta + \epsilon}
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @examples
-#' # linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' add_ci(cars, fit1, alpha = 0.5)
 #' 
 #' @export
 
-add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE){
+add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE, ...){
     if (log_response)
         add_ci_lm_log(tb, fit, alpha, names)
     else {

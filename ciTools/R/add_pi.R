@@ -4,9 +4,18 @@
 #' frame. A prediction interval is made for each observation in
 #' \code{tb} with respect to the model \code{fit}. These intervals are
 #' then appended to \code{tb} and returned to the user as a
-#' tibble. \code{fit} can be a linear model, log-linear mode, linear
-#' mixed model, or Poisson model.
+#' tibble. \code{fit} can be a linear, log-linear, linear
+#' mixed, or generalized linear models.
+#' 
+#' For more specific information about the arguments that are useful
+#' in each method, consult
 #'
+#' \itemize{
+#'   \item \code{\link{add_pi.lm}} for linear regression prediction intervals
+#'   \item \code{\link{add_pi.glm}} for generalized linear regression prediction intervals
+#'   \item \code{\link{add_pi.lmerMod}} for linear mixed models prediction intervals
+#' }
+#' 
 #' @param tb A tibble or Data Frame on which to make predictions.
 #' @param fit An object of class lm, glm, or lmerMod. Predictions are
 #'     made with this object.
@@ -22,12 +31,18 @@
 #'     prediction bounds attached.
 #'
 #' @examples
-#' ## linear regression
-#' fit1 <- lm(dist ~ speed, data = cars)
-#' add_pi(cars, fit1, alpha = 0.5)
-#' ## Poisson regression
-#' fit2 <- glm(dist ~ speed, data = cars, family = "poisson")
+#' fit <- lm(dist ~ speed, data = cars)
+#' add_pi(cars, fit)
+#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
 #' add_pi(cars, fit2)
+#' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+#' add_pi(lme4::sleepstudy, fit3)
+#'
+#'
+#' @seealso \code{\link{add_ci}} for confidence intervals,
+#'     \code{\link{add_probs}} for response level probabilities, and
+#'     \code{\link{add_quantile}} for quantiles of the conditional
+#'     response distribution.
 #' 
 #' @export
 

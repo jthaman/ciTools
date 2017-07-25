@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Expected Response of Generalized Linear Models}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL, response = TRUE,
-  type = "parametric")
+  type = "parametric", ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -29,6 +29,8 @@ predictor.}
 \item{type}{A string, either \code{"parametric"} or
 \code{"bootstrap"}.  but at the moment, the bootstrap method is
 not implemented.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -40,16 +42,4 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{glm}. Confidence Intervals are determined by making an
 interval on the scale of the linear predictor, then applying the
 inverse link function from the model fit.
-}
-\examples{
-# Poisson Regression
-fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-# Append a 50\% confidence interval for the expected response
-add_ci.glm(cars, fit1, alpha = 0.5)
-
-# Logistic Regression
-fit2 <- glm(I(dist > 20) ~ speed, data = cars, family = "binomial")
-# Append a 50\% confidence interval for the expected response
-add_ci.glm(cbind(cars, I(dist > 20), fit2, alpha = 0.5)
-
 }

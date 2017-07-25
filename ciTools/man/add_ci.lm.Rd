@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Linear Model Predictions.}
 \usage{
 \method{add_ci}{lm}(tb, fit, alpha = 0.05, names = NULL,
-  log_response = FALSE)
+  log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or Data Frame.}
@@ -25,6 +25,8 @@ named \code{names[2]}.}
 \item{log_response}{logical. If TRUE, confidence intervals will be
 generated for the prediction made with a log-linear model:
 \eqn{\log(Y) = X\beta + \epsilon}}
+
+\item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
@@ -32,10 +34,4 @@ A tibble, \code{tb}, with predicted values, upper and lower
 }
 \description{
 This function is one of the methods for \code{add_ci}.
-}
-\examples{
-# linear regression
-fit1 <- lm(dist ~ speed, data = cars)
-add_ci(cars, fit1, alpha = 0.5)
-
 }

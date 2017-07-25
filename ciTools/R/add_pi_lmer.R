@@ -32,25 +32,17 @@
 #'     be returned on the response scale.
 #' @param yhatName A character vector of length one. Names of the
 #'     column of predictions from \code{fit} on \code{tb}.
+#' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
-#' @examples
-#' \dontrun{
-#' data(sleepstudy) ## included in lme4
-#' tb <- sleepstudy
-#' fit1 <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy)
-#' add_pi.lmerMod(tb, fit1)
-#' add_pi.lmerMod(tb, fit1, type = "sim")
-#' add_pi.lmerMod(tb, fit1, type = "sim_lme4")
-#' }
-#' 
 #' @export
 
 add_pi.lmerMod <- function(tb, fit, 
-                          alpha = 0.05, type = "parametric", includeRanef = TRUE,
-                          names = NULL, log_response = FALSE, nSims = 200,
-                          yhatName = "pred") {
+                           alpha = 0.05, names = NULL,
+                           type = "parametric", includeRanef = TRUE,
+                          log_response = FALSE, nSims = 200,
+                          yhatName = "pred", ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")

@@ -24,19 +24,17 @@
 #' @param type A string. Currently must be \code{"sim"}.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
+#' @param ... Additional arguments.
+#' 
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
-#' @examples
-#' # Poisson Regression
-#' fit1 <- glm(dist ~ speed, data = cars, family = "poisson")
-#' add_pi.glm(cars, fit1, alpha = 0.5)
 #' 
 #' @export
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
-                       type= "sim", nSims = 1000){
+                       type= "sim", nSims = 1000, ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
