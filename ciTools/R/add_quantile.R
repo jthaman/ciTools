@@ -1,3 +1,20 @@
+# Copyright (C) 2017 Institute for Defense Analyses
+#
+# This file is part of ciTools.
+#
+# ciTools is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ciTools is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+
 #' Add Regression Quantiles to Data Frames
 #'
 #' This is a generic function to append regression quantiles to a data
@@ -23,7 +40,7 @@
 #'     quantile. Must be between 0 and 1.
 #' @param name NULL or character vector of length one. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile()},
-#'     otherwise, the quantiles will be named \code{quantileName} in
+#'     otherwise, the quantiles will be named \code{name} in
 #'     the returned tibble
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and quantiles

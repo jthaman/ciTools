@@ -17,7 +17,7 @@ quantile. Must be between 0 and 1.}
 
 \item{name}{NULL or character vector of length one. If \code{NULL},
 quantiles will automatically be named by \code{add_quantile()},
-otherwise, the quantiles will be named \code{quantileName} in
+otherwise, the quantiles will be named \code{name} in
 the returned tibble}
 
 \item{...}{Additional arguments}

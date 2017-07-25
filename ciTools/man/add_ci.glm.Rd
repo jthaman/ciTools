@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_ci_glm.R
 \name{add_ci.glm}
 \alias{add_ci.glm}
-\title{Confidence Intervals for Expected Response of Generalized Linear Models}
+\title{Confidence Intervals for Generalized Linear Models}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL, response = TRUE,
   type = "parametric", ...)
@@ -21,14 +21,13 @@ level of the interval estimates.}
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
-\item{response}{A logical. If \code{TRUE}, the confidence intervals
-will be determined for the expected response, if \code{FALSE},
-confidence intervals will be made on the scale of the linear
-predictor.}
+\item{response}{A logical. The default is \code{TRUE}. If
+\code{TRUE}, the confidence intervals will be determined for
+the expected response, if \code{FALSE}, confidence intervals
+will be made on the scale of the linear predictor.}
 
-\item{type}{A string, either \code{"parametric"} or
-\code{"bootstrap"}.  but at the moment, the bootstrap method is
-not implemented.}
+\item{type}{A string, currently \code{"type" = "parametric"} is the
+only supported method.}
 
 \item{...}{Additional arguments.}
 }
@@ -41,5 +40,28 @@ This function is one of the methods for \code{add_ci}, and is
 called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{glm}. Confidence Intervals are determined by making an
 interval on the scale of the linear predictor, then applying the
-inverse link function from the model fit.
+inverse link function from the model fit to transform the linear
+level confidence intervals to the response level.
+}
+\examples{
+# Poisson Regression
+fit <- glm(dist ~ speed, data = cars, family = "poisson")
+add_ci(cars, fit)
+add_ci(cars, fit, alpha = 0.5)
+add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+# Logistic Regression
+fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
+dat <- cbind(cars, I(cars$dist > 30))
+add_ci(dat, fit)
+add_ci(dat, fit, alpha = 0.5)
+add_ci(dat, fit, alpha = 0.5, response = FALSE)
+add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+
+}
+\seealso{
+\code{{\link{add_pi.glm}}} for prediction intervals for
+    \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+    probabilities of \code{glm} objects, and
+    \code{\link{add_quantile.glm}} for response quantiles of
+    \code{glm} objects.
 }

@@ -1,10 +1,36 @@
-#' Add Probabilities to Data Frames
+# Copyright (C) 2017 Institute for Defense Analyses
+#
+# This file is part of ciTools.
+#
+# ciTools is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ciTools is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+
+#' Add Regression Probabilities to Data Frames
 #'
-#' This is a generic function to append event probabilities to a data
-#' frame. An event probability, such as Pr(Response|Covariates < 10),
-#' is generated for the fitted value of each observation in
-#' \code{tb}. These probabilities are then appended to \code{tb} and
-#' returned to the user as a tibble.
+#' This is a generic function to append response level probabilities
+#' to a data frame. A response level probability, such as
+#' Pr(Response|Covariates < 10), is generated for the fitted value of
+#' each observation in \code{tb}. These probabilities are then
+#' appended to \code{tb} and returned to the user as a tibble.
+#' 
+#' For more specific information about the arguments that are useful
+#' in each method, consult
+#'
+#' \itemize{
+#'   \item \code{\link{add_probs.lm}} for linear regression response probabilities
+#'   \item \code{\link{add_probs.glm}} for generalized linear regression response probabilities
+#'   \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
+#' }
 #'
 #'
 #' @param tb A tibble or Data Frame on which to append probabilities
@@ -25,6 +51,19 @@
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
 #' 
+#' @examples
+#' fit <- lm(dist ~ speed, data = cars)
+#' add_probs(cars, fit, q = 20)
+#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+#' add_probs(cars, fit2, q = 20)
+#' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+#' add_probs(lme4::sleepstudy, fit3, q = 300)
+#'
+#'
+#' @seealso \code{\link{add_ci}} for confidence intervals,
+#'     \code{\link{add_quantile}} for response level quantiles, and
+#'     \code{\link{add_pi}} for prediction intervals
+#'
 #' 
 #' @export
 

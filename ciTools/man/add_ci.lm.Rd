@@ -10,8 +10,8 @@
 \arguments{
 \item{tb}{A tibble or Data Frame.}
 
-\item{fit}{An object of class lm, glm, or lmerMod. Predictions are
-made with this object.}
+\item{fit}{An object of class lm. Predictions are made with this
+object.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
@@ -22,9 +22,10 @@ level of the interval estimates.}
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
-\item{log_response}{logical. If TRUE, confidence intervals will be
-generated for the prediction made with a log-linear model:
-\eqn{\log(Y) = X\beta + \epsilon}}
+\item{log_response}{logical. Default is \code{FALSE}. If
+\code{TRUE}, confidence intervals will be generated for the
+\emph{response level, Y} of a log-linear model.  \eqn{\log(Y) =
+X\beta + \epsilon}.}
 
 \item{...}{Additional arguments.}
 }
@@ -33,5 +34,28 @@ A tibble, \code{tb}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{
-This function is one of the methods for \code{add_ci}.
+This function is one of the methods for \code{add_ci} and is
+automatically called when an object is class \code{lm} is inputted
+to \code{add_ci}.
+}
+\details{
+Confidence intervals for \code{lm} objects are calculated
+parametrically, this functions is essentially just a wrapper for
+\code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
+linear model. If \code{log_response = TRUE}, confidence intervals
+for the response are calculated using Wald's Method.
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_ci(cars, fit)
+add_ci(cars, fit, alpha = 0.5)
+add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+
+}
+\seealso{
+\code{{\link{add_pi.lm}}} for prediction intervals for
+    \code{lm} objects. \code{\link{add_probs.lm}} for conditional
+    probabilities of \code{lm} objects, and
+    \code{\link{add_quantile.lm}} for response quantiles of
+    \code{lm} objects.
 }

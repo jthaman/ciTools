@@ -1,10 +1,28 @@
-#' Confidence Intervals for Expected Response of Generalized Linear Models
+# Copyright (C) 2017 Institute for Defense Analyses
+#
+# This file is part of ciTools.
+#
+# ciTools is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ciTools is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+
+#' Confidence Intervals for Generalized Linear Models
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
 #' class \code{glm}. Confidence Intervals are determined by making an
 #' interval on the scale of the linear predictor, then applying the
-#' inverse link function from the model fit.
+#' inverse link function from the model fit to transform the linear
+#' level confidence intervals to the response level.
 #'
 #' @param tb A tibble or Data Frame.
 #' @param fit An object of class \code{glm}.
@@ -15,18 +33,37 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
-#' @param type A string, either \code{"parametric"} or
-#'     \code{"bootstrap"}.  but at the moment, the bootstrap method is
-#'     not implemented.
-#' @param response A logical. If \code{TRUE}, the confidence intervals
-#'     will be determined for the expected response, if \code{FALSE},
-#'     confidence intervals will be made on the scale of the linear
-#'     predictor.
+#' @param type A string, currently \code{"type" = "parametric"} is the
+#'     only supported method.
+#' @param response A logical. The default is \code{TRUE}. If
+#'     \code{TRUE}, the confidence intervals will be determined for
+#'     the expected response, if \code{FALSE}, confidence intervals
+#'     will be made on the scale of the linear predictor.
 #' @param ... Additional arguments.
+#' 
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' 
+#' @seealso \code{{\link{add_pi.glm}}} for prediction intervals for
+#'     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+#'     probabilities of \code{glm} objects, and
+#'     \code{\link{add_quantile.glm}} for response quantiles of
+#'     \code{glm} objects.
+#'
+#' @examples
+#' # Poisson Regression
+#' fit <- glm(dist ~ speed, data = cars, family = "poisson")
+#' add_ci(cars, fit)
+#' add_ci(cars, fit, alpha = 0.5)
+#' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+#' # Logistic Regression
+#' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
+#' dat <- cbind(cars, I(cars$dist > 30))
+#' add_ci(dat, fit)
+#' add_ci(dat, fit, alpha = 0.5)
+#' add_ci(dat, fit, alpha = 0.5, response = FALSE)
+#' add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+#'
 #' @export
 
 add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
@@ -41,12 +78,12 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
     if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
-    if (type == "bootstrap")
+    if (type == "boot")
         stop ("not yet implemented")
     else if (type == "parametric")
         parametric_ci_glm(tb, fit, alpha, names, response)
     else
-        if(!(type %in% c("bootstrap", "parametric"))) stop("Incorrect interval type specified!")
+        if(!(type %in% c("boot", "parametric"))) stop("Incorrect interval type specified!")
 
 }
 

@@ -1,3 +1,20 @@
+# Copyright (C) 2017 Institute for Defense Analyses
+#
+# This file is part of ciTools.
+#
+# ciTools is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ciTools is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+
 #' Add Confidence Intervals for Predictions to Data Frames.
 #'
 #' This is a generic function to append confidence intervals for
@@ -14,6 +31,9 @@
 #'   \item \code{\link{add_ci.glm}} for generalized linear regression confidence intervals
 #'   \item \code{\link{add_ci.lmerMod}} for linear mixed models confidence intervals
 #' }
+#'
+#' Note that \code{add_ci} calculates confidence intervals for
+#' \emph{predictions}, not model coefficients.
 #'
 #' @import stats
 #' @import lme4

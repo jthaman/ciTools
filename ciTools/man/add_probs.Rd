@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_probs.R
 \name{add_probs}
 \alias{add_probs}
-\title{Add Probabilities to Data Frames}
+\title{Add Regression Probabilities to Data Frames}
 \usage{
 add_probs(tb, fit, q, name = NULL, comparison, ...)
 }
@@ -33,9 +33,34 @@ A tibble, \code{tb}, with predicted values and
     probabilities attached.
 }
 \description{
-This is a generic function to append event probabilities to a data
-frame. An event probability, such as Pr(Response|Covariates < 10),
-is generated for the fitted value of each observation in
-\code{tb}. These probabilities are then appended to \code{tb} and
-returned to the user as a tibble.
+This is a generic function to append response level probabilities
+to a data frame. A response level probability, such as
+Pr(Response|Covariates < 10), is generated for the fitted value of
+each observation in \code{tb}. These probabilities are then
+appended to \code{tb} and returned to the user as a tibble.
+}
+\details{
+For more specific information about the arguments that are useful
+in each method, consult
+
+\itemize{
+  \item \code{\link{add_probs.lm}} for linear regression response probabilities
+  \item \code{\link{add_probs.glm}} for generalized linear regression response probabilities
+  \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
+}
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+add_probs(cars, fit, q = 20)
+fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+add_probs(cars, fit2, q = 20)
+fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+add_probs(lme4::sleepstudy, fit3, q = 300)
+
+
+}
+\seealso{
+\code{\link{add_ci}} for confidence intervals,
+    \code{\link{add_quantile}} for response level quantiles, and
+    \code{\link{add_pi}} for prediction intervals
 }

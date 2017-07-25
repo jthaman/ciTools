@@ -1,5 +1,20 @@
-## Add pi method for lognormal objects
-## add back prediction using add_ci_lognormal
+# Copyright (C) 2017 Institute for Defense Analyses
+#
+# This file is part of ciTools.
+#
+# ciTools is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ciTools is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+
 add_pi_lm_log <- function(tb, fit, alpha = 0.05, names = NULL) {
  
     if (is.null(names)) {

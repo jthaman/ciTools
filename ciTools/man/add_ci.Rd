@@ -43,6 +43,9 @@ in each method, consult
   \item \code{\link{add_ci.glm}} for generalized linear regression confidence intervals
   \item \code{\link{add_ci.lmerMod}} for linear mixed models confidence intervals
 }
+
+Note that \code{add_ci} calculates confidence intervals for
+\emph{predictions}, not model coefficients.
 }
 \examples{
 fit <- lm(dist ~ speed, data = cars)
