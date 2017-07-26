@@ -38,8 +38,8 @@
 #'     X\beta + \epsilon}. These quantiles will be on the scale of the
 #'     original response, Y.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
-#'     prediction bounds attached.
+#' @return A tibble, \code{tb}, with predicted values and level -
+#'     \emph{p} quantile attached.
 #'
 #' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
 #'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction

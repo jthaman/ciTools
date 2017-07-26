@@ -25,8 +25,8 @@ to use.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
-    prediction bounds attached.
+A tibble, \code{tb}, with predicted values and level
+    \emph{p} quantiles attached.
 }
 \description{
 This function is one of the methods for

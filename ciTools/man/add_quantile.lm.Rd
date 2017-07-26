@@ -28,8 +28,8 @@ original response, Y.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
-    prediction bounds attached.
+A tibble, \code{tb}, with predicted values and level -
+    \emph{p} quantile attached.
 }
 \description{
 This function is one of the methods for \code{add_quantile}. It is

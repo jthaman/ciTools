@@ -25,22 +25,22 @@ otherwise, they will be named \code{name}}
 the random effects?}
 
 \item{type}{A character vector of length one. Options are
-\code{"parametric"} or \code{"sim"}}
+\code{"parametric"}, \code{"boot"}, or \code{"sim"}.}
 
 \item{nSims}{A positive integer. Set the number of simulations to
-perform.}
+perform. Only applied when \code{type = "boot"} or \code{type =
+"sim"}}
 
 \item{log_response}{A logical. Set to \code{TRUE} if the model is a
 log-linear mixed model.}
 
-\item{yhatName}{A string. Determines the name of column of
+\item{yhatName}{A string. Determines the name of the column of
 predictions.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
-    prediction bounds attached.
+A tibble, \code{tb}, with predicted values and level-p quantiles attached.
 }
 \description{
 This function is one of the methods for \code{add_quantile} and it
@@ -48,12 +48,14 @@ automatically called when \code{add_quantile} is called on an
 object of class \code{lmerMod}.
 }
 \details{
-\code{add_qauntile} may use three different for determining
-quantiles: a parametric method, a simulation method (via
-\code{merTools::predictInterval}), or a parametric bootstrap method
-(via \code{lme4::simulate}). The default and recommened method is
-parametric bootstrap, which corresponds to setting \code{type =
-"boot"}.
+\code{add_qauntile.lmerMod} may use three different methods for
+determining quantiles: a parametric method, a simulation method
+(via \code{merTools::predictInterval}), or a parametric bootstrap
+method (via \code{lme4::simulate}). The default and recommended
+method is parametric bootstrap, which corresponds to setting
+\code{type = "boot"}. Only use the parametric method if \code{fit}
+is a random intercept model e.g. \code{fit = lmer(y ~ x +
+(1|group))}.
 }
 \examples{
 dat <- lme4::sleepstudy

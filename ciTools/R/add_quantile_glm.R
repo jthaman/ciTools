@@ -38,8 +38,8 @@
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
-#'     prediction bounds attached.
+#' @return A tibble, \code{tb}, with predicted values and level
+#'     \emph{p} quantiles attached.
 #'
 #' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
 #'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction

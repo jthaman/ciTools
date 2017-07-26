@@ -12,19 +12,19 @@ add_quantile(tb, fit, p, name = NULL, ...)
 \item{fit}{An object of class lm, glm, or lmerMod. Predictions are
 made with this object.}
 
-\item{p}{A double. A probability that determines the
-quantile. Must be between 0 and 1.}
+\item{p}{A double. A probability that determines the quantile. Must
+be between 0 and 1.}
 
 \item{name}{NULL or character vector of length one. If \code{NULL},
 quantiles will automatically be named by \code{add_quantile()},
-otherwise, the quantiles will be named \code{name} in
-the returned tibble}
+otherwise, the quantiles will be named \code{name} in the
+returned tibble}
 
 \item{...}{Additional arguments}
 }
 \value{
-A tibble, \code{tb}, with predicted values and quantiles
-    attached.
+A tibble, \code{tb}, with predicted values and
+    level-\emph{p} quantiles attached.
 }
 \description{
 This is a generic function to append regression quantiles to a data

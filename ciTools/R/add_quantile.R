@@ -48,7 +48,7 @@
 #'     otherwise, the quantiles will be named \code{name} in
 #'     the returned tibble
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values and quantiles
+#' @return A tibble, \code{tb}, with predicted values and level-\emph{p} quantiles
 #'     attached.
 #' 
 #' @examples
