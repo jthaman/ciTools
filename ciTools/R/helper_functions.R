@@ -58,16 +58,6 @@ get_resid_df_mermod <- function(fit){
         (length(attributes(summary(fit)$varcor)$names) + 1)
 }
 
-## not useful, consider removal
-## get_residual_se <- function(fit){
-##     fit %>%
-##         VarCorr %>%
-##         as.data.frame %>%
-##         last %>%
-##         last
-## }
-
-
 get_pi_mermod_var <- function(tb, fit, includeRanef){
     seFixed <- get_prediction_se_mermod(tb, fit)
     seG <- arm::se.ranef(fit)[[1]][1,]
@@ -79,7 +69,6 @@ get_pi_mermod_var <- function(tb, fit, includeRanef){
     else
         return(sqrt(seFixed^2 + sigmaG^2 + se_residual^2))
 }
-
 
 calc_prob <- function(x, quant, comparison){
     if (comparison == "<")
@@ -111,3 +100,6 @@ boot_quants <- function(merBoot, alpha) {
                    upr = apply(merBoot$t, 2, quantile, probs = 1 - alpha / 2)))
 }
 
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage("ciTools (C) Institute for Defense Analyses")
+}

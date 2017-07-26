@@ -119,35 +119,6 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
     
 }
 
-
-## parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef){
-##     if (includeRanef == TRUE)
-##         reform = NULL
-##     else
-##         reform = NA
-    
-##     X <- model.matrix(reformulate(attributes(terms(fit))$term.labels), tb)
-##     vcovBetaHat <- vcov(fit)
-    
-##     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
-##         diag() %>%
-##         sqrt()
-    
-##     seRandom <- arm::se.ranef(fit)[[1]][1,]
-##     rdf <- nrow(model.matrix(fit)) - length(fixef(fit)) -
-##         (length(attributes(summary(fit)$varcor)$names) + 1)
-##     if(includeRanef)
-##         seGlobal <- sqrt(seFixed^2 + seRandom^2)
-##     else
-##         seGlobal <- seFixed
-##     if(is.null(tb[["pred"]]))
-##         tb[["pred"]] <- predict(fit, tb, re.form = reform) 
-##     tb[[names[1]]] <- tb[["pred"]] + qt(alpha/2, df = rdf) * seGlobal
-##     tb[[names[2]]] <- tb[["pred"]] + qt(1 - alpha/2, df = rdf) * seGlobal
-##     tb
-## }
-
-## simulation method using predictInterval
 sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200, yhatName) {
 
     if (includeRanef) {
@@ -198,30 +169,3 @@ bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhat
     
 }
 
-## ##Bootstrap CIs for merMod objects
-## ##Note that the bootstrapping is done on the random effects only. 
-
-## oldbootstrap_ci_mermod <- function(tb, fit, alpha, names, nBS = 999){
-    
-##     X <- model.matrix(fit)
-##     vcovBetaHat <- vcov(fit)
-    
-##     seFixed <- X %*% vcovBetaHat %*% t(X) %>% 
-##         diag() %>%
-##         sqrt()
-    
-##     wholePlotBS <- sample_ranefs(fit, nBS, alpha) 
-##     if(is.null(tb[["pred"]])) tb <- modelr::add_predictions(tb, fit)
-##     tb[[names[1]]] <- tb[["pred"]] + qnorm(alpha/2) * seFixed + wholePlotBS[1]
-##     tb[[names[2]]] <- tb[["pred"]] + qnorm(1 - alpha/2) * seFixed + wholePlotBS[2]
-##     tb
-    
-## }
-
-## sample_ranefs <- function(fit, nBS, alpha){
-##     if(length(ranef(fit)[[1]][[1]]) < 5) warning(
-##                                              "Fewer than 5 whole plots; consider using parametric methods")
-##     ranef(fit)[[1]][[1]] %>% 
-##         base::sample(size = nBS, replace = T) %>%
-##         quantile(probs = c(alpha/2, 1-alpha/2))
-## }
