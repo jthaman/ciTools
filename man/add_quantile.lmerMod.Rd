@@ -40,7 +40,8 @@ predictions.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level-p quantiles attached.
+A tibble, \code{tb}, with predicted values and level-p
+    quantiles attached.
 }
 \description{
 This function is one of the methods for \code{add_quantile} and it
