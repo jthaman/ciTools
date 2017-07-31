@@ -1,1 +1,85 @@
-ciTools
+* ciTools: An *R* package for quick uncertainty intervals
+
+** Overview
+   =ciTools= is an *R* package that makes working with model uncertainty
+   as easy as possible. It gives the user easy access to confidence or
+   prediction intervals for the predictions (fitted values) made with
+   (log-) linear models, generalized linear models, and (log-) linear
+   mixed models. Additionally, we provide functions to determine
+   probabilities and quantiles of the conditional response
+   distribution.
+
+** Why use it?
+   Uncertainty intervals (confidence or prediction intervals) for
+   fitted values are easy enough if one is just working with linear
+   models, but when models become more complex, e.g. generalized
+   linear models or linear mixed models, the facilities for
+   quantitfying unceratinty for predictions are either more cumbersome
+   to work with or nonexistent.
+   
+
+** Main Components
+   This package has three main features that make it useful to *R* users:
+   - Data frame first design - Easily pipe commands together (great for ggplot users)
+   - Uniform syntax - all commands have that same simple syntax, and sane defaults.
+   - Generic design - One command for each statistical quantity
+     
+*** All commands in =ciTools=:
+   - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
+   - add_pi(data, fit, ...) - get prediction intervals and append to =data=
+   - add_probs(data, fit, q, ...) - conditional response level probabilities
+   - add_quantile(data, fit, p, ...) - conditional response level quantiles
+
+** Installation
+   Install =ciTools= from Github with =devtools:=
+   #+BEGIN_SRC R
+     library(devtools)
+     devtools::install_github("jthaman/ciTools")
+     library(ciTools)
+   #+END_SRC
+
+** Usage
+   Here is a short example featuring a linear mixed model.
+
+   #+BEGIN_SRC R
+     ## Example with a linear mixed model
+
+     library(ciTools)
+     library(lme4)
+     library(tidyverse)
+
+     dat <- sleepstudy ## data included with lme4
+     ## Fit a random intercept model
+     fit_lmm <- lmer(Reaction ~ Days + (1 | Subject), data = dat)
+
+     ## New data for predictions
+     ## A random sample of 20 observations from sleepstudy
+     new_dat <- sleepstudy[sample(NROW(dat, 20)),]
+
+     ## Add 50% CIs and PIs to the new data:
+     new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
+         add_pi(fit, alpha = 0.5)
+
+     ## Add 50% CIs and PIs, but ignore the random effects:
+     new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE) %>%
+         add_pi(fit, alpha = 0.5, includeRanef = FALSE)
+
+     ## Determine the probability that a new Reaction time will be less
+     ## than 300:
+     new_dat <- add_probs(new_dat, fit, 300)
+
+     ## Or greater than:
+     new_dat <- add_probs(new_dat, fit, 300, comparison = ">")
+
+     ## Determine the 0.9-quantile of the predicive distribution, given the
+     ## model:
+     new_dat <- add_quantile(new_dat, fit, 0.9)
+
+     ## Glimpse all the quantities added:
+     glimpse(new_dat)
+   #+END_SRC
+
+   The end result is a data frame that is ammenable to plotting with ggplot2.
+   
+   =ciTools= (C) 2017 Institute for Defense Analyses
+

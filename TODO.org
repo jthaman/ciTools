@@ -15,8 +15,6 @@
 * Short Term
 - Add more GLMs to add_pi
 - reorder columns if they are not already in the right order
-- Upload to github and CRAN
-- Wait for the editors to read the documentation
 - Work on a vignette
 
 * Long Term
