@@ -56,6 +56,8 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{ciNames[1]} and the upper confidence bound will be
 #'     named \code{ciNames[2]}.
+#' @param yhatName A string. Name of the vector of the predictions
+#'     made for each observation in tb
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
@@ -95,6 +97,6 @@
 #'
 #' @export
 
-add_ci <- function(tb, fit, alpha = 0.05, names = NULL, ...){
+add_ci <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
   UseMethod("add_ci", fit)
 }

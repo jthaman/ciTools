@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  type = "boot", includeRanef = TRUE, nSims = 200, yhatName = "pred",
+  yhatName = "pred", type = "boot", includeRanef = TRUE, nSims = 200,
   ...)
 }
 \arguments{
@@ -22,6 +22,8 @@ level of the interval estimates.}
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
+\item{yhatName}{A string. Name of the predictions vector.}
+
 \item{type}{A string, either \code{"parametric"}, \code{"boot"}, or
 \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
 \code{merTools::predictInterval}. If \code{type = "boot"}, then
@@ -35,8 +37,6 @@ included.}
 \item{nSims}{A positive integer.  Controls the number of bootstrap
 replicates if \code{type = "boot"}, or the number of simulated
 draws if \code{type = "sim"}.}
-
-\item{yhatName}{A string. Name of the predictions vector.}
 
 \item{...}{Additional arguments.}
 }

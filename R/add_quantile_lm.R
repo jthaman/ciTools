@@ -32,6 +32,7 @@
 #' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}
+#' @param yhatName A string. Name of the vector of predictions.
 #' @param log_response logical. If TRUE, quantiles will be generated
 #'     for the prediction made with a log-linear model: \eqn{\log(Y) =
 #'     X\beta + \epsilon}. These quantiles will be on the scale of the
@@ -58,9 +59,10 @@
 #' 
 #' @export
 
-add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE, ...){
+add_quantile.lm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+                            log_response = FALSE, ...){
     if (log_response)
-        add_quantile_lm_log(tb, fit, p, name)
+        add_quantile_lm_log(tb, fit, p, name, yhatName)
     else {
         if (p == 0.5)
             warning ("The 0.5 quantile is equal to the fitted values")
@@ -79,8 +81,8 @@ add_quantile.lm <- function(tb, fit, p, name = NULL, log_response = FALSE, ...){
         se_pred <- sqrt(resid_var + se_fitted^2)
         t_quantile <- qt(p = p, df = residual_df)
         out_quantiles <- fitted + se_pred * t_quantile
-        if (is.null(tb[["pred"]]))
-            tb[["pred"]] <- fitted
+        if (is.null(tb[[yhatName]]))
+            tb[[yhatName]] <- fitted
         tb[[name]] <- out_quantiles
         tibble::as_data_frame(tb)
     }

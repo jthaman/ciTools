@@ -4,8 +4,8 @@
 \alias{add_quantile.lmerMod}
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
-\method{add_quantile}{lmerMod}(tb, fit, p, name = NULL, includeRanef = TRUE,
-  type = "boot", nSims = 200, log_response = FALSE, yhatName = "pred",
+\method{add_quantile}{lmerMod}(tb, fit, p, name = NULL, yhatName = "pred",
+  includeRanef = TRUE, type = "boot", nSims = 200, log_response = FALSE,
   ...)
 }
 \arguments{
@@ -21,6 +21,9 @@ level of the quantiles.}
 automatically be named by \code{add_quantile}, otherwise, they
 will be named \code{name}}
 
+\item{yhatName}{A string. Determines the name of the column of
+predictions.}
+
 \item{includeRanef}{Should the quantiles be calculated condition on
 the random effects? If \code{TRUE}, quantiles will be
 calculated at the "group level". Otherwise, quantiles will be
@@ -35,9 +38,6 @@ perform. Only applied when \code{type = "boot"} or \code{type =
 
 \item{log_response}{A logical. Set to \code{TRUE} if the model is a
 log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma + \epsilon}.}
-
-\item{yhatName}{A string. Determines the name of the column of
-predictions.}
 
 \item{...}{Additional arguments.}
 }

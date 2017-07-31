@@ -4,7 +4,7 @@
 \alias{add_quantile}
 \title{Add Regression Quantiles to Data Frames}
 \usage{
-add_quantile(tb, fit, p, name = NULL, ...)
+add_quantile(tb, fit, p, name = NULL, yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -19,6 +19,8 @@ be between 0 and 1.}
 quantiles will automatically be named by \code{add_quantile()},
 otherwise, the quantiles will be named \code{name} in the
 returned tibble}
+
+\item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{...}{Additional arguments}
 }

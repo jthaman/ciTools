@@ -29,6 +29,7 @@
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     will automatically be named by \code{add_probs}, otherwise, the
 #'     probabilities will be named \code{name} in the returned tibble.
+#' @param yhatName A character vector of length one. Names of the
 #' @param comparison \code{"<"}, or \code{">"}. If \code{comparison =
 #'     "<"}, then \eqn{Pr(Y|x < q)} is calculated for each observation in
 #'     \code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.
@@ -61,7 +62,7 @@
 #' 
 #' @export
 
-add_probs.lm <- function(tb, fit, q, name = NULL,
+add_probs.lm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                          comparison = "<", log_response = FALSE, ...){
 
     if (is.null(name) && comparison == "<")
@@ -86,8 +87,8 @@ add_probs.lm <- function(tb, fit, q, name = NULL,
         t_prob <- pt(q = t_quantile, df = residual_df)
     if (comparison == ">")
         t_prob <- 1 - pt(q = t_quantile, df = residual_df)
-    if (is.null(tb[["pred"]]))
-        tb[["pred"]] <- fitted
+    if (is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- fitted
     if (is.null(tb[[name]]))
         tb[[name]] <- t_prob
     tibble::as_data_frame(tb)

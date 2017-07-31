@@ -4,7 +4,7 @@
 \alias{add_pi}
 \title{Add Prediction Intervals to Data Frames}
 \usage{
-add_pi(tb, fit, alpha = 0.05, names = NULL, ...)
+add_pi(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -20,6 +20,8 @@ level of the interval estimates.}
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{piNames[1]} and the upper prediction bound will be
 named \code{piNames[2]}.}
+
+\item{yhatName}{A string. Name of the predictions vector.}
 
 \item{...}{Additional arguments}
 }

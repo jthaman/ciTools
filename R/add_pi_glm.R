@@ -36,6 +36,7 @@
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @param type A string. Currently must be \code{"sim"}.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
@@ -63,8 +64,8 @@
 #' @export
 
 
-add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
-                       type= "sim", nSims = 1000, ...){
+add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
+                       nSims = 1000, type = "sim", ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -83,7 +84,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
     }
 
     if(type == "sim"){
-        sim_pi_glm(tb, fit, alpha, names, nSims)
+        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
     }
     else if(!(type %in% c("sim")))
         stop("Only Simulated prediction intervals are implemented for glm objects")
@@ -92,7 +93,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL,
 ## TODO : hardcode more response distributions
 ## TODO : Smooth the prediction intervals
 
-sim_pi_glm <- function(tb, fit, alpha, names, nSims){
+sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -103,7 +104,8 @@ sim_pi_glm <- function(tb, fit, alpha, names, nSims){
 
     for (i in 1:nPreds){
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+            sim_response[i,] <- rpois(n = nSims,
+                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
             }
     }
 
@@ -111,8 +113,8 @@ sim_pi_glm <- function(tb, fit, alpha, names, nSims){
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
     
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)

@@ -38,6 +38,8 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the vector of the predictions
+#'     made for each observation in tb
 #' @param log_response logical. Default is \code{FALSE}. If
 #'     \code{TRUE}, confidence intervals will be generated for the
 #'     \emph{response level} of a log-linear model:  \eqn{\log(Y) =
@@ -65,9 +67,9 @@
 #' 
 #' @export
 
-add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE, ...){
+add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", log_response = FALSE, ...){
     if (log_response)
-        add_ci_lm_log(tb, fit, alpha, names)
+        add_ci_lm_log(tb, fit, alpha, names, yhatName)
     else {
 
         if (is.null(names)){
@@ -78,8 +80,8 @@ add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE,
             warning ("These CIs may have already been appended to your dataframe. Overwriting.")
         }
         out <- predict(fit, tb, interval = "confidence", level = 1 - alpha)
-        if(is.null(tb[["pred"]]))
-            tb[["pred"]] <- out[, 1]
+        if(is.null(tb[[yhatName]]))
+            tb[[yhatName]] <- out[, 1]
         if (is.null(tb[[names[1]]]))
             tb[[names[1]]] <- out[, 2]
         if (is.null(tb[[names[2]]]))

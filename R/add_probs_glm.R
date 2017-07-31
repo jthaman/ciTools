@@ -41,6 +41,7 @@
 #'     will automatically be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
 #'     tibble
+#' @param yhatName A string. Name of the vector of predictions.
 #' @param comparison A character vector of length one. If
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
 #'     calculated. Any comparison is allowed in Poisson regression,
@@ -82,8 +83,8 @@
 #' 
 #' @export
 
-add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
-                          nSims = 200, ...){
+add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
+                          comparison = "<", nSims = 200, ...){
 
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")
@@ -104,19 +105,19 @@ add_probs.glm <- function(tb, fit, q, name = NULL, comparison = "<",
 
     if (fit$family$family == "binomial"){
         warning ("Be careful. You should only be asking probabilities that are equivalent to Pr(Y = 0) or Pr(Y = 1).")
-        probs_logistic(tb, fit, q, name, comparison)
+        probs_logistic(tb, fit, q, name, yhatName, comparison)
     }
 
     else if (fit$family$family == "poisson"){
         warning("The response is not continuous, so estimated probabilities are only approximate")
-        sim_probs_pois(tb, fit, q, name, nSims, comparison)
+        sim_probs_pois(tb, fit, q, name, yhatName, nSims, comparison)
     }
 
     else
         stop("This family is not supported")
 }
 
-probs_logistic <- function(tb, fit, q, name, comparison){
+probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
     inverselink <- fit$family$linkinv
     out <- predict(fit, tb, se.fit = TRUE)
     out <- inverselink(out$fit)
@@ -124,13 +125,13 @@ probs_logistic <- function(tb, fit, q, name, comparison){
         probs <- 1 - out
     else
         probs <- out
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[name]] <- probs
     tibble::as_data_frame(tb)
 }
 
-sim_probs_pois <- function(tb, fit, q, name, nSims, comparison){
+sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -148,8 +149,8 @@ sim_probs_pois <- function(tb, fit, q, name, nSims, comparison){
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[name]] <- probs
     tibble::as_data_frame(tb)
 

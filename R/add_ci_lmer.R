@@ -39,6 +39,7 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @param type A string, either \code{"parametric"}, \code{"boot"}, or
 #'     \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
 #'     \code{merTools::predictInterval}. If \code{type = "boot"}, then
@@ -50,7 +51,6 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates if \code{type = "boot"}, or the number of simulated
 #'     draws if \code{type = "sim"}. 
-#' @param yhatName A string. Name of the predictions vector.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
@@ -77,9 +77,9 @@
 #' @export
 
 add_ci.lmerMod <- function(tb, fit, 
-                           alpha = 0.05, names = NULL, type = "boot",
-                           includeRanef = TRUE,
-                           nSims = 200, yhatName = "pred", ...){
+                           alpha = 0.05, names = NULL, yhatName = "pred",
+                           type = "boot", includeRanef = TRUE,
+                           nSims = 200, ...){
 
     if (!is.null(fit@optinfo$conv$lme4$code))
         warning ("Coverage probabilities may be inaccurate if the model failed to converge")

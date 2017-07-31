@@ -4,7 +4,7 @@
 \alias{add_probs}
 \title{Add Regression Probabilities to Data Frames}
 \usage{
-add_probs(tb, fit, q, name = NULL, comparison, ...)
+add_probs(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -19,6 +19,8 @@ distribution.}
 \code{NULL}, probabilities will automatically be named by
 \code{add_probs}, otherwise, the probabilities will be named
 \code{name} in the returned tibble.}
+
+\item{yhatName}{A character vector of length one. Names of the}
 
 \item{comparison}{A string. If \code{comparison = "<"}, then
 \eqn{Pr(Y|x < q)} is calculated for each observation in

@@ -4,7 +4,8 @@
 \alias{add_quantile.glm}
 \title{Quantiles for the Response of a Generalized Linear Model}
 \usage{
-\method{add_quantile}{glm}(tb, fit, p, name = NULL, nSims = 200, ...)
+\method{add_quantile}{glm}(tb, fit, p, name = NULL, yhatName = "pred",
+  nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -18,6 +19,8 @@ of the quantiles.}
 \item{name}{\code{NULL} or a string. If \code{NULL},
 quantiles will automatically be named by \code{add_quantile},
 otherwise, they will be named \code{name}}
+
+\item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{nSims}{A positive integer. Set the number of simulated draws
 to use.}

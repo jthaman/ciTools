@@ -4,8 +4,8 @@
 \alias{add_pi.glm}
 \title{Prediction Intervals for Generalized Linear Models}
 \usage{
-\method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL, type = "sim",
-  nSims = 1000, ...)
+\method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL,
+  yhatName = "pred", nSims = 1000, type = "sim", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -21,10 +21,12 @@ level of the interval estimates.}
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
-\item{type}{A string. Currently must be \code{"sim"}.}
+\item{yhatName}{A string. Name of the predictions vector.}
 
 \item{nSims}{A positive integer. Determines the number of
 simulations to run.}
+
+\item{type}{A string. Currently must be \code{"sim"}.}
 
 \item{...}{Additional arguments.}
 }

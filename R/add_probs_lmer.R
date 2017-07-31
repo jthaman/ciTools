@@ -30,6 +30,7 @@
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     will automatically be named by \code{add_probs}, otherwise, the
 #'     probabilities will be named \code{name} in the returned tibble.
+#' @param yhatName A string. Name of the vector of predictions.
 #' @param q A real number. A quantile of the response conditional
 #'     response distribution.
 #' @param type A string, either \code{"parametric"} , \code{"sim"}, or
@@ -49,8 +50,6 @@
 #' @param log_response A logical. Set to \code{TRUE} if your model is
 #'     a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
 #'     \epsilon}.
-#' @param yhatName A string. Determines the name of the vector of
-#'     predictions.
 #' @param ... Additional arguments.
 #' 
 #' @return A tibble, \code{tb}, with predictions and probabilities
@@ -83,9 +82,10 @@
 
 
 add_probs.lmerMod <- function(tb, fit, 
-                              q, name = NULL, comparison = "<", type = "parametric",
+                              q, name = NULL, yhatName = "pred",
+                              comparison = "<", type = "parametric",
                               includeRanef = TRUE,
-                              nSims = 200, log_response = FALSE, yhatName = "pred", ...) {
+                              nSims = 200, log_response = FALSE, ...) {
   
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")

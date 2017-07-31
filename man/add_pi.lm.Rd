@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Model Predictions.}
 \usage{
 \method{add_pi}{lm}(tb, fit, alpha = 0.05, names = NULL,
-  log_response = FALSE, ...)
+  yhatName = "pred", log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -21,6 +21,8 @@ level of the interval estimates.}
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
+
+\item{yhatName}{A string. Name of the predictions vector.}
 
 \item{log_response}{logical. If TRUE, prediction intervals will be
 generated at the \emph{response level} of a log-linear model:

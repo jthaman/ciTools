@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Linear Model Predictions.}
 \usage{
 \method{add_ci}{lm}(tb, fit, alpha = 0.05, names = NULL,
-  log_response = FALSE, ...)
+  yhatName = "pred", log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame.}
@@ -21,6 +21,9 @@ level of the interval estimates.}
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
+
+\item{yhatName}{A string. Name of the vector of the predictions
+made for each observation in tb}
 
 \item{log_response}{logical. Default is \code{FALSE}. If
 \code{TRUE}, confidence intervals will be generated for the

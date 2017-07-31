@@ -33,6 +33,8 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the vector of predictions
+#'     made for each observation in tb
 #' @param type A string, currently \code{type = "parametric"} is the
 #'     only supported method.
 #' @param response A logical. The default is \code{TRUE}. If
@@ -72,7 +74,7 @@
 #'
 #' @export
 
-add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
+add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                       response = TRUE, type = "parametric", ...){
 
     if (!(fit$converged))
@@ -87,13 +89,13 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
     if (type == "boot")
         stop ("not yet implemented")
     else if (type == "parametric")
-        parametric_ci_glm(tb, fit, alpha, names, response)
+        parametric_ci_glm(tb, fit, alpha, names, yhatName, response)
     else
         if(!(type %in% c("boot", "parametric"))) stop("Incorrect interval type specified!")
 
 }
 
-parametric_ci_glm <- function(tb, fit, alpha, names, response){
+parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     out <- predict(fit, tb, se.fit = TRUE)
 
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
@@ -107,8 +109,8 @@ parametric_ci_glm <- function(tb, fit, alpha, names, response){
         lwr <- out$fit - crit_val * out$se.fit
         pred <- out$fit
     }
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- pred
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- pred
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)

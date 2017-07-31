@@ -4,9 +4,9 @@
 \alias{add_probs.lmerMod}
 \title{Response Probabilities for Linear Mixed Models}
 \usage{
-\method{add_probs}{lmerMod}(tb, fit, q, name = NULL, comparison = "<",
-  type = "parametric", includeRanef = TRUE, nSims = 200,
-  log_response = FALSE, yhatName = "pred", ...)
+\method{add_probs}{lmerMod}(tb, fit, q, name = NULL, yhatName = "pred",
+  comparison = "<", type = "parametric", includeRanef = TRUE,
+  nSims = 200, log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -19,6 +19,8 @@ response distribution.}
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
 will automatically be named by \code{add_probs}, otherwise, the
 probabilities will be named \code{name} in the returned tibble.}
+
+\item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{comparison}{A character vector of length one. Must be either
 \code{"<"} or \code{">"}. If \code{comparison = "<"}, then
@@ -41,9 +43,6 @@ simulated draws to make.}
 \item{log_response}{A logical. Set to \code{TRUE} if your model is
 a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
 \epsilon}.}
-
-\item{yhatName}{A string. Determines the name of the vector of
-predictions.}
 
 \item{...}{Additional arguments.}
 }

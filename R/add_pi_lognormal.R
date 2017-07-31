@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-add_pi_lm_log <- function(tb, fit, alpha = 0.05, names = NULL) {
+add_pi_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName) {
  
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -26,8 +26,8 @@ add_pi_lm_log <- function(tb, fit, alpha = 0.05, names = NULL) {
     }
  
   out <- predict(fit, tb, interval = "prediction", level = 1 - alpha)
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- exp(out[, 1])
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- exp(out[, 1])
   tb[[names[1]]] <- exp(out[, 2])
   tb[[names[2]]] <- exp(out[, 3])
   tibble::as_data_frame(tb)

@@ -4,8 +4,8 @@
 \alias{add_probs.glm}
 \title{Response Probabilities for Generalized Linear Models}
 \usage{
-\method{add_probs}{glm}(tb, fit, q, name = NULL, comparison = "<",
-  nSims = 200, ...)
+\method{add_probs}{glm}(tb, fit, q, name = NULL, yhatName = "pred",
+  comparison = "<", nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -19,6 +19,8 @@ this object.}
 will automatically be named by \code{add_probs()}, otherwise,
 the probabilities will be named \code{name} in the returned
 tibble}
+
+\item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{comparison}{A character vector of length one. If
 \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is

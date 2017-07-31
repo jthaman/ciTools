@@ -5,8 +5,8 @@
 \title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  type = "boot", includeRanef = TRUE, log_response = FALSE, nSims = 200,
-  yhatName = "pred", ...)
+  yhatName = "pred", type = "boot", includeRanef = TRUE,
+  log_response = FALSE, nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -21,6 +21,8 @@ level of the interval estimates.}
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
+
+\item{yhatName}{A string. Name of the predictions vector.}
 
 \item{type}{A string, either \code{"parametric"}, \code{"sim"},
 \code{"boot"}. Determines the method uses to calculate the
@@ -37,9 +39,6 @@ be returned on the response scale.}
 \item{nSims}{A positive integer. If \code{type = "sim"} or
 \code{type = "boot"}, \code{nSims} will determine the number of
 simulated draws to make.}
-
-\item{yhatName}{A character vector of length one. Names of the
-column of predictions from \code{fit} on \code{tb}.}
 
 \item{...}{Additional arguments.}
 }

@@ -47,6 +47,7 @@
 #'     quantiles will automatically be named by \code{add_quantile()},
 #'     otherwise, the quantiles will be named \code{name} in the
 #'     returned tibble
+#' @param yhatName A string. Name of the vector of predictions.
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and
 #'     level-\emph{p} quantiles attached.
@@ -79,7 +80,7 @@
 #' 
 #' @export
 
-add_quantile <- function(tb, fit, p, name = NULL, ...){
+add_quantile <- function(tb, fit, p, name = NULL, yhatName = "pred", ...){
   UseMethod("add_quantile", fit)
 }
 

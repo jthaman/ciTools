@@ -41,6 +41,7 @@
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @param type A string, either \code{"parametric"}, \code{"sim"},
 #'     \code{"boot"}. Determines the method uses to calculate the
 #'     prediction intervals.
@@ -53,8 +54,6 @@
 #' @param log_response A logical, indicating if the response is on log
 #'     scale in the model fit. If \code{TRUE}, prediction intervals will
 #'     be returned on the response scale.
-#' @param yhatName A character vector of length one. Names of the
-#'     column of predictions from \code{fit} on \code{tb}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
@@ -87,10 +86,9 @@
 #' @export
 
 add_pi.lmerMod <- function(tb, fit, 
-                           alpha = 0.05, names = NULL,
+                           alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "boot", includeRanef = TRUE,
-                          log_response = FALSE, nSims = 200,
-                          yhatName = "pred", ...) {
+                          log_response = FALSE, nSims = 200, ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")

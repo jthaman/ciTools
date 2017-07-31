@@ -48,6 +48,7 @@
 #'     \code{NULL}, probabilities will automatically be named by
 #'     \code{add_probs}, otherwise, the probabilities will be named
 #'     \code{name} in the returned tibble.
+#' @param yhatName A character vector of length one. Names of the
 #' @param comparison A string. If \code{comparison = "<"}, then
 #'     \eqn{Pr(Y|x < q)} is calculated for each observation in
 #'     \code{tb}. Default is "<". Must be "<" or ">" for objects of
@@ -88,7 +89,7 @@
 #' 
 #' @export
 
-add_probs <- function(tb, fit, q, name = NULL, comparison, ...){
+add_probs <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...){
     UseMethod("add_probs", fit)
 }
 

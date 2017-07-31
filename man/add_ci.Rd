@@ -4,7 +4,7 @@
 \alias{add_ci}
 \title{Add Confidence Intervals for Predictions to Data Frames.}
 \usage{
-add_ci(tb, fit, alpha = 0.05, names = NULL, ...)
+add_ci(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.
@@ -21,6 +21,9 @@ level of the interval estimates.}
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{ciNames[1]} and the upper confidence bound will be
 named \code{ciNames[2]}.}
+
+\item{yhatName}{A string. Name of the vector of the predictions
+made for each observation in tb}
 
 \item{...}{Additional arguments.}
 }

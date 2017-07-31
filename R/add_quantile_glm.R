@@ -34,6 +34,7 @@
 #' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}
+#' @param yhatName A string. Name of the vector of predictions.
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
@@ -61,7 +62,8 @@
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, nSims = 200, ...){
+add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+                             nSims = 200, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
@@ -74,11 +76,11 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, nSims = 200, ...){
     }
     if (fit$family$family == "poisson"){
         warning ("The response is not continuous, so estimated quantiles are only approximate")
-        sim_quantile_pois(tb, fit, p, name, nSims)
+        sim_quantile_pois(tb, fit, p, name, yhatName, nSims)
     }
 }
 
-sim_quantile_pois <- function(tb, fit, p, name, nSims){
+sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -95,8 +97,8 @@ sim_quantile_pois <- function(tb, fit, p, name, nSims){
 
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- out
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
     tb[[name]] <- quants
     tibble::as_data_frame(tb)
 

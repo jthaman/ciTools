@@ -39,6 +39,7 @@
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @param log_response logical. If TRUE, prediction intervals will be
 #'     generated at the \emph{response level} of a log-linear model:
 #'     \eqn{\log(Y) = X\beta + \epsilon}. Again, these intervals will
@@ -70,10 +71,11 @@
 #' add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 #' @export
 
-add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE, ...){
+add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL,
+                      yhatName = "pred", log_response = FALSE, ...){
     
     if (log_response)
-        add_pi_lm_log(tb, fit, alpha, names)
+        add_pi_lm_log(tb, fit, alpha, names, yhatName)
 
     else {
         if (is.null(names)){
@@ -84,8 +86,8 @@ add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL, log_response = FALSE,
             warning ("These PIs may have already been appended to your dataframe. Overwriting.")
         }
         out <- predict(fit, tb, interval = "prediction", level = 1 - alpha)
-        if(is.null(tb[["pred"]]))
-            tb[["pred"]] <- out[, 1]
+        if(is.null(tb[[yhatName]]))
+            tb[[yhatName]] <- out[, 1]
         if (is.null(tb[[names[1]]]))
             tb[[names[1]]] <- out[, 2]
         if (is.null(tb[[names[2]]]))

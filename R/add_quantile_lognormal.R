@@ -16,7 +16,7 @@
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
 
-add_quantile_lm_log <- function(tb, fit, p, name = NULL) {
+add_quantile_lm_log <- function(tb, fit, p, name = NULL, yhatName) {
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name)) {
@@ -36,8 +36,8 @@ add_quantile_lm_log <- function(tb, fit, p, name = NULL) {
     t_quantile <- qt(p = p, df = residual_df)
     out_quantiles <- exp(fitted + se_pred * t_quantile)
 
-    #if(is.null(tb[["pred"]]))
-       # tb[["pred"]] <- exp(fitted)
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- exp(fitted)
     tb[[name]] <- out_quantiles
     tibble::as_data_frame(tb)
 }

@@ -83,10 +83,10 @@
 #' @export
 
 add_quantile.lmerMod <- function(tb, fit, 
-                                 p, name = NULL, includeRanef = TRUE,
+                                 p, name = NULL,
+                                 yhatName = "pred", includeRanef = TRUE,
                                  type = "boot",
-                                 nSims = 200, log_response = FALSE,
-                                 yhatName = "pred", ...) {
+                                 nSims = 200, log_response = FALSE, ...) {
 
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")

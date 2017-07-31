@@ -4,8 +4,8 @@
 \alias{add_ci.glm}
 \title{Confidence Intervals for Generalized Linear Model Predictions}
 \usage{
-\method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL, response = TRUE,
-  type = "parametric", ...)
+\method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL,
+  yhatName = "pred", response = TRUE, type = "parametric", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -20,6 +20,9 @@ level of the interval estimates.}
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
+
+\item{yhatName}{A string. Name of the vector of predictions
+made for each observation in tb}
 
 \item{response}{A logical. The default is \code{TRUE}. If
 \code{TRUE}, the confidence intervals will be determined for

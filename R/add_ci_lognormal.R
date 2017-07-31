@@ -62,7 +62,7 @@ get_se_pred <- function(pred, Xpred, V, p){
     se_pred
 }
 
-add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL){
+add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
 
     if (is.null(names)) {
         names[1] <- paste("LCB", alpha/2, sep = "")
@@ -84,8 +84,8 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL){
     lwr <- exp(Xbeta + qnorm(p) * sigma_mle - z_quantile * se_pred / pred)
     upr <- exp(Xbeta + qnorm(p) * sigma_mle + z_quantile * se_pred / pred)
     
-    if(is.null(tb[["pred"]]))
-        tb[["pred"]] <- pred
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- pred
     if (is.null(tb[[names[1]]]))
         tb[[names[1]]] <- lwr
     if (is.null(tb[[names[2]]]))

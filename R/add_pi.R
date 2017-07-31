@@ -44,6 +44,7 @@
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{piNames[1]} and the upper prediction bound will be
 #'     named \code{piNames[2]}.
+#' @param yhatName A string. Name of the predictions vector.
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
@@ -76,7 +77,7 @@
 #' 
 #' @export
 
-add_pi <- function(tb, fit, alpha = 0.05, names = NULL, ...){
+add_pi <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
   UseMethod("add_pi", fit)
 }
 
