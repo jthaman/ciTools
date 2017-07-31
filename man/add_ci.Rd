@@ -7,10 +7,11 @@
 add_ci(tb, fit, alpha = 0.05, names = NULL, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame on which to make predictions.}
+\item{tb}{A tibble or data frame of new data.
+predictions. \code{tb} can be the original data or new data.}
 
-\item{fit}{An object of class lm, glm, or lmerMod. Predictions are
-made with this object.}
+\item{fit}{An object of class \code{lm}, \code{glm}, or
+\code{lmerMod}. Predictions are made with this object.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
@@ -32,10 +33,11 @@ This is a generic function to append confidence intervals for
 predictions of a model fit to a data frame. A confidence interval
 is generated for the fitted value of each observation in
 \code{tb}. These confidence intervals are then appended to
-\code{tb} and returned to the user as a tibble.
+\code{tb} and returned to the user as a tibble. The \code{fit} may
+be a linear, log-linear, linear mixed, or generalized linear model.
 }
 \details{
-For more specific information about the arguments that are useful
+For more specific information about the arguments that are applicable
 in each method, consult
 
 \itemize{
@@ -45,16 +47,33 @@ in each method, consult
 }
 
 Note that \code{add_ci} calculates confidence intervals for
-\emph{predictions}, not model coefficients.
+\emph{fitted values}, not model coefficients.
 }
 \examples{
+# Fit a linear model
 fit <- lm(dist ~ speed, data = cars)
+# Make a confidence interval for each observation in cars, and
+# append to the data frame
 add_ci(cars, fit)
-fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+
+# Make new data
+new_data <- cars[sample(NROW(cars), 10), ]
+add_ci(new_data, fit)
+
+# Fit a Poisson model
+fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
+# Append CIs
 add_ci(cars, fit2)
+
+# Fit a linear mixed model using lme4
 fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-add_ci(lme4::sleepstudy, fit3)
+# Append CIs
+# Generally, you should use more than 100 bootstrap replicates
+add_ci(lme4::sleepstudy, fit3, nSims = 100)
+
+# Fit a Logistic model
 fit4 <- glm(I(dist > 20) ~ speed, family = "binomial", data = cars)
+# Append CIs
 add_ci(cbind(cars, I(cars$dist > 20)), fit4)
 
 

@@ -7,15 +7,15 @@
 \method{add_quantile}{glm}(tb, fit, p, name = NULL, nSims = 200, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data}
 
-\item{fit}{An object of class lm. Predictions are made with this
-object.}
+\item{fit}{An object of class \code{glm}. Predictions are made with
+this object.}
 
-\item{p}{A real number between 0 and 1. Sets the probability for
-which to calculate the quantiles.}
+\item{p}{A real number between 0 and 1. Sets the probability level
+of the quantiles.}
 
-\item{name}{NULL or character vector of length one. If \code{NULL},
+\item{name}{\code{NULL} or a string. If \code{NULL},
 quantiles will automatically be named by \code{add_quantile},
 otherwise, they will be named \code{name}}
 
@@ -29,24 +29,32 @@ A tibble, \code{tb}, with predicted values and level
     \emph{p} quantiles attached.
 }
 \description{
-This function is one of the methods for
+This function is one of the methods of
 \code{add_quantile}. Currently, you can only use this function to
 compute the quantiles of the response of a Poisson regression with
-the log link function.
+the \eqn{\log}-link function.
 }
 \details{
-Quantiles are GLMs are determined by \code{add_quantile} through a
-simulation using the function \code{sim} from the package
-\code{arm}.
+Quantiles of Generalized Linear models are determined by
+\code{add_quantile} through a simulation using \code{arm::sim}.
 }
 \examples{
+
+# Fit a Poisson GLM
 fit <- glm(dist ~ speed, data = cars, family = "poisson")
+
+# What is the 0.3-quantile (or 30th percentile) of new dists, given
+# the Poisson model?
 add_quantile(cars, fit, p = 0.3)
+
+# As above, but now find the 0.5-quantile (50th percentile), change
+# the number of simulations to run, and give the vector of
+# quantiles a custom name.
 add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
 
 }
 \seealso{
-\code{{\link{add_ci.lm}}} for confidence intervals for
+\code{\link{add_ci.lm}} for confidence intervals for
     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
     for response probabilities of \code{lm} objects.

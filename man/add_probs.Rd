@@ -7,24 +7,25 @@
 add_probs(tb, fit, q, name = NULL, comparison, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame on which to append probabilities}
+\item{tb}{A tibble or data frame of new data}
 
-\item{fit}{An object of class lm, glm, or lmerMod. Predictions are
-made with this object.}
+\item{fit}{An object of class \code{lm}, \code{glm}, or
+\code{lmerMod}. Predictions are made with this object.}
 
-\item{q}{A double. A quantile of the response distribution.}
+\item{q}{A real number. A quantile of the conditional response
+distribution.}
 
-\item{name}{NULL or character vector of length one. If \code{NULL},
-probabilities will automatically be named by
-\code{add_probs()}, otherwise, the probabilities will be named
-\code{name} in the returned tibble}
+\item{name}{\code{NULL} or character vector of length one. If
+\code{NULL}, probabilities will automatically be named by
+\code{add_probs}, otherwise, the probabilities will be named
+\code{name} in the returned tibble.}
 
-\item{comparison}{A character vector of length one. If
-\code{comparison = "<"}, then Pr(Y|x < q) is calculated for
-each observation in \code{tb}. Default is "<". Must be "<" or
-">" for linear, log-linear and linear mixed models. If
-\code{fit} is a glm, then comparison may also be "<=", ">=", or
-"=".}
+\item{comparison}{A string. If \code{comparison = "<"}, then
+\eqn{Pr(Y|x < q)} is calculated for each observation in
+\code{tb}. Default is "<". Must be "<" or ">" for objects of
+class \code{lm} or \code{lmerMod}. If \code{fit} is a
+\code{glm}, then \code{comparison} may also be \code{"<="} ,
+\code{">="} , or \code{"="}.}
 
 \item{...}{Additional arguments}
 }
@@ -34,10 +35,11 @@ A tibble, \code{tb}, with predicted values and
 }
 \description{
 This is a generic function to append response level probabilities
-to a data frame. A response level probability, such as
-Pr(Response|Covariates < 10), is generated for the fitted value of
-each observation in \code{tb}. These probabilities are then
-appended to \code{tb} and returned to the user as a tibble.
+to a data frame. A response level probability (conditioned on the
+model and covariates), such as \eqn{Pr(Response|Covariates < 10)},
+is generated for the fitted value of each observation in
+\code{tb}. These probabilities are then appended to \code{tb} and
+returned to the user as a tibble.
 }
 \details{
 For more specific information about the arguments that are useful
@@ -49,19 +51,34 @@ in each method, consult
   \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
 }
 
-The probabilities that \code{add_probs} calculates are on the
-distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
-same distribution as a prediction interval, not the distribution of
-a confidence interval.
+Note that the probabilities that \code{add_probs} calculates are on
+the distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use
+the same distribution from which a prediction interval is
+detmermined, not the distribution that determines a confidence
+interval.
 }
 \examples{
+# Define a model 
 fit <- lm(dist ~ speed, data = cars)
+
+# Calculate the probability that the probability that a new
+# dist is less than 20 (Given the model)
 add_probs(cars, fit, q = 20)
+
+# Calculate the probability that the probability that a new
+# dist is greater than 20 (Given the model)
+add_probs(cars, fit, q = 20, comparison = ">")
+
+# Try a different model fit.
 fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
 add_probs(cars, fit2, q = 20)
-fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-add_probs(lme4::sleepstudy, fit3, q = 300)
 
+# Try a different model fit.
+fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+add_probs(lme4::sleepstudy, fit3, q = 300, type = "parametric")
+
+# As above, but do not condition on the random effects.
+add_probs(lme4::sleepstudy, fit3, q = 300, type = "parametric", includeRanef = FALSE)
 
 }
 \seealso{

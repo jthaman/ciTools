@@ -2,21 +2,21 @@
 % Please edit documentation in R/add_ci_lmer.R
 \name{add_ci.lmerMod}
 \alias{add_ci.lmerMod}
-\title{Confidence Intervals for Linear Mixed Models}
+\title{Confidence Intervals for Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
   type = "boot", includeRanef = TRUE, nSims = 200, yhatName = "pred",
   ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data.}
 
 \item{fit}{An object of class \code{lmerMod}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, confidence bounds will automatically be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
@@ -24,9 +24,8 @@ named \code{names[2]}.}
 
 \item{type}{A string, either \code{"parametric"}, \code{"boot"}, or
 \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
-the function \code{predictInterval} from \code{merTools}. If
-\code{type = "boot"}, then \code{add_ci} calls the function
-\code{bootMer} from \code{lme4}.}
+\code{merTools::predictInterval}. If \code{type = "boot"}, then
+\code{add_ci} calls \code{lme4::bootMer}.}
 
 \item{includeRanef}{A logical. Default is \code{TRUE}. Set whether
 the predictions and intervals should be made conditional on the
@@ -35,8 +34,7 @@ included.}
 
 \item{nSims}{A positive integer.  Controls the number of bootstrap
 replicates if \code{type = "boot"}, or the number of simulated
-draws if \code{type = "sim"}. We typically use between 1000 and
-10000 simulations.}
+draws if \code{type = "sim"}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
@@ -50,27 +48,34 @@ A tibble, \code{tb}, with predicted values, upper and lower
 This function is one of the methods for \code{add_ci}, and is
 called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{lmerMod}. It is recommended that one use parametric
-confidence intervals when modeling with a random intercept
-LMM. Otherwise confidence intervals may be simulated (type =
-\code{"sim"}) via \code{predictInterval} from \code{merTools} or
-bootstrapped (\code{type = "boot"}) via \code{bootMer} from
-\code{lme4}.
+confidence intervals when modeling with a random intercept Linear
+Mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
+(1|group))}). Otherwise confidence intervals may be simulated (type
+= \code{"sim"}) via \code{merTools::predictInterval} or
+bootstrapped via \code{lme4::bootMer}.
 }
 \details{
 Bootstrapped intervals are the slowest to compute, but recommended
-method when working with linear mixed models.
+method when working with any linear mixed models more complicated
+than the random intercept model.
 }
 \examples{
+# Define the data set
 dat <- lme4::sleepstudy
+# Fit a linear mixed model (random intercept model)
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-add_ci(dat, fit, alpha = 0.5)
-add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
+# append get the fitted values for each observation in dat, and
+# append CIs for those fitted values to dat
+add_ci(dat, fit, alpha = 0.5, nSims = 100)
+# Try another method, and make prediction at the population level
+add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE, nSims = 100)
+# Try another method, and add custom names to the confidence bounds
 add_ci(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
 
 }
 \seealso{
-\code{{\link{add_pi.lmerMod}}} for prediction intervals
-    for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+\code{\link{add_pi.lmerMod}} for prediction intervals
+    of \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
     conditional probabilities of \code{lmerMod} objects, and
     \code{\link{add_quantile.lmerMod}} for response quantiles of
     \code{lmerMod} objects.

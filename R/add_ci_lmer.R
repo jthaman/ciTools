@@ -15,58 +15,63 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for Linear Mixed Models
+#' Confidence Intervals for Linear Mixed Model Predictions
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
 #' class \code{lmerMod}. It is recommended that one use parametric
-#' confidence intervals when modeling with a random intercept
-#' LMM. Otherwise confidence intervals may be simulated (type =
-#' \code{"sim"}) via \code{predictInterval} from \code{merTools} or
-#' bootstrapped (\code{type = "boot"}) via \code{bootMer} from
-#' \code{lme4}.
+#' confidence intervals when modeling with a random intercept Linear
+#' Mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
+#' (1|group))}). Otherwise confidence intervals may be simulated (type
+#' = \code{"sim"}) via \code{merTools::predictInterval} or
+#' bootstrapped via \code{lme4::bootMer}. 
 #'
 #' Bootstrapped intervals are the slowest to compute, but recommended
-#' method when working with linear mixed models.
+#' method when working with any linear mixed models more complicated
+#' than the random intercept model.
 #' 
-#' @param tb A tibble or Data Frame.
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param names NULL or character vector of length two. If
+#' @param names \code{NULL} or character vector of length two. If
 #'     \code{NULL}, confidence bounds will automatically be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param type A string, either \code{"parametric"}, \code{"boot"}, or
 #'     \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
-#'     the function \code{predictInterval} from \code{merTools}. If
-#'     \code{type = "boot"}, then \code{add_ci} calls the function
-#'     \code{bootMer} from \code{lme4}.
+#'     \code{merTools::predictInterval}. If \code{type = "boot"}, then
+#'     \code{add_ci} calls \code{lme4::bootMer}.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
 #'     included.
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates if \code{type = "boot"}, or the number of simulated
-#'     draws if \code{type = "sim"}. We typically use between 1000 and
-#'     10000 simulations. 
+#'     draws if \code{type = "sim"}. 
 #' @param yhatName A string. Name of the predictions vector.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @seealso \code{{\link{add_pi.lmerMod}}} for prediction intervals
-#'     for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+#' @seealso \code{\link{add_pi.lmerMod}} for prediction intervals
+#'     of \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
 #'     conditional probabilities of \code{lmerMod} objects, and
 #'     \code{\link{add_quantile.lmerMod}} for response quantiles of
 #'     \code{lmerMod} objects.
 #'
 #' @examples
+#' # Define the data set
 #' dat <- lme4::sleepstudy
+#' # Fit a linear mixed model (random intercept model)
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-#' add_ci(dat, fit, alpha = 0.5)
-#' add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
+#' # append get the fitted values for each observation in dat, and
+#' # append CIs for those fitted values to dat
+#' add_ci(dat, fit, alpha = 0.5, nSims = 100)
+#' # Try another method, and make prediction at the population level
+#' add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE, nSims = 100)
+#' # Try another method, and add custom names to the confidence bounds
 #' add_ci(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
 #'
 #' @export
@@ -75,6 +80,9 @@ add_ci.lmerMod <- function(tb, fit,
                            alpha = 0.05, names = NULL, type = "boot",
                            includeRanef = TRUE,
                            nSims = 200, yhatName = "pred", ...){
+
+    if (!is.null(fit@optinfo$conv$lme4$code))
+        warning ("Coverage probabilities may be inaccurate if the model failed to converge")
 
     if (is.null(names)){
         names[1] <- paste("LCB", alpha/2, sep = "")
@@ -96,7 +104,10 @@ add_ci.lmerMod <- function(tb, fit,
 
 
 parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
-    
+
+    if (length(fit@cnms[[1]]) != 1)
+        stop("parametric confidence intervals are currently not implemented for random slope models.")
+
     seFixed <- get_prediction_se_mermod(tb, fit)
     seRandom <- arm::se.ranef(fit)[[1]][1,] 
     

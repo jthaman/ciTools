@@ -2,20 +2,20 @@
 % Please edit documentation in R/add_ci_glm.R
 \name{add_ci.glm}
 \alias{add_ci.glm}
-\title{Confidence Intervals for Generalized Linear Models}
+\title{Confidence Intervals for Generalized Linear Model Predictions}
 \usage{
 \method{add_ci}{glm}(tb, fit, alpha = 0.05, names = NULL, response = TRUE,
   type = "parametric", ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data}
 
 \item{fit}{An object of class \code{glm}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, confidence bounds will automatically be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
@@ -26,7 +26,7 @@ named \code{names[2]}.}
 the expected response, if \code{FALSE}, confidence intervals
 will be made on the scale of the linear predictor.}
 
-\item{type}{A string, currently \code{"type" = "parametric"} is the
+\item{type}{A string, currently \code{type = "parametric"} is the
 only supported method.}
 
 \item{...}{Additional arguments.}
@@ -47,19 +47,25 @@ level confidence intervals to the response level.
 # Poisson Regression
 fit <- glm(dist ~ speed, data = cars, family = "poisson")
 add_ci(cars, fit)
+# Try a different confidence level
 add_ci(cars, fit, alpha = 0.5)
+# Add custom names to the confidence bounds (may be useful for plotting)
 add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+
 # Logistic Regression
 fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 dat <- cbind(cars, I(cars$dist > 30))
 add_ci(dat, fit)
 add_ci(dat, fit, alpha = 0.5)
+# Make confidence intervals on the scale of the linear predictor
 add_ci(dat, fit, alpha = 0.5, response = FALSE)
+# Add custom names to the confidence bounds
 add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+
 
 }
 \seealso{
-\code{{\link{add_pi.glm}}} for prediction intervals for
+\code{\link{add_pi.glm}} for prediction intervals for
     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
     probabilities of \code{glm} objects, and
     \code{\link{add_quantile.glm}} for response quantiles of

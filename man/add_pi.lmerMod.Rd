@@ -2,40 +2,41 @@
 % Please edit documentation in R/add_pi_lmer.R
 \name{add_pi.lmerMod}
 \alias{add_pi.lmerMod}
-\title{Prediction Intervals for the Fitted Values of Linear Mixed Models}
+\title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
   type = "boot", includeRanef = TRUE, log_response = FALSE, nSims = 200,
   yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data}
 
 \item{fit}{An object of class \code{lmerMod}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, prediction bounds will automatically be named by
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
 \item{type}{A string, either \code{"parametric"}, \code{"sim"},
-\code{"boot"}.}
+\code{"boot"}. Determines the method uses to calculate the
+prediction intervals.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
 intervals should be conditioned on the random effects. If
 \code{FALSE}, random effects will not be included.}
 
 \item{log_response}{A logical, indicating if the response is on log
-scale in the model. If \code{TRUE}, prediction intervals will
+scale in the model fit. If \code{TRUE}, prediction intervals will
 be returned on the response scale.}
 
 \item{nSims}{A positive integer. If \code{type = "sim"} or
-\code{type = "boot"}, \code{nSims} will determine the
-number of simulated draws to make.}
+\code{type = "boot"}, \code{nSims} will determine the number of
+simulated draws to make.}
 
 \item{yhatName}{A character vector of length one. Names of the
 column of predictions from \code{fit} on \code{tb}.}
@@ -47,31 +48,44 @@ A tibble, \code{tb}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{
-This function is one of the methods for \code{add_pi}, and is
+This function is one of the methods in \code{add_pi}, and is
 called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{lmerMod}.
 }
 \details{
 It is recommended that one use parametric prediction intervals when
-modeling with a random intercept LMM. Otherwise prediction
-intervals may be simulated using one of two methods. \code{"sim"}
-indicates that \code{predictInterval} from \code{merTools} should
-be used to simulate responses to form prediction intervals, and
-\code{"boot"} indicates that \code{simulate.merMod} should be
-used to simulate predictions. The recommended method for
-determining prediction intervals is parametric bootstrap, which
-corresponds to \code{type = "boot"}.
+modeling with a random intercept linear mixed model. Otherwise
+prediction intervals may be simulated using one of two
+methods. \code{"sim"} indicates that
+\code{merTools::predictInterval} should be used to simulate
+responses to form prediction intervals, and \code{"boot"} indicates
+that \code{lme4::simulate} should be used to simulate predictions
+for the model \code{fit}. The recommended method for determining
+prediction intervals is parametric bootstrap, which corresponds to
+\code{type = "boot"}.
 }
 \examples{
 dat <- lme4::sleepstudy
+# Fit a (random intercept) linear mixed model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-add_pi(dat, fit, alpha = 0.5)
+# Add prediction intervals to the original data using the default
+# method, parametric bootstrap (You may want to use more than 100
+# bootstrap replicates in practice).
+add_pi(dat, fit, alpha = 0.5, nSims = 100)
+
+# Add prediction intervals to the original data using the
+# parametric method. Form prediction intervals at the population
+# level (unconditional on the random effects)
 add_pi(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
+
+# Use a simulation method to form the parametric intervals. Add
+# custom names to the prediction bounds. This method is faster
+# than the parametric bootstrap, so we can set nSims higher.
 add_pi(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
 
 }
 \seealso{
-\code{{\link{add_ci.lmerMod}}} for confidence intervals
+\code{\link{add_ci.lmerMod}} for confidence intervals
     for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
     conditional probabilities of \code{lmerMod} objects, and
     \code{\link{add_quantile.lmerMod}} for response quantiles of

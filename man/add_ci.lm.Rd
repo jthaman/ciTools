@@ -8,15 +8,15 @@
   log_response = FALSE, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame.}
 
-\item{fit}{An object of class lm. Predictions are made with this
+\item{fit}{An object of class \code{lm}. Predictions are made with this
 object.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, confidence bounds will automatically be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
@@ -24,7 +24,7 @@ named \code{names[2]}.}
 
 \item{log_response}{logical. Default is \code{FALSE}. If
 \code{TRUE}, confidence intervals will be generated for the
-\emph{response level, Y} of a log-linear model.  \eqn{\log(Y) =
+\emph{response level} of a log-linear model:  \eqn{\log(Y) =
 X\beta + \epsilon}.}
 
 \item{...}{Additional arguments.}
@@ -34,26 +34,32 @@ A tibble, \code{tb}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{
-This function is one of the methods for \code{add_ci} and is
-automatically called when an object is class \code{lm} is inputted
+This function is one of the methods in \code{add_ci} and is
+automatically called when an object is class \code{lm} is passed to
 to \code{add_ci}.
 }
 \details{
 Confidence intervals for \code{lm} objects are calculated
-parametrically, this functions is essentially just a wrapper for
+parametrically, this function is essentially a wrapper for
 \code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
 linear model. If \code{log_response = TRUE}, confidence intervals
-for the response are calculated using Wald's Method.
+for the response are calculated using Wald's Method. See Meeker and
+Escobar (1998) for details.
 }
 \examples{
+# Fit a Linear model
 fit <- lm(dist ~ speed, data = cars)
+# Get fitted values for each observation in cars, and append
+# confidence intervals
 add_ci(cars, fit)
+# Try a different confidence level
 add_ci(cars, fit, alpha = 0.5)
+# Try custom names for the confidence bounds 
 add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 
 }
 \seealso{
-\code{{\link{add_pi.lm}}} for prediction intervals for
+\code{\link{add_pi.lm}} for prediction intervals for
     \code{lm} objects. \code{\link{add_probs.lm}} for conditional
     probabilities of \code{lm} objects, and
     \code{\link{add_quantile.lm}} for response quantiles of

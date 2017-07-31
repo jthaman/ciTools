@@ -2,30 +2,29 @@
 % Please edit documentation in R/add_probs_lm.R
 \name{add_probs.lm}
 \alias{add_probs.lm}
-\title{Response Probabilities for Linear Models}
+\title{Response Level Probabilities for Linear Models}
 \usage{
 \method{add_probs}{lm}(tb, fit, q, name = NULL, comparison = "<",
   log_response = FALSE, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame on which to append probabilities}
+\item{tb}{A tibble or data frame of new data}
 
-\item{fit}{An object of class lm. Predictions are made with this
-object.}
+\item{fit}{An object of class \code{lm}. Predictions are made with
+this object.}
 
-\item{q}{A double. A quantile of the response distribution.}
+\item{q}{A real number. A quantile of the response distribution.}
 
-\item{name}{NULL or character vector of length one. If \code{NULL},
-probabilities will automatically be named by
-\code{add_probs()}, otherwise, the probabilities will be named
-\code{name} in the returned tibble}
+\item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
+will automatically be named by \code{add_probs}, otherwise, the
+probabilities will be named \code{name} in the returned tibble.}
 
-\item{comparison}{\code{"<", or ">"}. If \code{comparison = "<"},
-then Pr(Y|x < q) is calculated for each observation in
-\code{tb}. Otherwise, Pr(Y|x > q) is calculated.}
+\item{comparison}{\code{"<"}, or \code{">"}. If \code{comparison =
+"<"}, then \eqn{Pr(Y|x < q)} is calculated for each observation in
+\code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.}
 
 \item{log_response}{A logical. Default is \code{FALSE}, set to
-\code{TRUE} if the model is log-linear: \eqn{\log{Y} = X \beta
+\code{TRUE} if the model is log-linear: \eqn{\log(Y) = X \beta
 + \epsilon}.}
 
 \item{...}{Additional arguments.}
@@ -35,18 +34,26 @@ A tibble, \code{tb}, with predicted values and
     probabilities attached.
 }
 \description{
-This is the method \code{add_probs} uses if the model fit is
-linear.  Probabilities are calculated parametrically, using a
-pivotal quantity.
+This is the method \code{add_probs} uses if the model is of class
+\code{lm}. Probabilities are calculated parametrically,
+using a pivotal quantity.
 }
 \examples{
+
+# Fit a linear model
 fit <- lm(dist ~ speed, data = cars)
+
+# Calculate the probability that a new dist will be less than 20,
+# given the model
 add_probs(cars, fit, q = 20)
+
+# Calculate the probability that a new dist will be greater than
+# 30, given the model.
 add_probs(cars, fit, q = 30, comparison = ">")
 
 }
 \seealso{
-\code{{\link{add_ci.lm}}} for confidence intervals for
+\code{\link{add_ci.lm}} for confidence intervals for
     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
     intervals of \code{lm} objects, and
     \code{\link{add_quantile.lm}} for response quantiles of

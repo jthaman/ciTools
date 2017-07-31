@@ -15,25 +15,25 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for Generalized Linear Models
+#' Confidence Intervals for Generalized Linear Model Predictions
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
 #' class \code{glm}. Confidence Intervals are determined by making an
 #' interval on the scale of the linear predictor, then applying the
 #' inverse link function from the model fit to transform the linear
-#' level confidence intervals to the response level.
+#' level confidence intervals to the response level. 
 #'
-#' @param tb A tibble or Data Frame.
+#' @param tb A tibble or data frame of new data
 #' @param fit An object of class \code{glm}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param names NULL or character vector of length two. If
+#' @param names \code{NULL} or character vector of length two. If
 #'     \code{NULL}, confidence bounds will automatically be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
-#' @param type A string, currently \code{"type" = "parametric"} is the
+#' @param type A string, currently \code{type = "parametric"} is the
 #'     only supported method.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
@@ -44,7 +44,7 @@
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
-#' @seealso \code{{\link{add_pi.glm}}} for prediction intervals for
+#' @seealso \code{\link{add_pi.glm}} for prediction intervals for
 #'     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
 #'     probabilities of \code{glm} objects, and
 #'     \code{\link{add_quantile.glm}} for response quantiles of
@@ -54,23 +54,29 @@
 #' # Poisson Regression
 #' fit <- glm(dist ~ speed, data = cars, family = "poisson")
 #' add_ci(cars, fit)
+#' # Try a different confidence level
 #' add_ci(cars, fit, alpha = 0.5)
+#' # Add custom names to the confidence bounds (may be useful for plotting)
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
+#' 
 #' # Logistic Regression
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' dat <- cbind(cars, I(cars$dist > 30))
 #' add_ci(dat, fit)
 #' add_ci(dat, fit, alpha = 0.5)
+#' # Make confidence intervals on the scale of the linear predictor
 #' add_ci(dat, fit, alpha = 0.5, response = FALSE)
+#' # Add custom names to the confidence bounds
 #' add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+#'
 #'
 #' @export
 
 add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL,
                       response = TRUE, type = "parametric", ...){
 
-    if (grepl("numerically 0 or 1", list(warnings())))
-        warning ("If there is perfect separation in your logistic regression, you shouldn't trust these confidence intervals")
+    if (!(fit$converged))
+        warning ("coverage probabilities may be inaccurate if the model did not converge")
     if (is.null(names)){
         names[1] <- paste("LCB", alpha/2, sep = "")
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
@@ -108,48 +114,3 @@ parametric_ci_glm <- function(tb, fit, alpha, names, response){
     tibble::as_data_frame(tb)
 
 }
-
-
-## parametric_ci_glm <- function(tb, fit, alpha, names, type = "response"){
-
-##     inverselink <- fit$family$linkinv
-##     if(type == "response"){
-##         out <- glm_ci_response(tb, fit, alpha, inverselink) %>%
-##             plyr::rename(c("lwr" = names[1], "upr" = names[2])) %>%
-##             select(-.se)
-##     }
-
-##     if(type == "link"){
-##         out <- glm_ci_linear_predictor(tb, fit, alpha) %>%
-##             plyr::rename(c("lwr" = names[1], "upr" = names[2])) %>%
-##             select(-.se)
-##     }
-##     if(!(type %in% c("response", "link"))) top("Incorrect interval type specified!")
-##     out
-## }
-
-## glm_ci_response <- function(tb, fit, alpha, ilink){
-
-##     if(is.null(tb[["pred"]]))
-##         tb <- modelr::add_predictions(tb, fit)
-##     tb %>%
-##         add_standard_error(fit) %>%
-##         mutate(
-##             lwr = ilink(pred + qt(alpha/2, df = fit$df.residual) * .se),
-##             upr = ilink(pred + qt(1 - alpha/2, df = fit$df.residual) * .se)
-##         )
-
-## }
-
-## glm_ci_linear_predictor <- function(tb, fit, alpha){
-
-##     if(is.null(tb[["pred"]]))
-##         tb <- modelr::add_predictions(tb, fit)
-##     tb %>%
-##         add_standard_error(fit) %>%
-##         mutate(
-##             lwr = pred + qt(alpha/2, df = fit$df.residual) * .se,
-##             upr = pred + qt(1 - alpha/2, df = fit$df.residual) * .se
-##         )
-
-## }

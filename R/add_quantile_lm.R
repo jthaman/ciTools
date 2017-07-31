@@ -17,38 +17,43 @@
 
 #' Quantiles for the Response of a Linear Model
 #'
-#' This function is one of the methods for \code{add_quantile}. It is
-#' automatically called when \code{add_quantile} is applied to objects
+#' This function is one of the methods of \code{add_quantile}. It is
+#' automatically called when \code{add_quantile} is called on objects
 #' of class \code{lm}.
 #'
-#' Quantiles for linear models are determined parametrically, more or
-#' less the same way that prediction intervals for this class of
-#' models is determined.
+#' Quantiles for linear models are determined parametrically, by
+#' applying a pivotal quantity to the distribution of \eqn{Y|x}.
 #' 
-#' @param tb A tibble or Data Frame.
-#' @param fit An object of class lm. Predictions are made with this
-#'     object.
-#' @param p A real number between 0 and 1. Sets the probability for
-#'     which to calculate the quantiles.
-#' @param name NULL or character vector of length one. If \code{NULL},
+#' @param tb A tibble or data frame of new data.
+#' @param fit An object of class \code{lm}. Predictions are made with
+#'     this object.
+#' @param p A real number between 0 and 1. Sets the level of the
+#'     quantiles.
+#' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}
 #' @param log_response logical. If TRUE, quantiles will be generated
 #'     for the prediction made with a log-linear model: \eqn{\log(Y) =
 #'     X\beta + \epsilon}. These quantiles will be on the scale of the
-#'     original response, Y.
+#'     original response, \eqn{Y}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values and level -
-#'     \emph{p} quantile attached.
+#'     \emph{p} quantiles attached.
 #'
-#' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
+#' @seealso \code{\link{add_ci.lm}} for confidence intervals for
 #'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
 #'     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
 #'     for response probabilities of \code{lm} objects.
 #'
 #' @examples
+#'
+#' # Fit a linear Model
 #' fit <- lm(dist ~ speed, data = cars)
+#'
+#' # Find the 0.7-quantile (70th percentile) of new dists, given the linear model fit.
 #' add_quantile(cars, fit, p = 0.7)
+#'
+#' # As above, but with a custom name for the vector of quantiles
 #' add_quantile(cars, fit, p = 0.7, name = "my_quantile")
 #' 
 #' @export

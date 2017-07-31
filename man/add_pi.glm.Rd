@@ -8,14 +8,14 @@
   nSims = 1000, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data.}
 
 \item{fit}{An object of class \code{glm}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, prediction bounds will automatically be named by
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
@@ -38,23 +38,25 @@ called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{glm}.
 }
 \details{
-Prediction Intervals are generated through simulation via the
-function \code{sim} in the package \code{arm}. At the moment, only
-prediction intervals for Poisson GLMs with the log link function
-are supported. Note that if the response is count data, e.g. the
-response is modeled with a Poisson regression, prediction intervals
-are only approximate.
+Prediction intervals are generated through simulation via
+\code{arm::sim}. At the moment, only prediction intervals for
+Poisson GLMs with the log link function are supported. Note that if
+the response is count data, prediction intervals are only
+approximate.
 }
 \examples{
-# Poisson Regression
+# Fit a Poisson model
 fit <- glm(dist ~ speed, data = cars, family = "poisson")
+# Add prediction intervals and fitted values to the original data frame
 add_pi(cars, fit)
+# Try a different confidence level
 add_pi(cars, fit, alpha = 0.5)
+# Try custom names for the prediction bounds (may be useful for plotting)
 add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 
 }
 \seealso{
-\code{{\link{add_ci.glm}}} for confidence intervals for
+\code{\link{add_ci.glm}} for confidence intervals for
     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
     probabilities of \code{glm} objects, and
     \code{\link{add_quantile.glm}} for response quantiles of

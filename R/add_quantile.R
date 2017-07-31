@@ -19,13 +19,13 @@
 #'
 #' This is a generic function to append regression quantiles to a data
 #' frame. A regression quantile \emph{q} is a point such that
-#' Pr(Response | Covariates < q) = p. These quantiles are generated
-#' for the fitted value of each observation in \code{tb}. Quantiles
-#' are then appended to \code{tb} and returned to the user as a
-#' tibble.
+#' \eqn{Pr(Response | Covariates < q) = p}. These quantiles are
+#' generated for the fitted value of each observation in
+#' \code{tb}. Quantiles are then appended to \code{tb} and returned to
+#' the user as a tibble.
 #'
-#' For more specific information about the arguments that are useful
-#' in each method, consult
+#' For more specific information about the arguments that are applicable
+#' for each type of model, consult
 #'
 #' \itemize{
 #'   \item \code{\link{add_quantile.lm}} for linear regression response quantiles
@@ -33,31 +33,44 @@
 #'   \item \code{\link{add_quantile.lmerMod}} for linear mixed models response quantiles
 #' }
 #'
-#' The quantiles that \code{add_quantile} calculates are on the
+#' Note: the quantiles that \code{add_quantile} calculates are on the
 #' distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the
-#' same distribution as a prediction interval, not the distribution of
-#' a confidence interval.
+#' same distribution that determines a prediction interval, not the
+#' distribution that determines a confidence interval.
 
-#' @param tb A tibble or Data Frame on which to append probabilities
-#' @param fit An object of class lm, glm, or lmerMod. Predictions are
-#'     made with this object.
-#' @param p A double. A probability that determines the
-#'     quantile. Must be between 0 and 1.
-#' @param name NULL or character vector of length one. If \code{NULL},
+#' @param tb A tibble or data frame of new data
+#' @param fit An object of class \code{lm}, \code{glm}, or
+#'     \code{lmerMod}. Predictions are made with this object.
+#' @param p A double. A probability that determines the quantile. Must
+#'     be between 0 and 1.
+#' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile()},
-#'     otherwise, the quantiles will be named \code{name} in
-#'     the returned tibble
+#'     otherwise, the quantiles will be named \code{name} in the
+#'     returned tibble
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values and level-\emph{p} quantiles
-#'     attached.
+#' @return A tibble, \code{tb}, with predicted values and
+#'     level-\emph{p} quantiles attached.
 #' 
 #' @examples
+#'
+#' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
+#'
+#' # Find the 0.4 quantile (or 40th percentile) of new dists for each
+#' # observations in cars, conditioned on the linear model.
 #' add_quantile(cars, fit, p = 0.4)
-#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+#'
+#' # Fit a Poisson Model
+#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
+#' # Find the 0.4 quantile (or 40th percentile) of new dists for each
+#' # observation in cars, conditioned on the Poisson model.
 #' add_quantile(cars, fit2, p = 0.4)
+#'
+#' # Fit a Random Intercept (Linear Mixed) model
 #' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-#' add_quantile(lme4::sleepstudy, fit3, p = 0.4)
+#' # Find the 0.4 quantile (or 40 percentile) of reaction times for
+#' # each observation in the sleepstudy data. Condition on the model and random effects.
+#' add_quantile(lme4::sleepstudy, fit3, p = 0.4, type = "parametric")
 #'
 #'
 #' @seealso \code{\link{add_ci}} for confidence intervals,

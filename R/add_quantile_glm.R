@@ -17,22 +17,21 @@
 
 #' Quantiles for the Response of a Generalized Linear Model
 #'
-#' This function is one of the methods for
+#' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
 #' compute the quantiles of the response of a Poisson regression with
-#' the log link function.
+#' the \eqn{\log}-link function.
 #'
-#' Quantiles are GLMs are determined by \code{add_quantile} through a
-#' simulation using the function \code{sim} from the package
-#' \code{arm}.
+#' Quantiles of Generalized Linear models are determined by
+#' \code{add_quantile} through a simulation using \code{arm::sim}.
 #'
 #' 
-#' @param tb A tibble or Data Frame.
-#' @param fit An object of class lm. Predictions are made with this
-#'     object.
-#' @param p A real number between 0 and 1. Sets the probability for
-#'     which to calculate the quantiles.
-#' @param name NULL or character vector of length one. If \code{NULL},
+#' @param tb A tibble or data frame of new data
+#' @param fit An object of class \code{glm}. Predictions are made with
+#'     this object.
+#' @param p A real number between 0 and 1. Sets the probability level
+#'     of the quantiles.
+#' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles will automatically be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}
 #' @param nSims A positive integer. Set the number of simulated draws
@@ -41,14 +40,23 @@
 #' @return A tibble, \code{tb}, with predicted values and level
 #'     \emph{p} quantiles attached.
 #'
-#' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
+#' @seealso \code{\link{add_ci.lm}} for confidence intervals for
 #'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
 #'     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
 #'     for response probabilities of \code{lm} objects.
 #'
 #' @examples
+#'
+#' # Fit a Poisson GLM
 #' fit <- glm(dist ~ speed, data = cars, family = "poisson")
+#'
+#' # What is the 0.3-quantile (or 30th percentile) of new dists, given
+#' # the Poisson model?
 #' add_quantile(cars, fit, p = 0.3)
+#'
+#' # As above, but now find the 0.5-quantile (50th percentile), change
+#' # the number of simulations to run, and give the vector of
+#' # quantiles a custom name.
 #' add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
 #' 
 #' @export

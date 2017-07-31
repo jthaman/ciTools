@@ -1,24 +1,27 @@
 Package: ciTools
 Type: Package
-Title: Uncertainty Intervals, Quantiles, and Probabilities for Statistical Models
+Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
+    for Statistical Models
 Version: 0.1.0
 Authors@R: as.person(c(
     "John Haman <jhaman@ida.org> [aut, cre]", 
     "Matthew Avery <mavery@ida.org> [aut]"
   ))
-Description: Functions to append uncertainty intervals, and other
-    quantities of interest to data frames. This package has a "data frame first" syntax
-    that allows for easy piping. Currently supported models include linear and log-linear
-    models, linear mixed models, Poisson and Logistic models.
+Description: Functions to append confidence intervals, prediction intervals,
+    and other quantities of interest to data frames. All appended quantities
+    are for the response variable, after conditioning on the model and covariates.
+    This package has a "data frame first" syntax that allows for easy piping.
+    Currently supported models include (log-) linear, (log-) linear mixed,
+    and generalized linear models.
 Imports:
+    arm,
+    dplyr,
+    lme4,
+    magrittr,
+    merTools,
     methods,
     stats,
-    magrittr,
-    dplyr,
     tibble,
-    lme4,
-    merTools,
-    arm
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true

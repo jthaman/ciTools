@@ -18,18 +18,18 @@
 #' Prediction Intervals for Linear Model Predictions.
 #'
 #' This function is one of the methods for \code{add_pi} and is
-#' automatically called when an object is class \code{lm} is inputted
+#' automatically called when an object is class \code{lm} is passed to
 #' to \code{add_pi}.
 #'
 #' Prediction intervals for \code{lm} objects are calculated
-#' parametrically, this functions is essentially just a wrapper for
+#' parametrically, this function is essentially just a wrapper for
 #' \code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, prediction intervals
 #' for the response are calculated parametrically, then the
 #' exponential function is applied to transform them to the original
 #' scale.
 #'
-#' @param tb A tibble or Data Frame.
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class lm. Predictions are made with this
 #'     object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -47,16 +47,26 @@
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #' 
-#' @seealso \code{{\link{add_ci.lm}}} for confidence intervals for
+#' @seealso \code{\link{add_ci.lm}} for confidence intervals for
 #'     \code{lm} objects. \code{\link{add_probs.lm}} for conditional
 #'     probabilities of \code{lm} objects, and
 #'     \code{\link{add_quantile.lm}} for response quantiles of
 #'     \code{lm} objects.
 #'
 #' @examples
+#' # Fit a Linear model
 #' fit <- lm(dist ~ speed, data = cars)
+#' # Add prediction intervals and fitted values to the original data
 #' add_pi(cars, fit)
+#' 
+#' # Try to add predictions to a data frame of new data
+#' new_data <- cars[sample(NROW(cars), 10), ]
+#' add_pi(new_data, fit)
+#' 
+#' # Try a different confidence level
 #' add_pi(cars, fit, alpha = 0.5)
+#' 
+#' # Add custom names to the prediction bounds.
 #' add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 #' @export
 

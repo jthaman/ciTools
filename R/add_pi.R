@@ -21,10 +21,11 @@
 #' frame. A prediction interval is made for each observation in
 #' \code{tb} with respect to the model \code{fit}. These intervals are
 #' then appended to \code{tb} and returned to the user as a
-#' tibble. \code{fit} can be a linear, log-linear, linear
-#' mixed, or generalized linear models.
+#' tibble. \code{fit} can be a linear, log-linear, linear mixed, or
+#' generalized linear models (only Poisson models are supported right
+#' now).
 #' 
-#' For more specific information about the arguments that are useful
+#' For more specific information about the arguments that are applicable
 #' in each method, consult
 #'
 #' \itemize{
@@ -33,12 +34,12 @@
 #'   \item \code{\link{add_pi.lmerMod}} for linear mixed models prediction intervals
 #' }
 #' 
-#' @param tb A tibble or Data Frame on which to make predictions.
-#' @param fit An object of class lm, glm, or lmerMod. Predictions are
-#'     made with this object.
+#' @param tb A tibble or data frame of new data.
+#' @param fit An object of class \code{lm}, \code{glm}, or
+#'     \code{lmerMod}. Predictions are made with this object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param names NULL or character vector of length two. If
+#' @param names \code{NULL} or character vector of length two. If
 #'     \code{NULL}, prediction bounds will automatically be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{piNames[1]} and the upper prediction bound will be
@@ -48,12 +49,24 @@
 #'     prediction bounds attached.
 #'
 #' @examples
+#' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
-#' add_pi(cars, fit)
+#' # Define some new data
+#' new_data <- cars[sample(NROW(cars), 10), ]
+#' # Add fitted values and prediction intervals to new_data
+#' add_pi(new_data, fit)
+#'
+#' # Fit a Poisson model
 #' fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
-#' add_pi(cars, fit2)
+#' # Add approximate prediction intervals to the fitted values of
+#' # new_data
+#' add_pi(new_data, fit2)
+#'
+#' # Fit a Linear Mixed model
 #' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-#' add_pi(lme4::sleepstudy, fit3)
+#' # Add parametric prediction intervals for the fitted values to the
+#' # original data
+#' add_pi(lme4::sleepstudy, fit3, type = "parametric")
 #'
 #'
 #' @seealso \code{\link{add_ci}} for confidence intervals,

@@ -9,16 +9,16 @@
   log_response = FALSE, yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame.}
+\item{tb}{A tibble or data frame of new data.}
 
 \item{fit}{An object of class \code{lmerMod}.}
 
-\item{q}{A double. A quantile of the response variable}
+\item{q}{A real number. A quantile of the response conditional
+response distribution.}
 
-\item{name}{NULL or character vector of length two. If \code{NULL},
-probabilities will automatically be named by \code{add_pi},
-otherwise, the probabilities will be named \code{name} in the
-returned tibble.}
+\item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
+will automatically be named by \code{add_probs}, otherwise, the
+probabilities will be named \code{name} in the returned tibble.}
 
 \item{comparison}{A character vector of length one. Must be either
 \code{"<"} or \code{">"}. If \code{comparison = "<"}, then
@@ -26,18 +26,21 @@ returned tibble.}
 \code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.}
 
 \item{type}{A string, either \code{"parametric"} , \code{"sim"}, or
-\code{"boot"}.}
+\code{"boot"}. Determines the method used to determine the
+probabilities.}
 
 \item{includeRanef}{A logical. Set whether the predictions and
-intervals should be made conditional on the random effects. If
-\code{FALSE}, random effects will not be included.}
+probabilities should be calculated conditional on the random
+effects. If \code{FALSE}, random effects will not be included,
+and probabilities will be calculated at the population level.}
 
-\item{nSims}{A positive integer. If \code{type = "sim"}
-\code{nSims} will determine the number of simulated draws to
-make.}
+\item{nSims}{A positive integer. If \code{type = "sim"} or
+\code{type = "boot"}, \code{nSims} will determine the number of
+simulated draws to make.}
 
 \item{log_response}{A logical. Set to \code{TRUE} if your model is
-a log-linear mixed model.}
+a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
+\epsilon}.}
 
 \item{yhatName}{A string. Determines the name of the vector of
 predictions.}
@@ -49,24 +52,35 @@ A tibble, \code{tb}, with predictions and probabilities
     attached.
 }
 \description{
-This function is one of the methods for \code{add_probs}, and is
+This function is one of the methods of \code{add_probs}, and is
 called automatically when \code{add_probs} is used on a \code{fit}
 of class \code{lmerMod}.
 }
 \details{
 It is recommended that one perform a parametric bootstrap to
-determine these probabilities. To do so, use the option \code{type = "boot"}
+determine these probabilities. To do so, use the option \code{type
+= "boot"}
 }
 \examples{
 dat <- lme4::sleepstudy
+
+# Fit a random intercept model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
+
+# What is the probability that a new reaction time will be less
+# than 300, condition on the model and groups?
 add_probs(dat, fit, q = 300)
-add_probs(dat, fit, q = 300, type = "parametric", includeRanef = FALSE, comparison = ">")
+
+# As above, but using a different method.
 add_probs(dat, fit, q = 300, type = "sim")
+
+# What is the probability that a new reaction time will be greater
+# than 300 and we  ignore the random effects? 
+add_probs(dat, fit, q = 300, type = "parametric", includeRanef = FALSE, comparison = ">")
 
 }
 \seealso{
-\code{{\link{add_ci.lmerMod}}} for confidence intervals
+\code{\link{add_ci.lmerMod}} for confidence intervals
     for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
     prediction intervals of \code{lmerMod} objects, and
     \code{\link{add_quantile.lmerMod}} for response quantiles of

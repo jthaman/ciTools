@@ -8,25 +8,26 @@
   nSims = 200, ...)
 }
 \arguments{
-\item{tb}{A tibble or Data Frame on which to append probabilities}
+\item{tb}{A tibble or data frame of new data}
 
 \item{fit}{An object of class \code{glm}. Predictions are made with
 this object.}
 
 \item{q}{A double. A quantile of the response distribution.}
 
-\item{name}{NULL or character vector of length one. If \code{NULL},
-probabilities will automatically be named by
-\code{add_probs()}, otherwise, the probabilities will be named
-\code{name} in the returned tibble}
+\item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
+will automatically be named by \code{add_probs()}, otherwise,
+the probabilities will be named \code{name} in the returned
+tibble}
 
 \item{comparison}{A character vector of length one. If
-\code{comparison = "<"}, then Pr(Y|X < q) is calculated. Any
-comparison is allowed in poisson regression, but only certain
-comparisons may be made in Logistic regression. See the Details
-section.}
+\code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
+calculated. Any comparison is allowed in Poisson regression,
+but only certain comparisons may be made in Logistic
+regression. See the Details section.}
 
-\item{nSims}{A positive integer.}
+\item{nSims}{A positive integer. Controls the number of simulated
+draws to make if the model is Poisson.}
 
 \item{...}{Additional arguments.}
 }
@@ -38,25 +39,44 @@ A tibble, \code{tb}, with predicted values and
 This is the method \code{add_probs} uses if the model fit is an
 object of class \code{glm}. Probabilities are determined through
 simulation, using the same method as \code{add_pi.glm}. Currently,
-only logistic and poisson regression are supported.
+only Logistic and Poisson models are supported.
 }
 \details{
 Any of the five comparisons, \code{comparison = "<"}, \code{">"},
 \code{"="}, \code{"<="}, or \code{">="} may be made for a Poisson
-Model. For logistic regression, the comparison statement must be
-equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}. If
-\code{add_probs} is called on a Poisson model, a simulation is
-preformed using the function \code{sim} from the package \code{arm}.
+model. For logistic regression, the comparison statement must be
+equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}.
+
+If \code{add_probs} is called on a Poisson model, a simulation is
+preformed using \code{arm::sim}.
+
+If \code{add_probs} is called on a Logistic model, the the fitted
+probabilities are used directly (no simulation is required).
 }
 \examples{
+# Fit a Poisson model
 fit <- glm(dist ~ speed, data = cars, family = "poisson")
+
+# Determine the probability that a new dist is less than 20, given
+# the Poisson model.
 add_probs(cars, fit, q = 20)
+
+# Determine the probability that a new dist is greater than 20,
+# given the Poisson model.
 add_probs(cars, fit, q = 30, comparison = ">")
+
+# Determine the probability that a new dist is greater than or
+# equal to 20, given the Poisson model.
 add_probs(cars, fit, q = 30, comparison = ">=")
+
+# Fit a Logistic model
+fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
+add_probs(cars, fit2, q = 0, comparison = "=")
+add_probs(cars, fit2, q = 1, comparison = "=")
 
 }
 \seealso{
-\code{{\link{add_ci.glm}}} for confidence intervals for
+\code{\link{add_ci.glm}} for confidence intervals for
     \code{glm} objects. \code{\link{add_pi.glm}} for prediction
     intervals of \code{glm} objects, and
     \code{\link{add_quantile.glm}} for response quantiles of
