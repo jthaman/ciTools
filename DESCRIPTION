@@ -5,8 +5,9 @@ Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
 Version: 0.1.0
 Authors@R: as.person(c(
     "John Haman <jhaman@ida.org> [aut, cre]", 
-    "Matthew Avery <mavery@ida.org> [aut]"
-  ))
+    "Matthew Avery <mavery@ida.org> [aut]",
+    "Institute for Defense Analyses <communications@ida.org> [cph]")
+  )
 Description: Functions to append confidence intervals, prediction intervals,
     and other quantities of interest to data frames. All appended quantities
     are for the response variable, after conditioning on the model and covariates.

@@ -1,0 +1,24 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+OPTIONS: author:t broken-links:nil c:nil creator:nil
+#+OPTIONS: d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t num:t
+#+OPTIONS: p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+OPTIONS: timestamp:t title:t toc:t todo:t |:t
+#+TITLE: ciTools TODO
+#+DATE: <2017-07-26 Wed>
+#+AUTHOR: John Haman
+#+EMAIL: jhaman@ida.org
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 25.2.1 (Org mode 9.0.8)
+
+* Short Term
+- Add more GLMs to add_pi
+- reorder columns if they are not already in the right order
+- Upload to github and CRAN
+- Wait for the editors to read the documentation
+- Work on a vignette
+
+* Long Term
+- Add survival models
+- Add GLMMs
