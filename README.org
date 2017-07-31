@@ -55,30 +55,37 @@
      ## A random sample of 20 observations from sleepstudy
      new_dat <- sleepstudy[sample(NROW(dat, 20)),]
 
-     ## Add 50% CIs and PIs to the new data:
+     ## Append 50% CIs and PIs to the new data:
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
          add_pi(fit, alpha = 0.5)
 
-     ## Add 50% CIs and PIs, but ignore the random effects:
+     ## Append 50% CIs and PIs, but ignore the random effects:
      new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE) %>%
          add_pi(fit, alpha = 0.5, includeRanef = FALSE)
 
      ## Determine the probability that a new Reaction time will be less
-     ## than 300:
+     ## than 300 (given the model and new data):
      new_dat <- add_probs(new_dat, fit, 300)
 
      ## Or greater than:
      new_dat <- add_probs(new_dat, fit, 300, comparison = ">")
 
      ## Determine the 0.9-quantile of the predicive distribution, given the
-     ## model:
+     ## model and new data:
      new_dat <- add_quantile(new_dat, fit, 0.9)
 
      ## Glimpse all the quantities added:
      glimpse(new_dat)
    #+END_SRC
 
-   The end result is a data frame that is ammenable to plotting with ggplot2.
-   
+   The end result is a data frame that is ammenable to plotting with
+   ggplot2. See the documentation for more examples with other types
+   of statistical regression models.
+
+** Help us out?
+   We still have work to do. Submit an Issue if you run into a bug, or
+   a PR if you think you can help us out (see the TODO file).
+  
+** Copyright 
    =ciTools= (C) 2017 Institute for Defense Analyses
 

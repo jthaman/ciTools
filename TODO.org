@@ -13,10 +13,10 @@
 #+CREATOR: Emacs 25.2.1 (Org mode 9.0.8)
 
 * Short Term
-- Add more GLMs to add_pi
-- reorder columns if they are not already in the right order
+- Add more GLMs to add_pi (currently only handles Poisson model)
+- reorder columns of new data if they are not already in the right order
 - Work on a vignette
 
 * Long Term
-- Add survival models
-- Add GLMMs
+- Add survival models method
+- Add GLMMs method
