@@ -1,22 +1,21 @@
-* ciTools: An *R* package for quick uncertainty intervals
+* ciTools: An *R* Package for Quick Uncertainty Intervals
 
 ** Overview
    =ciTools= is an *R* package that makes working with model uncertainty
    as easy as possible. It gives the user easy access to confidence or
-   prediction intervals for the predictions (fitted values) made with
-   (log-) linear models, generalized linear models, and (log-) linear
-   mixed models. Additionally, we provide functions to determine
+   prediction intervals for the fitted values of (log-) linear models,
+   generalized linear models, and (log-) linear mixed
+   models. Additionally, we provide functions to determine
    probabilities and quantiles of the conditional response
    distribution.
 
-** Why use it?
+** Why use =ciTools=?
    Uncertainty intervals (confidence or prediction intervals) for
    fitted values are easy enough if one is just working with linear
    models, but when models become more complex, e.g. generalized
    linear models or linear mixed models, the facilities for
    quantitfying unceratinty for predictions are either more cumbersome
-   to work with or nonexistent.
-   
+   to work with or nonexistent. 
 
 ** Main Components
    This package has three main features that make it useful to *R* users:
@@ -26,9 +25,9 @@
      
 *** All commands in =ciTools=:
    - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
-   - add_pi(data, fit, ...) - get prediction intervals and append to =data=
-   - add_probs(data, fit, q, ...) - conditional response level probabilities
-   - add_quantile(data, fit, p, ...) - conditional response level quantiles
+   - =add_pi(data, fit, ...)= - get prediction intervals and append to =data=
+   - =add_probs(data, fit, q, ...)= - conditional response level probabilities
+   - =add_quantile(data, fit, p, ...)= - conditional response level quantiles
 
 ** Installation
    Install =ciTools= from Github with =devtools:=
