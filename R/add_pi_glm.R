@@ -32,12 +32,13 @@
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{NULL}, prediction bounds automatically will be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Currently must be \code{"sim"}.
+#' @param type A string. Currently \code{type = "sim"} is the only
+#'     valid string.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
@@ -46,7 +47,7 @@
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.glm}} for confidence intervals for
-#'     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+#'     \code{glm} objects, \code{\link{add_probs.glm}} for conditional
 #'     probabilities of \code{glm} objects, and
 #'     \code{\link{add_quantile.glm}} for response quantiles of
 #'     \code{glm} objects.

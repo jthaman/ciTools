@@ -17,8 +17,8 @@
 
 #' Quantiles for the Response of a Linear Mixed Model
 #'
-#' This function is one of the methods for \code{add_quantile} and is
-#' automatically called when \code{add_quantile} is applied to an
+#' This function is one of the methods for \code{add_quantile} and
+#' is called automatically when \code{add_quantile} is applied to an
 #' object of class \code{lmerMod}.
 #'
 #' \code{add_qauntile.lmerMod} may use three different methods for
@@ -27,7 +27,7 @@
 #' method (via \code{lme4::simulate}). The default and recommended
 #' method is parametric bootstrap, which corresponds to setting
 #' \code{type = "boot"}. Only use the parametric method (\code{type =
-#' "parametric"}) if \code{fit} is a random intercept model
+#' "parametric"}) if \code{fit} is a random intercept model,
 #' e.g. \code{fit = lmer(y ~ x + (1|group))}.
 #' 
 #' @param tb A tibble or data frame of new data.
@@ -35,28 +35,29 @@
 #'     this object.
 #' @param p A real number between 0 and 1.  Determines the probability
 #'     level of the quantiles.
-#' @param name \code{NULL} or a string. If \code{NULL}, quantiles will
-#'     automatically be named by \code{add_quantile}, otherwise, they
-#'     will be named \code{name}
-#' @param includeRanef Should the quantiles be calculated condition on
-#'     the random effects? If \code{TRUE}, quantiles will be
-#'     calculated at the "group level". Otherwise, quantiles will be
-#'     calculated at the "population level".
+#' @param name \code{NULL} or a string. If \code{NULL}, quantiles
+#'     automatically will be named by \code{add_quantile}, otherwise,
+#'     they will be named \code{name}.
+#' @param yhatName A string. Determines the name of the column of
+#'     predictions.
+#' @param includeRanef The random effects be included or not? If
+#'     \code{TRUE}, quantiles will be calculated at the
+#'     "group level". Otherwise, quantiles will be calculated at the
+#'     "population level", where random effects are set to \eqn{0}.
 #' @param type A string. Options are \code{"parametric"},
 #'     \code{"boot"}, or \code{"sim"}.
 #' @param nSims A positive integer. Set the number of simulations to
 #'     perform. Only applied when \code{type = "boot"} or \code{type =
 #'     "sim"}
 #' @param log_response A logical. Set to \code{TRUE} if the model is a
-#'     log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma + \epsilon}. 
-#' @param yhatName A string. Determines the name of the column of
-#'     predictions.
+#'     log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma +
+#'     \epsilon}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values and level-p
 #'     quantiles attached.
 #' 
 #' @seealso \code{\link{add_ci.lmerMod}} for confidence intervals
-#'     for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
+#'     for \code{lmerMod} objects, \code{\link{add_pi.lmerMod}} for
 #'     prediction intervals of \code{lmerMod} objects, and
 #'     \code{\link{add_probs.lmerMod}} for response probabilities of
 #'     \code{lmerMod} objects.
@@ -67,17 +68,17 @@
 #' # Fit a random intercept model
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #'
-#' # Using the parametric bootstrap: Given the model fit, what value
+#' # Using the parametric bootstrap: given the model fit, what value
 #' # of reaction time do we expect half of new reaction times to fall
 #' # under?
 #' add_quantile(dat, fit, p = 0.5)
 #'
 #' # Using the parametric method:
-#' # As above, but we ignore the random effects
+#' # as above, but we ignore the random effects.
 #' add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
 #'
-#' # Using the simulation method, and giving the vector of quantiles a
-#' # custom name:
+#' # Using the simulation method: give the vector of quantiles a
+#' # custom name.
 #' add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
 #' 
 #' @export

@@ -8,7 +8,7 @@
   comparison = "<", nSims = 200, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data}
+\item{tb}{A tibble or data frame of new data.}
 
 \item{fit}{An object of class \code{glm}. Predictions are made with
 this object.}
@@ -16,7 +16,7 @@ this object.}
 \item{q}{A double. A quantile of the response distribution.}
 
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
-will automatically be named by \code{add_probs()}, otherwise,
+automatically will be named by \code{add_probs()}, otherwise,
 the probabilities will be named \code{name} in the returned
 tibble}
 
@@ -41,18 +41,18 @@ A tibble, \code{tb}, with predicted values and
 This is the method \code{add_probs} uses if the model fit is an
 object of class \code{glm}. Probabilities are determined through
 simulation, using the same method as \code{add_pi.glm}. Currently,
-only Logistic and Poisson models are supported.
+only logistic and Poisson models are supported.
 }
 \details{
-Any of the five comparisons, \code{comparison = "<"}, \code{">"},
-\code{"="}, \code{"<="}, or \code{">="} may be made for a Poisson
-model. For logistic regression, the comparison statement must be
-equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}.
+Any of the five comparisons may be made for a Poisson model:
+\code{comparison = "<"}, \code{">"}, \code{"="}, \code{"<="}, or
+\code{">="}. For logistic regression, the comparison statement must
+be equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}.
 
 If \code{add_probs} is called on a Poisson model, a simulation is
 preformed using \code{arm::sim}.
 
-If \code{add_probs} is called on a Logistic model, the the fitted
+If \code{add_probs} is called on a logistic model, the fitted
 probabilities are used directly (no simulation is required).
 }
 \examples{
@@ -71,7 +71,7 @@ add_probs(cars, fit, q = 30, comparison = ">")
 # equal to 20, given the Poisson model.
 add_probs(cars, fit, q = 30, comparison = ">=")
 
-# Fit a Logistic model
+# Fit a logistic model
 fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 add_probs(cars, fit2, q = 0, comparison = "=")
 add_probs(cars, fit2, q = 1, comparison = "=")
@@ -79,7 +79,7 @@ add_probs(cars, fit2, q = 1, comparison = "=")
 }
 \seealso{
 \code{\link{add_ci.glm}} for confidence intervals for
-    \code{glm} objects. \code{\link{add_pi.glm}} for prediction
+    \code{glm} objects, \code{\link{add_pi.glm}} for prediction
     intervals of \code{glm} objects, and
     \code{\link{add_quantile.glm}} for response quantiles of
     \code{glm} objects.

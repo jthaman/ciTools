@@ -24,22 +24,22 @@
 #' inverse link function from the model fit to transform the linear
 #' level confidence intervals to the response level. 
 #'
-#' @param tb A tibble or data frame of new data
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, confidence bounds will automatically be named by
+#'     \code{NULL}, confidence bounds automatically will be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of predictions
 #'     made for each observation in tb
-#' @param type A string, currently \code{type = "parametric"} is the
+#' @param type A string. Currently \code{type = "parametric"} is the
 #'     only supported method.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
-#'     the expected response, if \code{FALSE}, confidence intervals
+#'     the expected response; if \code{FALSE}, confidence intervals
 #'     will be made on the scale of the linear predictor.
 #' @param ... Additional arguments.
 #' 
@@ -47,13 +47,13 @@
 #'     confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.glm}} for prediction intervals for
-#'     \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+#'     \code{glm} objects, \code{\link{add_probs.glm}} for conditional
 #'     probabilities of \code{glm} objects, and
 #'     \code{\link{add_quantile.glm}} for response quantiles of
 #'     \code{glm} objects.
 #'
 #' @examples
-#' # Poisson Regression
+#' # Poisson regression
 #' fit <- glm(dist ~ speed, data = cars, family = "poisson")
 #' add_ci(cars, fit)
 #' # Try a different confidence level
@@ -61,7 +61,7 @@
 #' # Add custom names to the confidence bounds (may be useful for plotting)
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 #' 
-#' # Logistic Regression
+#' # Logistic regression
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' dat <- cbind(cars, I(cars$dist > 30))
 #' add_ci(dat, fit)

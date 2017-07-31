@@ -22,11 +22,11 @@
 #' \code{tb} with respect to the model \code{fit}. These intervals are
 #' then appended to \code{tb} and returned to the user as a
 #' tibble. \code{fit} can be a linear, log-linear, linear mixed, or
-#' generalized linear models (only Poisson models are supported right
-#' now).
+#' generalized linear models (currently only Poisson models are
+#' supported).
 #' 
 #' For more specific information about the arguments that are applicable
-#' in each method, consult
+#' in each method, consult:
 #'
 #' \itemize{
 #'   \item \code{\link{add_pi.lm}} for linear regression prediction intervals
@@ -40,7 +40,7 @@
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{NULL}, prediction bounds automatically will be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{piNames[1]} and the upper prediction bound will be
 #'     named \code{piNames[2]}.
@@ -63,7 +63,7 @@
 #' # new_data
 #' add_pi(new_data, fit2)
 #'
-#' # Fit a Linear Mixed model
+#' # Fit a linear mixed model
 #' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #' # Add parametric prediction intervals for the fitted values to the
 #' # original data

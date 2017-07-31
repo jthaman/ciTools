@@ -13,11 +13,11 @@
 
 \item{fit}{An object of class \code{lmerMod}.}
 
-\item{q}{A real number. A quantile of the response conditional
-response distribution.}
+\item{q}{A real number. A quantile of the conditional response
+distribution.}
 
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
-will automatically be named by \code{add_probs}, otherwise, the
+automatically will be named by \code{add_probs}, otherwise, the
 probabilities will be named \code{name} in the returned tibble.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
@@ -31,10 +31,10 @@ probabilities will be named \code{name} in the returned tibble.}
 \code{"boot"}. Determines the method used to determine the
 probabilities.}
 
-\item{includeRanef}{A logical. Set whether the predictions and
-probabilities should be calculated conditional on the random
-effects. If \code{FALSE}, random effects will not be included,
-and probabilities will be calculated at the population level.}
+\item{includeRanef}{A logical. If \code{TRUE}, probabilities and
+predictions will be calculated at the group level. If
+\code{FALSE}, random effects will not be included, and
+probabilities will be calculated at the population level.}
 
 \item{nSims}{A positive integer. If \code{type = "sim"} or
 \code{type = "boot"}, \code{nSims} will determine the number of
@@ -58,7 +58,7 @@ of class \code{lmerMod}.
 \details{
 It is recommended that one perform a parametric bootstrap to
 determine these probabilities. To do so, use the option \code{type
-= "boot"}
+= "boot"}.
 }
 \examples{
 dat <- lme4::sleepstudy
@@ -67,20 +67,20 @@ dat <- lme4::sleepstudy
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 
 # What is the probability that a new reaction time will be less
-# than 300, condition on the model and groups?
+# than 300? (given the random effects).
 add_probs(dat, fit, q = 300)
 
 # As above, but using a different method.
 add_probs(dat, fit, q = 300, type = "sim")
 
 # What is the probability that a new reaction time will be greater
-# than 300 and we  ignore the random effects? 
+# than 300? (ignoring the random effects). 
 add_probs(dat, fit, q = 300, type = "parametric", includeRanef = FALSE, comparison = ">")
 
 }
 \seealso{
 \code{\link{add_ci.lmerMod}} for confidence intervals
-    for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
+    for \code{lmerMod} objects, \code{\link{add_pi.lmerMod}} for
     prediction intervals of \code{lmerMod} objects, and
     \code{\link{add_quantile.lmerMod}} for response quantiles of
     \code{lmerMod} objects.

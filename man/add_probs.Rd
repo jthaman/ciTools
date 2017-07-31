@@ -7,7 +7,7 @@
 add_probs(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data}
+\item{tb}{A tibble or data frame of new data.}
 
 \item{fit}{An object of class \code{lm}, \code{glm}, or
 \code{lmerMod}. Predictions are made with this object.}
@@ -16,7 +16,7 @@ add_probs(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...)
 distribution.}
 
 \item{name}{\code{NULL} or character vector of length one. If
-\code{NULL}, probabilities will automatically be named by
+\code{NULL}, probabilities automatically will be named by
 \code{add_probs}, otherwise, the probabilities will be named
 \code{name} in the returned tibble.}
 
@@ -26,7 +26,7 @@ distribution.}
 \eqn{Pr(Y|x < q)} is calculated for each observation in
 \code{tb}. Default is "<". Must be "<" or ">" for objects of
 class \code{lm} or \code{lmerMod}. If \code{fit} is a
-\code{glm}, then \code{comparison} may also be \code{"<="} ,
+\code{glm}, then \code{comparison} also may be \code{"<="} ,
 \code{">="} , or \code{"="}.}
 
 \item{...}{Additional arguments}
@@ -45,7 +45,7 @@ returned to the user as a tibble.
 }
 \details{
 For more specific information about the arguments that are useful
-in each method, consult
+in each method, consult:
 
 \itemize{
   \item \code{\link{add_probs.lm}} for linear regression response probabilities
@@ -53,7 +53,7 @@ in each method, consult
   \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
 }
 
-Note that the probabilities that \code{add_probs} calculates are on
+Note that the probabilities calculated by \code{add_probs} are on
 the distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use
 the same distribution from which a prediction interval is
 detmermined, not the distribution that determines a confidence
@@ -64,11 +64,11 @@ interval.
 fit <- lm(dist ~ speed, data = cars)
 
 # Calculate the probability that the probability that a new
-# dist is less than 20 (Given the model)
+# dist is less than 20 (Given the model).
 add_probs(cars, fit, q = 20)
 
-# Calculate the probability that the probability that a new
-# dist is greater than 20 (Given the model)
+# Calculate the probability that a new
+# dist is greater than 20 (Given the model).
 add_probs(cars, fit, q = 20, comparison = ">")
 
 # Try a different model fit.
@@ -86,5 +86,5 @@ add_probs(lme4::sleepstudy, fit3, q = 300, type = "parametric", includeRanef = F
 \seealso{
 \code{\link{add_ci}} for confidence intervals,
     \code{\link{add_quantile}} for response level quantiles, and
-    \code{\link{add_pi}} for prediction intervals
+    \code{\link{add_pi}} for prediction intervals.
 }

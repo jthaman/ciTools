@@ -17,14 +17,14 @@
 level of the interval estimates.}
 
 \item{names}{\code{NULL} or character vector of length two. If
-\code{NULL}, confidence bounds will automatically be named by
+\code{NULL}, confidence bounds automatically will be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{type}{A string, either \code{"parametric"}, \code{"boot"}, or
+\item{type}{A string. Must be \code{"parametric"}, \code{"boot"}, or
 \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
 \code{merTools::predictInterval}. If \code{type = "boot"}, then
 \code{add_ci} calls \code{lme4::bootMer}.}
@@ -48,23 +48,23 @@ A tibble, \code{tb}, with predicted values, upper and lower
 This function is one of the methods for \code{add_ci}, and is
 called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{lmerMod}. It is recommended that one use parametric
-confidence intervals when modeling with a random intercept Linear
-Mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
-(1|group))}). Otherwise confidence intervals may be simulated (type
+confidence intervals when modeling with a random intercept linear
+mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
+(1|group))}). Otherwise, confidence intervals may be simulated (type
 = \code{"sim"}) via \code{merTools::predictInterval} or
 bootstrapped via \code{lme4::bootMer}.
 }
 \details{
-Bootstrapped intervals are the slowest to compute, but recommended
-method when working with any linear mixed models more complicated
-than the random intercept model.
+Bootstrapped intervals are the slowest to compute, but they are the
+recommended method when working with any linear mixed models more
+complicated than the random intercept model.
 }
 \examples{
 # Define the data set
 dat <- lme4::sleepstudy
 # Fit a linear mixed model (random intercept model)
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-# append get the fitted values for each observation in dat, and
+# Get the fitted values for each observation in dat, and
 # append CIs for those fitted values to dat
 add_ci(dat, fit, alpha = 0.5, nSims = 100)
 # Try another method, and make prediction at the population level
@@ -75,7 +75,7 @@ add_ci(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 100
 }
 \seealso{
 \code{\link{add_pi.lmerMod}} for prediction intervals
-    of \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+    of \code{lmerMod} objects, \code{\link{add_probs.lmerMod}} for
     conditional probabilities of \code{lmerMod} objects, and
     \code{\link{add_quantile.lmerMod}} for response quantiles of
     \code{lmerMod} objects.

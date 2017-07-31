@@ -22,9 +22,9 @@
 #' class \code{lmerMod}.
 #'
 #' It is recommended that one use parametric prediction intervals when
-#' modeling with a random intercept linear mixed model. Otherwise
+#' modeling with a random intercept linear mixed model. Otherwise,
 #' prediction intervals may be simulated using one of two
-#' methods. \code{"sim"} indicates that
+#' methods: \code{"sim"} indicates that
 #' \code{merTools::predictInterval} should be used to simulate
 #' responses to form prediction intervals, and \code{"boot"} indicates
 #' that \code{lme4::simulate} should be used to simulate predictions
@@ -37,13 +37,13 @@
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{NULL}, prediction bounds automatically will be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string, either \code{"parametric"}, \code{"sim"},
-#'     \code{"boot"}. Determines the method uses to calculate the
+#' @param type A string, either \code{"parametric"}, \code{"sim"}, or
+#'     \code{"boot"}. Determines the method used to calculate the
 #'     prediction intervals.
 #' @param includeRanef A logical. Set whether the predictions and
 #'     intervals should be conditioned on the random effects. If
@@ -52,14 +52,14 @@
 #'     \code{type = "boot"}, \code{nSims} will determine the number of
 #'     simulated draws to make.
 #' @param log_response A logical, indicating if the response is on log
-#'     scale in the model fit. If \code{TRUE}, prediction intervals will
-#'     be returned on the response scale.
+#'     scale in the model fit. If \code{TRUE}, prediction intervals
+#'     will be returned on the response scale.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.lmerMod}} for confidence intervals
-#'     for \code{lmerMod} objects. \code{\link{add_probs.lmerMod}} for
+#'     for \code{lmerMod} objects, \code{\link{add_probs.lmerMod}} for
 #'     conditional probabilities of \code{lmerMod} objects, and
 #'     \code{\link{add_quantile.lmerMod}} for response quantiles of
 #'     \code{lmerMod} objects.
@@ -69,7 +69,7 @@
 #' # Fit a (random intercept) linear mixed model
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #' # Add prediction intervals to the original data using the default
-#' # method, parametric bootstrap (You may want to use more than 100
+#' # method, parametric bootstrap. (You may want to use more than 100
 #' # bootstrap replicates in practice).
 #' add_pi(dat, fit, alpha = 0.5, nSims = 100)
 #' 

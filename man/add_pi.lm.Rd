@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_pi_lm.R
 \name{add_pi.lm}
 \alias{add_pi.lm}
-\title{Prediction Intervals for Linear Model Predictions.}
+\title{Prediction Intervals for Linear Model Predictions}
 \usage{
 \method{add_pi}{lm}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "pred", log_response = FALSE, ...)
@@ -17,14 +17,14 @@ object.}
 level of the interval estimates.}
 
 \item{names}{\code{NULL} or character vector of length two. If
-\code{NULL}, prediction bounds will automatically be named by
+\code{NULL}, prediction bounds automatically will be named by
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{log_response}{logical. If TRUE, prediction intervals will be
+\item{log_response}{A logical. If TRUE, prediction intervals will be
 generated at the \emph{response level} of a log-linear model:
 \eqn{\log(Y) = X\beta + \epsilon}. Again, these intervals will
 be on the scale of the original response, Y.}
@@ -37,12 +37,12 @@ A tibble, \code{tb}, with predicted values, upper and lower
 }
 \description{
 This function is one of the methods for \code{add_pi} and is
-automatically called when an object is class \code{lm} is passed to
+automatically called when an object of class \code{lm} is passed to
 to \code{add_pi}.
 }
 \details{
 Prediction intervals for \code{lm} objects are calculated
-parametrically, this function is essentially just a wrapper for
+parametrically. This function is essentially just a wrapper for
 \code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
 linear model. If \code{log_response = TRUE}, prediction intervals
 for the response are calculated parametrically, then the
@@ -50,7 +50,7 @@ exponential function is applied to transform them to the original
 scale.
 }
 \examples{
-# Fit a Linear model
+# Fit a linear model
 fit <- lm(dist ~ speed, data = cars)
 # Add prediction intervals and fitted values to the original data
 add_pi(cars, fit)

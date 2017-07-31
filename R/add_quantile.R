@@ -25,7 +25,7 @@
 #' the user as a tibble.
 #'
 #' For more specific information about the arguments that are applicable
-#' for each type of model, consult
+#' for each type of model, consult:
 #'
 #' \itemize{
 #'   \item \code{\link{add_quantile.lm}} for linear regression response quantiles
@@ -38,15 +38,15 @@
 #' same distribution that determines a prediction interval, not the
 #' distribution that determines a confidence interval.
 
-#' @param tb A tibble or data frame of new data
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
 #' @param p A double. A probability that determines the quantile. Must
 #'     be between 0 and 1.
 #' @param name \code{NULL} or a string. If \code{NULL},
-#'     quantiles will automatically be named by \code{add_quantile()},
+#'     quantiles automatically will be named by \code{add_quantile()},
 #'     otherwise, the quantiles will be named \code{name} in the
-#'     returned tibble
+#'     returned tibble.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and
@@ -57,17 +57,17 @@
 #' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
 #'
-#' # Find the 0.4 quantile (or 40th percentile) of new dists for each
-#' # observations in cars, conditioned on the linear model.
+#' # Find the 0.4 quantile (or 40th percentile) of new distances for
+#' # each observations in cars, conditioned on the linear model.
 #' add_quantile(cars, fit, p = 0.4)
 #'
-#' # Fit a Poisson Model
+#' # Fit a Poisson model
 #' fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
-#' # Find the 0.4 quantile (or 40th percentile) of new dists for each
-#' # observation in cars, conditioned on the Poisson model.
+#' # Find the 0.4 quantile (or 40th percentile) of new distances for
+#' # each observation in cars, conditioned on the Poisson model.
 #' add_quantile(cars, fit2, p = 0.4)
 #'
-#' # Fit a Random Intercept (Linear Mixed) model
+#' # Fit a random intercept linear mixed model
 #' fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #' # Find the 0.4 quantile (or 40 percentile) of reaction times for
 #' # each observation in the sleepstudy data. Condition on the model and random effects.

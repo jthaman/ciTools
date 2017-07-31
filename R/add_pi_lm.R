@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Prediction Intervals for Linear Model Predictions.
+#' Prediction Intervals for Linear Model Predictions
 #'
 #' This function is one of the methods for \code{add_pi} and is
-#' automatically called when an object is class \code{lm} is passed to
+#' automatically called when an object of class \code{lm} is passed to
 #' to \code{add_pi}.
 #'
 #' Prediction intervals for \code{lm} objects are calculated
-#' parametrically, this function is essentially just a wrapper for
+#' parametrically. This function is essentially just a wrapper for
 #' \code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, prediction intervals
 #' for the response are calculated parametrically, then the
@@ -35,12 +35,12 @@
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, prediction bounds will automatically be named by
+#'     \code{NULL}, prediction bounds automatically will be named by
 #'     \code{add_pi}, otherwise, the lower prediction bound will be
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param log_response logical. If TRUE, prediction intervals will be
+#' @param log_response A logical. If TRUE, prediction intervals will be
 #'     generated at the \emph{response level} of a log-linear model:
 #'     \eqn{\log(Y) = X\beta + \epsilon}. Again, these intervals will
 #'     be on the scale of the original response, Y.
@@ -55,7 +55,7 @@
 #'     \code{lm} objects.
 #'
 #' @examples
-#' # Fit a Linear model
+#' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
 #' # Add prediction intervals and fitted values to the original data
 #' add_pi(cars, fit)

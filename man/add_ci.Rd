@@ -2,13 +2,13 @@
 % Please edit documentation in R/add_ci.R
 \name{add_ci}
 \alias{add_ci}
-\title{Add Confidence Intervals for Predictions to Data Frames.}
+\title{Add Confidence Intervals for Fitted Values to Data Frames}
 \usage{
 add_ci(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.
-predictions. \code{tb} can be the original data or new data.}
+\item{tb}{A tibble or data frame of new data. \code{tb} can be
+the original data or new data.}
 
 \item{fit}{An object of class \code{lm}, \code{glm}, or
 \code{lmerMod}. Predictions are made with this object.}
@@ -17,7 +17,7 @@ predictions. \code{tb} can be the original data or new data.}
 level of the interval estimates.}
 
 \item{names}{NULL or character vector of length two. If
-\code{NULL}, confidence bounds will automatically be named by
+\code{NULL}, confidence bounds automatically will be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{ciNames[1]} and the upper confidence bound will be
 named \code{ciNames[2]}.}
@@ -41,7 +41,7 @@ be a linear, log-linear, linear mixed, or generalized linear model.
 }
 \details{
 For more specific information about the arguments that are applicable
-in each method, consult
+in each method, consult:
 
 \itemize{
   \item \code{\link{add_ci.lm}} for linear regression confidence intervals
@@ -74,7 +74,7 @@ fit3 <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 # Generally, you should use more than 100 bootstrap replicates
 add_ci(lme4::sleepstudy, fit3, nSims = 100)
 
-# Fit a Logistic model
+# Fit a logistic model
 fit4 <- glm(I(dist > 20) ~ speed, family = "binomial", data = cars)
 # Append CIs
 add_ci(cbind(cars, I(cars$dist > 20)), fit4)

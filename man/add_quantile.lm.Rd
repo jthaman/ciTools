@@ -17,12 +17,12 @@ this object.}
 quantiles.}
 
 \item{name}{\code{NULL} or a string. If \code{NULL},
-quantiles will automatically be named by \code{add_quantile},
-otherwise, they will be named \code{name}}
+quantiles automatically will be named by \code{add_quantile},
+otherwise, they will be named \code{name}.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
-\item{log_response}{logical. If TRUE, quantiles will be generated
+\item{log_response}{A logical. If TRUE, quantiles will be generated
 for the prediction made with a log-linear model: \eqn{\log(Y) =
 X\beta + \epsilon}. These quantiles will be on the scale of the
 original response, \eqn{Y}.}
@@ -35,7 +35,7 @@ A tibble, \code{tb}, with predicted values and level -
 }
 \description{
 This function is one of the methods of \code{add_quantile}. It is
-automatically called when \code{add_quantile} is called on objects
+called automatically when \code{add_quantile} is called on objects
 of class \code{lm}.
 }
 \details{
@@ -47,7 +47,8 @@ applying a pivotal quantity to the distribution of \eqn{Y|x}.
 # Fit a linear Model
 fit <- lm(dist ~ speed, data = cars)
 
-# Find the 0.7-quantile (70th percentile) of new dists, given the linear model fit.
+# Find the 0.7-quantile (70th percentile) of new distances, given
+# the linear model fit.
 add_quantile(cars, fit, p = 0.7)
 
 # As above, but with a custom name for the vector of quantiles
@@ -56,7 +57,7 @@ add_quantile(cars, fit, p = 0.7, name = "my_quantile")
 }
 \seealso{
 \code{\link{add_ci.lm}} for confidence intervals for
-    \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+    \code{lm} objects, \code{\link{add_pi.lm}} for prediction
     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
     for response probabilities of \code{lm} objects.
 }

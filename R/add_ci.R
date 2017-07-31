@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Add Confidence Intervals for Predictions to Data Frames.
+#' Add Confidence Intervals for Fitted Values to Data Frames
 #'
 #' This is a generic function to append confidence intervals for
 #' predictions of a model fit to a data frame. A confidence interval
@@ -25,7 +25,7 @@
 #' be a linear, log-linear, linear mixed, or generalized linear model.
 #'
 #' For more specific information about the arguments that are applicable
-#' in each method, consult
+#' in each method, consult:
 #'
 #' \itemize{
 #'   \item \code{\link{add_ci.lm}} for linear regression confidence intervals
@@ -45,14 +45,14 @@
 #' @importFrom arm se.ranef
 #' @importFrom arm sim
 #'
-#' @param tb A tibble or data frame of new data.
-#'     predictions. \code{tb} can be the original data or new data.
+#' @param tb A tibble or data frame of new data. \code{tb} can be
+#'     the original data or new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names NULL or character vector of length two. If
-#'     \code{NULL}, confidence bounds will automatically be named by
+#'     \code{NULL}, confidence bounds automatically will be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{ciNames[1]} and the upper confidence bound will be
 #'     named \code{ciNames[2]}.
@@ -84,7 +84,7 @@
 #' # Generally, you should use more than 100 bootstrap replicates
 #' add_ci(lme4::sleepstudy, fit3, nSims = 100)
 #'
-#' # Fit a Logistic model
+#' # Fit a logistic model
 #' fit4 <- glm(I(dist > 20) ~ speed, family = "binomial", data = cars)
 #' # Append CIs
 #' add_ci(cbind(cars, I(cars$dist > 20)), fit4)

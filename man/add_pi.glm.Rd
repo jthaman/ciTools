@@ -16,7 +16,7 @@
 level of the interval estimates.}
 
 \item{names}{\code{NULL} or character vector of length two. If
-\code{NULL}, prediction bounds will automatically be named by
+\code{NULL}, prediction bounds automatically will be named by
 \code{add_pi}, otherwise, the lower prediction bound will be
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
@@ -26,7 +26,8 @@ named \code{names[2]}.}
 \item{nSims}{A positive integer. Determines the number of
 simulations to run.}
 
-\item{type}{A string. Currently must be \code{"sim"}.}
+\item{type}{A string. Currently \code{type = "sim"} is the only
+valid string.}
 
 \item{...}{Additional arguments.}
 }
@@ -59,7 +60,7 @@ add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 }
 \seealso{
 \code{\link{add_ci.glm}} for confidence intervals for
-    \code{glm} objects. \code{\link{add_probs.glm}} for conditional
+    \code{glm} objects, \code{\link{add_probs.glm}} for conditional
     probabilities of \code{glm} objects, and
     \code{\link{add_quantile.glm}} for response quantiles of
     \code{glm} objects.

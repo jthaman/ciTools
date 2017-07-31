@@ -17,17 +17,17 @@ this object.}
 \item{p}{A real number between 0 and 1.  Determines the probability
 level of the quantiles.}
 
-\item{name}{\code{NULL} or a string. If \code{NULL}, quantiles will
-automatically be named by \code{add_quantile}, otherwise, they
-will be named \code{name}}
+\item{name}{\code{NULL} or a string. If \code{NULL}, quantiles
+automatically will be named by \code{add_quantile}, otherwise,
+they will be named \code{name}.}
 
 \item{yhatName}{A string. Determines the name of the column of
 predictions.}
 
-\item{includeRanef}{Should the quantiles be calculated condition on
-the random effects? If \code{TRUE}, quantiles will be
-calculated at the "group level". Otherwise, quantiles will be
-calculated at the "population level".}
+\item{includeRanef}{The random effects be included or not? If
+\code{TRUE}, quantiles will be calculated at the
+"group level". Otherwise, quantiles will be calculated at the
+"population level", where random effects are set to \eqn{0}.}
 
 \item{type}{A string. Options are \code{"parametric"},
 \code{"boot"}, or \code{"sim"}.}
@@ -37,7 +37,8 @@ perform. Only applied when \code{type = "boot"} or \code{type =
 "sim"}}
 
 \item{log_response}{A logical. Set to \code{TRUE} if the model is a
-log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma + \epsilon}.}
+log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma +
+\epsilon}.}
 
 \item{...}{Additional arguments.}
 }
@@ -46,8 +47,8 @@ A tibble, \code{tb}, with predicted values and level-p
     quantiles attached.
 }
 \description{
-This function is one of the methods for \code{add_quantile} and is
-automatically called when \code{add_quantile} is applied to an
+This function is one of the methods for \code{add_quantile} and
+is called automatically when \code{add_quantile} is applied to an
 object of class \code{lmerMod}.
 }
 \details{
@@ -57,7 +58,7 @@ determining quantiles: a parametric method, a simulation method
 method (via \code{lme4::simulate}). The default and recommended
 method is parametric bootstrap, which corresponds to setting
 \code{type = "boot"}. Only use the parametric method (\code{type =
-"parametric"}) if \code{fit} is a random intercept model
+"parametric"}) if \code{fit} is a random intercept model,
 e.g. \code{fit = lmer(y ~ x + (1|group))}.
 }
 \examples{
@@ -66,23 +67,23 @@ dat <- lme4::sleepstudy
 # Fit a random intercept model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 
-# Using the parametric bootstrap: Given the model fit, what value
+# Using the parametric bootstrap: given the model fit, what value
 # of reaction time do we expect half of new reaction times to fall
 # under?
 add_quantile(dat, fit, p = 0.5)
 
 # Using the parametric method:
-# As above, but we ignore the random effects
+# as above, but we ignore the random effects.
 add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
 
-# Using the simulation method, and giving the vector of quantiles a
-# custom name:
+# Using the simulation method: give the vector of quantiles a
+# custom name.
 add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
 
 }
 \seealso{
 \code{\link{add_ci.lmerMod}} for confidence intervals
-    for \code{lmerMod} objects. \code{\link{add_pi.lmerMod}} for
+    for \code{lmerMod} objects, \code{\link{add_pi.lmerMod}} for
     prediction intervals of \code{lmerMod} objects, and
     \code{\link{add_probs.lmerMod}} for response probabilities of
     \code{lmerMod} objects.

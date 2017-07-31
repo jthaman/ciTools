@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for Linear Model Predictions.
+#' Confidence Intervals for Linear Model Predictions
 #'
-#' This function is one of the methods in \code{add_ci} and is
-#' automatically called when an object is class \code{lm} is passed to
+#' This function is one of the methods in \code{add_ci} and
+#' automatically is called when an object of class \code{lm} is passed
 #' to \code{add_ci}.
 #'
 #' Confidence intervals for \code{lm} objects are calculated
-#' parametrically, this function is essentially a wrapper for
+#' parametrically. This function is essentially a wrapper for
 #' \code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, confidence intervals
 #' for the response are calculated using Wald's Method. See Meeker and
@@ -34,13 +34,13 @@
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, confidence bounds will automatically be named by
+#'     \code{NULL}, confidence bounds automatically will be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of the predictions
 #'     made for each observation in tb
-#' @param log_response logical. Default is \code{FALSE}. If
+#' @param log_response Logical. Default is \code{FALSE}. If
 #'     \code{TRUE}, confidence intervals will be generated for the
 #'     \emph{response level} of a log-linear model:  \eqn{\log(Y) =
 #'     X\beta + \epsilon}.
@@ -49,13 +49,13 @@
 #'     confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.lm}} for prediction intervals for
-#'     \code{lm} objects. \code{\link{add_probs.lm}} for conditional
+#'     \code{lm} objects, \code{\link{add_probs.lm}} for conditional
 #'     probabilities of \code{lm} objects, and
 #'     \code{\link{add_quantile.lm}} for response quantiles of
 #'     \code{lm} objects.
 #'
 #' @examples
-#' # Fit a Linear model
+#' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
 #' # Get fitted values for each observation in cars, and append
 #' # confidence intervals

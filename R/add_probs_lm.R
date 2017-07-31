@@ -22,18 +22,18 @@
 #' using a pivotal quantity.
 #' 
 #'
-#' @param tb A tibble or data frame of new data
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lm}. Predictions are made with
 #'     this object.
 #' @param q A real number. A quantile of the response distribution.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
-#'     will automatically be named by \code{add_probs}, otherwise, the
+#'     automatically will be named by \code{add_probs}, otherwise, the
 #'     probabilities will be named \code{name} in the returned tibble.
 #' @param yhatName A character vector of length one. Names of the
 #' @param comparison \code{"<"}, or \code{">"}. If \code{comparison =
 #'     "<"}, then \eqn{Pr(Y|x < q)} is calculated for each observation in
 #'     \code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.
-#' @param log_response A logical. Default is \code{FALSE}, set to
+#' @param log_response A logical. Default is \code{FALSE}. Set to
 #'     \code{TRUE} if the model is log-linear: \eqn{\log(Y) = X \beta
 #'     + \epsilon}.
 #' @param ... Additional arguments.
@@ -42,7 +42,7 @@
 #'     probabilities attached.
 #' 
 #' @seealso \code{\link{add_ci.lm}} for confidence intervals for
-#'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+#'     \code{lm} objects, \code{\link{add_pi.lm}} for prediction
 #'     intervals of \code{lm} objects, and
 #'     \code{\link{add_quantile.lm}} for response quantiles of
 #'     \code{lm} objects.
@@ -53,7 +53,7 @@
 #' fit <- lm(dist ~ speed, data = cars)
 #'
 #' # Calculate the probability that a new dist will be less than 20,
-#' # given the model
+#' # given the model.
 #' add_probs(cars, fit, q = 20)
 #'
 #' # Calculate the probability that a new dist will be greater than

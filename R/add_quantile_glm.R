@@ -22,18 +22,18 @@
 #' compute the quantiles of the response of a Poisson regression with
 #' the \eqn{\log}-link function.
 #'
-#' Quantiles of Generalized Linear models are determined by
+#' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}.
 #'
 #' 
-#' @param tb A tibble or data frame of new data
+#' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
 #' @param p A real number between 0 and 1. Sets the probability level
 #'     of the quantiles.
 #' @param name \code{NULL} or a string. If \code{NULL},
-#'     quantiles will automatically be named by \code{add_quantile},
-#'     otherwise, they will be named \code{name}
+#'     quantiles automatically will be named by \code{add_quantile},
+#'     otherwise, they will be named \code{name}.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
@@ -42,7 +42,7 @@
 #'     \emph{p} quantiles attached.
 #'
 #' @seealso \code{\link{add_ci.lm}} for confidence intervals for
-#'     \code{lm} objects. \code{\link{add_pi.lm}} for prediction
+#'     \code{lm} objects, \code{\link{add_pi.lm}} for prediction
 #'     intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
 #'     for response probabilities of \code{lm} objects.
 #'
@@ -51,8 +51,8 @@
 #' # Fit a Poisson GLM
 #' fit <- glm(dist ~ speed, data = cars, family = "poisson")
 #'
-#' # What is the 0.3-quantile (or 30th percentile) of new dists, given
-#' # the Poisson model?
+#' # What is the 0.3-quantile (or 30th percentile) of new distances,
+#' # given the Poisson model?
 #' add_quantile(cars, fit, p = 0.3)
 #'
 #' # As above, but now find the 0.5-quantile (50th percentile), change
