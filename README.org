@@ -50,11 +50,11 @@
 
      dat <- sleepstudy ## data included with lme4
      ## Fit a random intercept model
-     fit_lmm <- lmer(Reaction ~ Days + (1 | Subject), data = dat)
+     fit <- lmer(Reaction ~ Days + (1 | Subject), data = dat)
 
      ## New data for predictions
      ## A random sample of 20 observations from sleepstudy
-     new_dat <- sleepstudy[sample(NROW(dat, 20)),]
+     new_dat <- sleepstudy[sample(NROW(dat), 20),]
 
      ## Append 50% CIs and PIs to the new data:
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%

@@ -137,7 +137,7 @@ boot_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_resp
     else 
         reform = NA
 
-    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
     gg <- as.matrix(gg)
     quant <- apply(gg, 1, FUN = quantile, probs = p)
 

@@ -169,7 +169,7 @@ boot_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims,
     else 
         reform = NA
 
-    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
     gg <- as.matrix(gg)
     probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
 

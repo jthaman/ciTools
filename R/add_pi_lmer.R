@@ -171,7 +171,7 @@ boot_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_respo
     else 
         reform = NA
 
-    gg <- simulate(fit, re.form = reform, nsim = nSims)
+    gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
     gg <- as.matrix(gg)
     lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
     upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
