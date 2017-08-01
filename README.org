@@ -94,7 +94,7 @@
 
    #+END_SRC
 
-   The end result is a data frame that is ammenable to plotting with
+   The end result is a data frame that is amenable to plotting with
    ggplot2. See the documentation for more examples with other types
    of statistical regression models.
 
