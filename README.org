@@ -27,8 +27,8 @@
 *** All commands in =ciTools=:
     - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
     - =add_pi(data, fit, ...)= - get prediction intervals and append to =data=
-    - =add_probs(data, fit, q, ...)= - conditional response level probabilities
-    - =add_quantile(data, fit, p, ...)= - conditional response level quantiles
+    - =add_probs(data, fit, q, ...)= - get conditional response level probabilities
+    - =add_quantile(data, fit, p, ...)= - get conditional response level quantiles
 
 ** Installation
    Install =ciTools= from Github with =devtools:=
@@ -39,7 +39,8 @@
    #+END_SRC
 
 ** Usage
-   Here is a short example featuring a linear mixed model.
+   Here is a short example featuring a linear mixed model, but the
+   idea is the same for any other model.
 
    #+BEGIN_SRC R
      ## Example with a linear mixed model
@@ -56,14 +57,14 @@
      ## A random sample of 20 observations from sleepstudy
      new_dat <- sleepstudy[sample(NROW(dat), 20),]
 
-     ## Append 50% CIs and PIs to the new data:
+     ## Append (conditional) 50% CIs and PIs to the new data:
      ## (Default method is bootstrap)
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
          add_pi(fit, alpha = 0.5)
 
      ## Append 50% CIs and PIs, but ignore the random effects:
      new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE,
-                       names = c("lcb_uncond", "ucb_uncond"),
+                       names = c("lcb_uncond", "ucb_uncond") ## custom interval names
                        yhatName = "pred_uncond") %>%
          add_pi(fit, alpha = 0.5, includeRanef = FALSE,
                 names = c("lpb_uncond", "upb_uncond"))
@@ -91,6 +92,9 @@
 ** Help us out?
    We still have work to do. Submit an Issue if you run into a bug, or
    a PR if you think you can help us out (see the TODO file).
+
+** Authors
+   John Haman and Matt Avery
   
 ** Copyright 
    =ciTools= (C) 2017 Institute for Defense Analyses
