@@ -25,10 +25,10 @@
    - Generic design - One command for each statistical quantity
      
 *** All commands in =ciTools=:
-   - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
-   - =add_pi(data, fit, ...)= - get prediction intervals and append to =data=
-   - =add_probs(data, fit, q, ...)= - conditional response level probabilities
-   - =add_quantile(data, fit, p, ...)= - conditional response level quantiles
+    - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
+    - =add_pi(data, fit, ...)= - get prediction intervals and append to =data=
+    - =add_probs(data, fit, q, ...)= - conditional response level probabilities
+    - =add_quantile(data, fit, p, ...)= - conditional response level quantiles
 
 ** Installation
    Install =ciTools= from Github with =devtools:=
@@ -57,12 +57,16 @@
      new_dat <- sleepstudy[sample(NROW(dat), 20),]
 
      ## Append 50% CIs and PIs to the new data:
+     ## (Default method is bootstrap)
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
          add_pi(fit, alpha = 0.5)
 
      ## Append 50% CIs and PIs, but ignore the random effects:
-     new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE) %>%
-         add_pi(fit, alpha = 0.5, includeRanef = FALSE)
+     new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE,
+                       names = c("lcb_uncond", "ucb_uncond"),
+                       yhatName = "pred_uncond") %>%
+         add_pi(fit, alpha = 0.5, includeRanef = FALSE,
+                names = c("lpb_uncond", "upb_uncond"))
 
      ## Determine the probability that a new Reaction time will be less
      ## than 300 (given the model and new data):
@@ -77,6 +81,7 @@
 
      ## Glimpse all the quantities added:
      glimpse(new_dat)
+
    #+END_SRC
 
    The end result is a data frame that is ammenable to plotting with
