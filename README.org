@@ -14,7 +14,7 @@
    fitted values are easy enough if one is just working with linear
    models, but when models become more complex, e.g. generalized
    linear models or linear mixed models, the facilities for
-   quantitfying unceratinty for predictions are either more cumbersome
+   quantifying uncertainty for predictions are either more cumbersome
    to work with or nonexistent. We hope that =ciTools= provides uniform,
    model invariant access to these statistics.
 
