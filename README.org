@@ -31,7 +31,7 @@
     - =add_quantile(data, fit, p, ...)= - get conditional response level quantiles
 
 ** Installation
-   Install =ciTools= from Github with =devtools:=
+   Install =ciTools= from Github with =devtools=:
    #+BEGIN_SRC R
      library(devtools)
      devtools::install_github("jthaman/ciTools")
@@ -85,7 +85,7 @@
      ## Or greater than:
      new_dat <- add_probs(new_dat, fit, 300, comparison = ">")
 
-     ## Determine the 0.9-quantile of the predicive distribution, given the
+     ## Determine the 0.9-quantile of the predictive distribution, given the
      ## model and new data:
      new_dat <- add_quantile(new_dat, fit, 0.9)
 
