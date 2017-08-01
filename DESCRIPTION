@@ -23,6 +23,7 @@ Imports:
     methods,
     stats,
     tibble
+URL: https://github.com/jthaman/ciTools
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
