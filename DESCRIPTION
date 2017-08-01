@@ -4,7 +4,7 @@ Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
     for Statistical Models
 Version: 0.1.0
 Authors@R: as.person(c(
-    "John Haman <jhaman@ida.org> [aut, cre]", 
+    "John Haman <mail@johnhaman.org> [aut, cre]", 
     "Matthew Avery <mavery@ida.org> [aut]",
     "Institute for Defense Analyses <communications@ida.org> [cph]")
   )
