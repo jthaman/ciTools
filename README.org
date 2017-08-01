@@ -38,6 +38,15 @@
      library(ciTools)
    #+END_SRC
 
+   If you are behind a corporate firewall, you may have to instead run:
+   #+BEGIN_SRC R
+     library(httr)
+     library(devtools)
+     set_config(config(ssl_verifypeer = 0L)) 
+     devtools::install_github("jthaman/ciTools")
+     library(ciTools)
+   #+END_SRC   
+
 ** Usage
    Here is a short example featuring a linear mixed model, but the
    idea is the same for any other model.
