@@ -42,6 +42,7 @@
    #+BEGIN_SRC R
      library(httr)
      library(devtools)
+     ## warning: this disables SSL
      set_config(config(ssl_verifypeer = 0L)) 
      devtools::install_github("jthaman/ciTools")
      library(ciTools)
