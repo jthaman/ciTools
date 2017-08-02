@@ -99,6 +99,18 @@
    ggplot2. See the documentation for more examples with other types
    of statistical regression models.
 
+** Scope of =ciTools= 
+
+| Model            | Confidence Intervals | Prediction Intervals | Response Probabilities | Response Quantiles |
+|------------------+----------------------+----------------------+------------------------+--------------------|
+| Linear           | [X]                  | [X]                  | [X]                    | [X]                |
+| Log-Linear       | [X]                  | [X]                  | [X]                    | [X]                |
+| GLM              | [X]                  | [Poisson]            | [Poisson]              | [Poisson]          |
+| Linear Mixed     | [X]                  | [X]                  | [X]                    | [X]                |
+| Log-Linear Mixed | [TODO]               | [X]                  | [X]                    | [X]                |
+| Survival         | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
+| GLMM             | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
+
 ** Help us out?
    We still have work to do. Submit an Issue if you run into a bug, or
    a PR if you think you can help us out (see the TODO file).
