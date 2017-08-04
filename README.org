@@ -1,5 +1,4 @@
 * ciTools: An *R* Package for Quick Uncertainty Intervals
-
 ** Overview
    =ciTools= is an *R* package that makes working with model uncertainty
    as easy as possible. It gives the user easy access to confidence or
@@ -74,8 +73,8 @@
 
      ## Append 50% CIs and PIs, but ignore the random effects:
      add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE,
-                       names = c("lcb_uncond", "ucb_uncond"), ## custom interval names
-                       yhatName = "pred_uncond") %>%
+            names = c("lcb_uncond", "ucb_uncond"), ## custom interval names
+            yhatName = "pred_uncond") %>%
          add_pi(fit, alpha = 0.5, includeRanef = FALSE,
                 names = c("lpb_uncond", "upb_uncond"))
 
