@@ -73,25 +73,22 @@
          add_pi(fit, alpha = 0.5)
 
      ## Append 50% CIs and PIs, but ignore the random effects:
-     new_dat <- add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE,
-                       names = c("lcb_uncond", "ucb_uncond") ## custom interval names
+     add_ci(new_dat, fit, alpha = 0.5, includeRanef = FALSE,
+                       names = c("lcb_uncond", "ucb_uncond"), ## custom interval names
                        yhatName = "pred_uncond") %>%
          add_pi(fit, alpha = 0.5, includeRanef = FALSE,
                 names = c("lpb_uncond", "upb_uncond"))
 
      ## Determine the probability that a new Reaction time will be less
      ## than 300 (given the model and new data):
-     new_dat <- add_probs(new_dat, fit, 300)
+     add_probs(new_dat, fit, 300)
 
      ## Or greater than:
-     new_dat <- add_probs(new_dat, fit, 300, comparison = ">")
+     add_probs(new_dat, fit, 300, comparison = ">")
 
      ## Determine the 0.9-quantile of the predictive distribution, given the
      ## model and new data:
-     new_dat <- add_quantile(new_dat, fit, 0.9)
-
-     ## Glimpse all the quantities added:
-     glimpse(new_dat)
+     add_quantile(new_dat, fit, 0.9)
 
    #+END_SRC
 

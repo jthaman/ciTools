@@ -2,7 +2,9 @@
 - Add more GLMs to add_pi (currently only handles Poisson model)
 - reorder columns of new data if they are not already in the right order
 - Work on a vignette
+- Display version and build date on load
 
 * Long Term
 - Add survival models method
 - Add GLMMs method
+- Zero-Inflated Poisson models
