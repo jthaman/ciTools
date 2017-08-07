@@ -3,15 +3,16 @@ Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
     for Statistical Models
 Version: 0.1.0
-Authors@R: as.person(c(
-    "John Haman <mail@johnhaman.org> [aut, cre]", 
-    "Matthew Avery <mavery@ida.org> [aut]",
-    "Institute for Defense Analyses <communications@ida.org> [cph]")
-  )
+Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
+    email = "mail@johnhaman.org"),
+    person("Matt", "Avery", role = "aut",
+    email = "mavery@ida.org"),
+    person("Institute for Defense Analyses", role = "cph"))
+Maintainer: John Haman <mail@johnhaman.org>
 Description: Functions to append confidence intervals, prediction intervals,
     and other quantities of interest to data frames. All appended quantities
     are for the response variable, after conditioning on the model and covariates.
-    This package has a ``data frame first" syntax that allows for easy piping.
+    This package has a data frame first syntax that allows for easy piping.
     Currently supported models include (log-) linear, (log-) linear mixed,
     and generalized linear models.
 Imports:
@@ -24,6 +25,7 @@ Imports:
     stats,
     tibble
 URL: https://github.com/jthaman/ciTools
+BugReports: https://github.com/jthaman/ciTools/issues
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true
