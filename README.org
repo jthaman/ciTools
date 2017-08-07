@@ -30,6 +30,12 @@
     - =add_quantile(data, fit, p, ...)= - get conditional response level quantiles
 
 ** Installation
+   Install from CRAN:
+   #+BEGIN_SRC R
+     install.packages("ciTools")
+     library(ciTools)
+   #+END_SRC
+
    Install =ciTools= from Github with =devtools=:
    #+BEGIN_SRC R
      library(devtools)
