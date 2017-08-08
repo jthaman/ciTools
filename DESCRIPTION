@@ -5,7 +5,7 @@ Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
 Version: 0.2.0
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     email = "mail@johnhaman.org"),
-    person("Matt", "Avery", role = "aut",
+    person("Matthew", "Avery", role = "aut",
     email = "mavery@ida.org"),
     person("Institute for Defense Analyses", role = "cph"))
 Maintainer: John Haman <mail@johnhaman.org>
