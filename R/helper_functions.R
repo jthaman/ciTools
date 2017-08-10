@@ -23,6 +23,8 @@ get_x_matrix_mermod <- function(tb, fit){
     ##appended, the model matrix is generated, and the function returns
     ##only the rows corresponding to the new data.
     
+  
+  #Need to add some stuff here to get it to not proc an warning for coercing factors into character
     model.matrix(reformulate(attributes(terms(fit))$term.labels), 
                  dplyr::bind_rows(fit@frame, tb))[-(1:nrow(fit@frame)), ]
     
