@@ -58,12 +58,12 @@ the bug tracker](https://github.com/jthaman/ciTools/issues).
 # Using `ciTools`
 
 We designed `ciTools` to make it easy and convenient to generate
-intervals estimates when you're building a model. Since the exact
+intervals estimates when you're done building a model. Since the exact
 formulation of a confidence interval depends on the type of
 statistical model fit, figuring out how to construct a proper
-confidence interval can be challenging. These functions
-automatically identify the correct interval for you, provided your
-model is one of the supported classes.
+confidence interval can be challenging. These functions automatically
+identify the correct interval for you, provided your model is one of
+the supported classes.
 
 Here are the four main functions of `ciTools`
 that you can use regardless of the type of model you made:
