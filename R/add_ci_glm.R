@@ -64,7 +64,7 @@
 #' # Logistic regression
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' dat <- cbind(cars, I(cars$dist > 30))
-#' # For 95% confidence intervals for the fit:
+#' # Form 95% confidence intervals for the fit:
 #' add_ci(dat, fit2)
 #' # Form 50% confidence intervals for the fit:
 #' add_ci(dat, fit2, alpha = 0.5)
