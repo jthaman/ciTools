@@ -3,6 +3,7 @@
 - reorder columns of new data if they are not already in the right order
 - Work on a vignette
 - Display version and build date on load
+- Develope set of test functions (testthat plus test folder)
 
 * Long Term
 - Add survival models method
