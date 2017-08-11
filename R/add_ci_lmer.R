@@ -78,7 +78,7 @@
 
 add_ci.lmerMod <- function(tb, fit, 
                            alpha = 0.05, names = NULL, yhatName = "pred",
-                           type = "boot", includeRanef = TRUE,
+                           type = "parametric", includeRanef = TRUE,
                            nSims = 200, ...){
 
     if (!is.null(fit@optinfo$conv$lme4$code))

@@ -87,7 +87,7 @@
 
 add_pi.lmerMod <- function(tb, fit, 
                            alpha = 0.05, names = NULL, yhatName = "pred",
-                           type = "boot", includeRanef = TRUE,
+                           type = "parametric", includeRanef = TRUE,
                           log_response = FALSE, nSims = 200, ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
