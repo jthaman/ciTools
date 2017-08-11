@@ -75,13 +75,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## render(&quot;u:/org/ciTools-demo.R&quot;)
 ## setup 
-<span class="kw">rm</span>(<span class="dt">list =</span> <span class="kw">ls</span>())
 <span class="kw">set.seed</span>(<span class="dv">20170808</span>)
 knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">fig.width=</span><span class="dv">6</span>, <span class="dt">fig.height=</span><span class="dv">4</span>) 
-<span class="kw">library</span>(rmarkdown)
-<span class="kw">library</span>(ciTools)
-<span class="kw">library</span>(tidyverse)
-<span class="kw">library</span>(knitr)</code></pre></div>
+##library(rmarkdown)
+##library(ciTools)
+##library(tidyverse)
+##library(knitr)</code></pre></div>
 <div id="overview" class="section level1">
 <h1>Overview</h1>
 <p>The purpose of <code>ciTools</code> is to make it easier to do common types of inference in R, particularly uncertainty bounds and probability and quantile estimates. These are the tools researchers use when comparing average system performance to requirements, bounding future system performance, and estimating whether the system will achieve specific thresholds that aren’t necessarily average performance. Specifically, <code>ciTools</code> gives users access to one-line commands that produce confidence intervals and prediction bounds for a given design matrix. This matrix can be the observed data from a test or a set of points that “span the space”, allowing the analyst to visualize system performance. For more information about spanning a design space in <strong>R</strong>, see <a href="https://www.rdocumentation.org/packages/modelr/versions/0.1.1/topics/data_grid">data_grid</a> or <a href="http://tidyr.tidyverse.org/reference/expand.html">crossing</a>.</p>

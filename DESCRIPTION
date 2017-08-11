@@ -24,7 +24,10 @@ Imports:
     methods,
     stats,
     tibble
-Suggests: knitr, rmarkdown
+Suggests:
+    knitr,
+    rmarkdown,
+    tidyverse
 VignetteBuilder: knitr
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues

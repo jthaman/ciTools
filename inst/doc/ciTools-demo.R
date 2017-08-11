@@ -1,13 +1,12 @@
 ## ------------------------------------------------------------------------
 ## render("u:/org/ciTools-demo.R")
 ## setup 
-rm(list = ls())
 set.seed(20170808)
 knitr::opts_chunk$set(fig.width=6, fig.height=4) 
-library(rmarkdown)
-library(ciTools)
-library(tidyverse)
-library(knitr)
+##library(rmarkdown)
+##library(ciTools)
+##library(tidyverse)
+##library(knitr)
 
 ## ------------------------------------------------------------------------
 my_data <- cars
