@@ -24,6 +24,11 @@ Imports:
     methods,
     stats,
     tibble
+Suggests:
+    knitr,
+    rmarkdown,
+    tidyverse
+VignetteBuilder: rmarkdown
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues
 License: GPL (>=3)
