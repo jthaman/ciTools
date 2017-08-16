@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="John Haman and Matthew Avery" />
+
+
+<title>Introducing ciTools</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introducing <code>ciTools</code></h1>
+<h4 class="author"><em>John Haman and Matthew Avery</em></h4>
+<h4 class="date"><em>August 8, 2017</em></h4>
+
+
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## render(&quot;u:/org/ciTools-demo.R&quot;)
+## setup 
+<span class="kw">set.seed</span>(<span class="dv">20170808</span>)
+knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">fig.width=</span><span class="dv">6</span>, <span class="dt">fig.height=</span><span class="dv">4</span>) 
+##library(rmarkdown)
+##library(ciTools)
+##library(tidyverse)
+##library(knitr)</code></pre></div>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>The purpose of <code>ciTools</code> is to make it easier to do common types of inference in R, particularly uncertainty bounds and probability and quantile estimates. These are the tools researchers use when comparing average system performance to requirements, bounding future system performance, and estimating whether the system will achieve specific thresholds that aren’t necessarily average performance. Specifically, <code>ciTools</code> gives users access to one-line commands that produce confidence intervals and prediction bounds for a given design matrix. This matrix can be the observed data from a test or a set of points that “span the space”, allowing the analyst to visualize system performance. For more information about spanning a design space in <strong>R</strong>, see <a href="https://www.rdocumentation.org/packages/modelr/versions/0.1.1/topics/data_grid">data_grid</a> or <a href="http://tidyr.tidyverse.org/reference/expand.html">crossing</a>.</p>
+<p><code>ciTools</code> makes these statistical quantities available through a set of four functions that have a uniform syntax: <code>add_&lt;*&gt;(data, model, ...)</code>. Users only need to learn one expression to get started and can intuitively learn other functions when needed.</p>
+</div>
+<div id="links" class="section level1">
+<h1>Links</h1>
+<ol style="list-style-type: decimal">
+<li><p>Another readme is available on our <a href="https://github.com/jthaman/ciTools">GitHub page</a>.</p></li>
+<li><p>Do you have a problem with <code>ciTools</code> or a feature that you would like to see implemented? Create an Issue <a href="https://github.com/jthaman/ciTools/issues">on the bug tracker</a>.</p></li>
+<li><p>Comprehensive documentation (with examples!) is available <a href="https://www.rdocumentation.org/packages/ciTools/versions/0.1.0">here</a></p></li>
+<li><p>The main CRAN page for <code>ciTools</code> is <a href="https://cran.r-project.org/web/packages/ciTools/index.html">here</a></p></li>
+</ol>
+</div>
+<div id="using-citools" class="section level1">
+<h1>Using <code>ciTools</code></h1>
+<p>We designed <code>ciTools</code> to make it easy and convenient to generate intervals estimates when you’re building a model. Since the exact formulation of a confidence interval depends on the type of statistical model fit, figuring out how to construct a proper confidence interval can be challenging. These functions automatically identify the correct interval for you, provided your model is one of the supported classes.</p>
+<p>Here are the four main functions of <code>ciTools</code> that you can use regardless of the type of model you made:</p>
+<ol style="list-style-type: decimal">
+<li><code>add_ci(data, model, ...)</code> – compute confidence intervals for the fitted values of each row in <code>data</code> and append to <code>data</code>.</li>
+<li><code>add_pi(data, model, ...)</code> – compute prediction intervals for the fitted values of each row in <code>data</code> and append to <code>data</code>.</li>
+<li><code>add_probs(data, model, ...)</code> – compute conditional response probabilities for the fitted values of each row in <code>data</code> and append to <code>data</code>.</li>
+<li><code>add_quantiles(data, model, ...)</code> – compute conditional response quantiles for the fitted values of each row in <code>data</code> and append to <code>data</code>.</li>
+</ol>
+<p>In each of the above functions, <code>model</code> is the model you’ve fit (of class <code>lm</code>, <code>glm</code>, or <code>lmerMod</code>, which correspond to models fit with the functions <code>lm</code>, <code>glm</code>, and <code>lmer</code> respectively), and <code>data</code> is the matrix of data points for which you’d like uncertainty estimates.</p>
+<p>Each function returns <code>data</code> with your estimates appended to facilitate plotting with <code>ggplot</code>. For those familiar with the <code>modelr</code> package, they function the same way as <code>add_predictions</code>. Another advantage is to make all of these commands interoperable: they may be chained together to give all the quantities of interest at once.</p>
+</div>
+<div id="example" class="section level1">
+<h1>Example</h1>
+<p>Here we will feature a common linear model in <strong>R</strong> that uses the <code>cars</code> dataset. Uncertainty intervals in <strong>R</strong> for linear models are well supported through the functions <code>predict.lm</code>, so the functions we provide in <code>ciTools</code> are “wrappers” over <code>predict.lm</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data &lt;-<span class="st"> </span>cars
+<span class="kw">glimpse</span>(my_data)</code></pre></div>
+<pre><code>## Observations: 50
+## Variables: 2
+## $ speed &lt;dbl&gt; 4, 4, 7, 7, 8, 9, 10, 10, 10, 11, 11, 12, 12, 12, 12, 13...
+## $ dist  &lt;dbl&gt; 2, 10, 4, 22, 16, 10, 18, 26, 34, 17, 28, 14, 20, 24, 28...</code></pre>
+<p>A linear model that estimates stopping distance as a function of speed:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model &lt;-<span class="st"> </span><span class="kw">lm</span>(dist <span class="op">~</span><span class="st"> </span>speed, <span class="dt">data =</span> cars)</code></pre></div>
+<div id="confidence-intervals" class="section level2">
+<h2>Confidence Intervals</h2>
+<p>If we were interested in the average stopping distance as a function of speed, we can generate a confidence interval using <code>add_ci()</code>. The output is another data frame with three new columns: one for the model predictions, one for the lower confidence bound, and one for the upper confidence bound:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data_with_ci &lt;-<span class="st"> </span><span class="kw">add_ci</span>(my_data, model, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lcb&quot;</span>, <span class="st">&quot;ucb&quot;</span>))
+<span class="kw">kable</span>(<span class="kw">head</span>(my_data_with_ci, <span class="dt">n =</span><span class="dv">10</span>), <span class="dt">row.names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">speed</th>
+<th align="right">dist</th>
+<th align="right">pred</th>
+<th align="right">lcb</th>
+<th align="right">ucb</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">-1.849460</td>
+<td align="right">-12.329543</td>
+<td align="right">8.630624</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td align="right">4</td>
+<td align="right">10</td>
+<td align="right">-1.849460</td>
+<td align="right">-12.329543</td>
+<td align="right">8.630624</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">9.947766</td>
+<td align="right">1.678977</td>
+<td align="right">18.216556</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">7</td>
+<td align="right">22</td>
+<td align="right">9.947766</td>
+<td align="right">1.678977</td>
+<td align="right">18.216556</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td align="right">8</td>
+<td align="right">16</td>
+<td align="right">13.880175</td>
+<td align="right">6.307527</td>
+<td align="right">21.452823</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">9</td>
+<td align="right">10</td>
+<td align="right">17.812584</td>
+<td align="right">10.905121</td>
+<td align="right">24.720047</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">10</td>
+<td align="right">18</td>
+<td align="right">21.744993</td>
+<td align="right">15.461917</td>
+<td align="right">28.028068</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td align="right">10</td>
+<td align="right">26</td>
+<td align="right">21.744993</td>
+<td align="right">15.461917</td>
+<td align="right">28.028068</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">10</td>
+<td align="right">34</td>
+<td align="right">21.744993</td>
+<td align="right">15.461917</td>
+<td align="right">28.028068</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td align="right">11</td>
+<td align="right">17</td>
+<td align="right">25.677401</td>
+<td align="right">19.964525</td>
+<td align="right">31.390278</td>
+</tr>
+</tbody>
+</table>
+<p>The data and the model fit can be inspected graphically with <code>ggplot</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data_with_ci <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> speed, <span class="dt">y =</span> dist)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> pred), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">&quot;maroon&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lcb, <span class="dt">ymax =</span> ucb), <span class="dt">fill =</span>
+    <span class="st">&quot;royalblue1&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Stopping Distance vs. Car Speed: 95% Confidence Interval&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Car Speed (mph)&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Stopping Distance (ft)&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>The red line is the model’s estimated average stopping distance across the different car speeds, and the blue region represents the uncertainty in the average stopping distance. The default confidence level is 95 percent. Users who desire a different confidence level can use the option <code>alpha = *</code> to specify a custom level. For example, if 80 percent intervals are desired, then include <code>alpha = 0.2</code> in the <code>add_ci()</code> call.</p>
+</div>
+<div id="prediction-intervals" class="section level2">
+<h2>Prediction Intervals</h2>
+<p>Prediction intervals are similar to confidence intervals, but instead of conveying the uncertainty in the estimated average, prediction intervals convey the uncertainty in a new observation. There is more uncertainty about a single new observation than the average of all new observations, so prediction intervals are wider than confidence intervals. To generate prediction intervals, use <code>add_pi</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data_with_pi &lt;-<span class="st"> </span><span class="kw">add_pi</span>(my_data, model, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lpb&quot;</span>, <span class="st">&quot;upb&quot;</span>))</code></pre></div>
+<p>The data frame is now larger because we have two new columns for lower and upper prediction bounds tacked on to the end:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">head</span>(my_data_with_pi, <span class="dt">n =</span> <span class="dv">10</span>), <span class="dt">row.names =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">speed</th>
+<th align="right">dist</th>
+<th align="right">pred</th>
+<th align="right">lpb</th>
+<th align="right">upb</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">-1.849460</td>
+<td align="right">-34.499842</td>
+<td align="right">30.80092</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td align="right">4</td>
+<td align="right">10</td>
+<td align="right">-1.849460</td>
+<td align="right">-34.499842</td>
+<td align="right">30.80092</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">9.947766</td>
+<td align="right">-22.061423</td>
+<td align="right">41.95696</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td align="right">7</td>
+<td align="right">22</td>
+<td align="right">9.947766</td>
+<td align="right">-22.061423</td>
+<td align="right">41.95696</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td align="right">8</td>
+<td align="right">16</td>
+<td align="right">13.880175</td>
+<td align="right">-17.956287</td>
+<td align="right">45.71664</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td align="right">9</td>
+<td align="right">10</td>
+<td align="right">17.812584</td>
+<td align="right">-13.872245</td>
+<td align="right">49.49741</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td align="right">10</td>
+<td align="right">18</td>
+<td align="right">21.744993</td>
+<td align="right">-9.809601</td>
+<td align="right">53.29959</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td align="right">10</td>
+<td align="right">26</td>
+<td align="right">21.744993</td>
+<td align="right">-9.809601</td>
+<td align="right">53.29959</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td align="right">10</td>
+<td align="right">34</td>
+<td align="right">21.744993</td>
+<td align="right">-9.809601</td>
+<td align="right">53.29959</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td align="right">11</td>
+<td align="right">17</td>
+<td align="right">25.677401</td>
+<td align="right">-5.768620</td>
+<td align="right">57.12342</td>
+</tr>
+</tbody>
+</table>
+<p>Here is what it looks like when we represent confidence intervals and prediction intervals at the same time:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_ci</span>(model, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lcb&quot;</span>, <span class="st">&quot;ucb&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_pi</span>(model, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lpb&quot;</span>, <span class="st">&quot;upb&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> speed, <span class="dt">y =</span> dist)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> pred), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">&quot;maroon&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lpb, <span class="dt">ymax =</span> upb), <span class="dt">fill =</span> <span class="st">&quot;orange2&quot;</span>,
+                <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lcb, <span class="dt">ymax =</span> ucb), <span class="dt">fill =</span>
+    <span class="st">&quot;royalblue1&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Stopping Distance vs. Car Speed: 95% CI and 95% PI&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Car Speed (mph)&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Stopping Distance (ft)&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>In the graph above, the blue confidence intervals show the uncertainty in the model fit itself (maroon line), and the orange prediction intervals shows where the model would predict 95% of new responses (Stopping Distances) to fall.</p>
+</div>
+<div id="response-probabilities" class="section level2">
+<h2>Response Probabilities</h2>
+<p>Often we want other quantities that depend on the conditional predictive distribution. These include response-level probabilities and response-level quantiles, which are accessed with the functions <code>add_probs</code> and <code>add_quantile</code> respectively.</p>
+<p>For example, suppose in the <code>cars</code> data set, I want to know: For each Speed what is the probability that a new Stopping Distance will be less than 70 feet? This may be an important question if, for example, you’re in a car that is hurdling towards a cliff 70 feet away at some speed and you want to know what the probability is that you will be able to stop the car before going over the cliff. Luckily, with <code>add_probs()</code>, you can generate these estimates quickly, allowing you to understand your chance of survival before the problem becomes moot:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_probs</span>(model, <span class="dt">q =</span> <span class="dv">70</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> speed, <span class="dt">y =</span> prob_less_than70)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> prob_less_than70), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">&quot;maroon&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Probability Stopping Distance is Less Than 70&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Car Speed (mph)&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Pr(Dist &lt; 70)&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGACAMAAAByRC0tAAAA1VBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrYzMzM6AAA6ADo6AGY6OpA6ZmY6kLY6kNtNTU1NTW5NTY5NbqtNjshmAABmADpmAGZmOgBmkJBmtrZmtv9uTU1uTW5uTY5ubqtuq+SOTU2OTW6OTY6OyP+QOgCQOjqQkDqQkGaQtpCQ27aQ2/+rbk2rbm6rbo6ryKur5P+wMGC2ZgC2///Ijk3I///bkDrbtmbb/7bb/9vb///kq27k///r6+v/tmb/yI7/25D/29v/5Kv//7b//8j//9v//+T///9qjYnoAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAT50lEQVR4nO2dC1vbyBWGDVsckm5xQrzblk1CEmi3G5KlBtwWiPHaxvr/P6mam0YjydKMjjQayd95nkRCnncu0qu5yDaMIgSCEKOuK4Dod0AgBCkgEIIUEAhBCgiEIAUEQpACAiFIAYEQpKAJNB/xOPiSf2k9HZcce748ulf/ouWrmzw/YxmfsL3Cl43guVRV8vAml7I658py5oe2Wayno5GqSXmFRd2O9bllqHU5nqMRgUajs9xLDgIVXAR1ttl5rr5GVgLxSpop7a/+znJ8CCR2AzWIKJBo1WKUPx/lArFIzmLBRZiLzmfGNq6XeWclcx0lNWfnLFSTLQQSsWAnYJb8F2A0IlA0YzfVeM4ukepuY1kW6rZZyOFIH0v1QP+7ZC/O+dWNM4lUhmwTA8+XilX5nixUx672ZE7/UYMeK+8vKqukkuxi8CvHszyLVM6qdpkchG7G6JGmM5mnkyYpzKSRIdB/p6nKZovXWcbp+X/2znmOBgX64TjuiBaq311PfziWQ/hcjSD6WE6g5TE7cwt1uufJiZSXOZXvj8fZPZFTMk7J8saZSuoyRUKZc1K7bA6s6kmxqRyMMVsLlCRNUmSSRmmB/vRXs7JG8UnMWMni1DTRXbYRDQ1hY9Z+fhuJk3J0H9+PbPjhr7BUy+NxlD6WmQOJUztTJ0lMGE6SQox8xyIPvScvbHJcXMWxWUmp+dE9vyB8NBU5q9rpHJ4v4xxEh8WKZS/yMGkzc500SZFJGqUFYoP+wjg5uvgkRMHLY+7UvGip0n00M4nmV0ydiYjfOaLj1WPRiF9adSw/iZ7zPmWcZD0zJtFF+WZzkwOnmDfoq14gkLpI6hVRO52DvOdzN79Jm5nrpEmKTNIoLZAqqqh4fQ64M7JbHrJAalaT3C0LdqHFCU1WEVwgdSwvEHttYa7mGDdWAul8xzIPvZfkxCdRmelUTiDhZrK+S2qnc5ClqWEpGcNM2sw8lTRJYSaN0gKpooqKVyEbOOgeSI/LuwViN9gZPxtlAkWzo/tZdpjnd2VTAulU/KLJnHXtLAVKaPMMpJMmKYykUZFARcWrkPfTHsyBWKiTO2Y/zNTlZQaIyyHmQOpYgUCLg9+mauacjD+zRCCdrzjPaghL5ybO/64hLFmFiZzjq6PVFJMQLVAyhBldokmbZyCTVKeYpbrVvEBFxSdZqOF/+KuwSJ+T/CSaX8r4R3NinRaI3+DxourllyQzMXvgD5jmYk6cyzefm7qpCyfRi5GcqwvBWK5ifFW10znwSTS7bnxHzk5kGzVtngGdNEmRSRoVC5QvPpN4H54DRUlzs8ttsYKSE+L0sbRAYr01S00X0g/y55ll/A8yD71nCpRbxsvBRT2JlvWRBevapXJYqPRyYDrRbdS0kfmJTpqkyCSNigQqLF5EMp8e/pNoFurcsNbqB378dTbOH3zh66aT/IPEe3EDRnrg4KEnoOJlnS97GMle0HsZgfi1/LteaeuZfupR4DjS3aKoXTaHM9WcZAwy6XTmTLEkaZLCTBoVCRQVFh+JotX5GO57YY2G3TJDr3OL3ixJpwuzyx9ahCOQfKxTnWyc2zNDTJ9n5iMBREsRikBiOWuVcJzbMyM/9UC0F6EIJN4JsQiLISw39UC0F6EIhOhpQCAEKSAQghQQCEEKCIQgBQRCkAICIUhBEui7S7ilBhY4BoGAkTAIBIyEQSBgJAwCASNhEAgYCYNAwEgYBAJGwiAQMBIGgYCRMGuBVu/v+HbzcXL6mGwg0L5jtgI9Td5wgbZXF9HDW7UpF+jfTUYQZwtY/rCdQLevfxc90ObzHeuM5MajQG2Fj5M8ZMy2B1K6rD48RptP13ITH3gRxw6kazfqRdWJQBSGrUBPp9wcuZGv7XC2axXI0dRdOmTMVaBcDzRkgVJBOslDxlwFcpkDNVr/rg3S0Xzb+oy5CrS9OhersPPqVZiP+pOxRk0KrG0+MCeB2L/BPweiWBR621rArAUqiw7r3yrmrFGP2tYUBoHsMDuL+tk2EgaBnDGHIa27SnrDIFBtrDmHwmubPQaBaFgjDgXaNisMAjWBER0Kum0VGARqDKvvUPht241BoGaxWg71pG3FhyFQ05i7Q/1pW8FhCNQC5jiY9apt2cMQqB3MRaG+tc04DIFaw6wV6mHb9GEI1CZmp1A/2yYPQ6CWMQuFuq9kfQwCecCqHAqikjUxCOQFK1cokErWwiCQJ6xMoWAqWQODQN6w3QoFVElnDAJ5xHYpFFQlHTEI5BcrVCi0SrpgEMg3VqBQeJW0xyCQfyxnUIiVtMUgUBdYRqEwK2mHQaBuMEOhUCtpg0GgzjBtUMCVrMQgUHdY9busTZbWEgaBusRoCgXRNgjULUZRKIi2QaCOMYJBQbStEYEQlNAKdV0TSqAH6hCr2QsF0TYIFARWy6Ag2gaBwsDqdEJBtA0ChYK5GxRE2yBQOJirQUG0DQIFhDl2QkG0DQIFhTkZFETbIFBYmItBQbQNAgWGORgURNsgUHCYtUJBtA0ChYfZGhRE2yBQgJilQUG0DQKFiNkZFETbIFCYmI1BnVeSH4ZAYWIWnVD3lfwOgcLFqg0KoJIQKGCs0qAQKgmBAsaqDAqikhAoZKxcoSAqCYGCxkoNCqKSEChsrMygICoJgQLHSgwKopIQKHhsp0FBVBIChY/tMiiISkKgHmA7DAqikhCoD1ixQUFUEgL1Ais0KIhKQqB+YEUGBVFJCNQTrMCgICoJgfqC5Q0KopIQqDdYzqAgKmkp0Obj5PSR7TxMWFzw7Zs7COQTyxoURCXtBNpexcq8VT89xS7dXqAH8o5lDAqiknYCbT7fRav3ssPZfLqOtl+vIZB/zDQoiEraCbT68Mi94cG6onhIYwNZHC/iKGURDYY0qOtqFES5QGzQUgLx7epduhfq8AbYNyzdBwVRSTuB0j3Qk5hNx5HMgzqs/95hKYOCqKSdQOk50O25OgqBusC0QUFU0k6g7dW5WoWJgYt1Q9tvWMZ3gSUGBVFJO4HkcyDWCcmR7GEyeZ0sxDqs/z5iyqAgKmkpUHl0WP+9xNRazE9p5RgE6iNW8YWxhksrxSBQLzGKQRAIGMkgCATsO8UgCASMRW2DIBAwHhAIGA2raRAEAiaxegZBIGASqzcNgkDAFFbLIAgELMHqGASBgGmshkEQCFgKg0DAaJizQRAImIG5GgSBgBmY6zQIAgEzMUeDIBCwDOZmEAQClsUgEDAa5mIQBAKWxxwM8iDQfMTjBAL1BnOYBrUt0HqqzJmPDr5AoJ5g9ga1LND65xtthvEDBAoaszYIcyBghZitQRAIWDEWikByCj06g0A9w+wMalug2aGY96ynY0qvhOgg5Hfmuwg9iZ6qnmdxaDWDjtADBYNZTYPaXoVBoB5jNga1PoQd3UuTxpb+QKBwMAuDWp9ELzCJ7jEWgEDu0URFgDWEVRoEgYCVYlUGtT6JlnMgCNRTrGoa1LpAfzu2fA8VAoWJVRjkYRn/fOkyhYZAoWHlBnl6DjQbjfAcqK9YqUHeHiSiB+ovBoGA0bASg7CMB2aB7TYIAgGzwHZPgyAQMBtsp0EQCJgVtssgCATMDoNAwGhYsUHtCzQbx/8tX9q/n9FERYC1gBUa1L5Ay1c3UTQfowfqPVY4DWpfoOfLs2j9k8Mbqk1UBFgbWJFBHuZAi6P7hcuHOpqoCLBWsAKDPAj0/I8vM7wbPwwsb5CPVdj8xz+7fKqsiYoAawnrRKD11PpXu0Cg0LGsQXgOBMwNyxgEgYC5YZlpEAQC5oiZBkEgYK6YYRAEAuaM+RVIfqoVv1xhQFjKoE4E2nycnD7yvYfJZPLmLnUAAvUC0wa1LZD6BWWj0Tg5tr26iB7e8t3bi8wBCNQLTE+DvPVAqdh8votW7++YOV+vzQMQqCdYYlAXk+jVh8do8+lajGWTyUXqwIs4SllEICEEait3Q6C4C1pP019MfTpVvqzeXbNeSB9g0YTJwFrHZBfkoQeajaP54U3qI2W6w+Fxe2EeaKIiwNrHZB/UaGlFAsUd0PPlOL0KM6c8sUCYA/URK/3KfM3SdgjE3o5PCbS9OpeLLjZ2bb/d6QMQqEcYxSAHgZ4vTxYHX8Rn61UXxB/7sD7nYTJ5fR3hOVA/MT8CRcvj0Tj5ba0W0URFgHnB6huE98KAsahtEAQCxqL2NMhWIPEMiAfeTB0iVtcg9EDARNQ0CAIBk1jrAi0c/9IBBOoZVssga4GeL/ncx+UXjjdREWAesToGWQs0l+I8X+LPfg8VqzMNshWI/WYF0yQINDyshkEOy3i5h89EDxiDQMBomLNBEAiYgbkaBIGAGZjrNMheoORbGRBo0JijQXgSDSyDuRkEgYBlMSeDrIewn1MDl/EDBBoc1oZAbBIkp9HzkeXfvqxbf2BdYw4GuQxhMzGJxlsZw8fsDcIcCFgBZj8NchBIvx0GgQaPWRvkIJDzX70k1B9Y15itQS5DmP378BCo/5ilQU49EJ5E7xNmZxAm0cB2YRAIGA2zMcheoJnD4AWBhoFZGGQtEPtO/NzNIHL9gXWMWUyDbAXiD4GcnwQheh7SoPoZmB8oc/hGBgvyDQCsc6yyD7LtgSDQnmJVBkEgYOVYhUEQCFgFVm6QvUD4TPS+Yo0IVCcaqj+wrrEygyAQsGqsxCAIBKwaK5kGQSBgFthugyAQMBtsp0EQCJgVtssgCATMDtthEAQCZokVGwSBgNlihQZBIGDWWJFBEAiYPVZgEAQC5oDlDYJAwFywnEEQCJgTljUIAgFzwyAQMBpmGgSBgLlihkEQCJgzljYIAgFzxtITaQgEzB1LGQSBgNXAtEEQCFgdLDEIAgGrhSmDIBCwepg0CAIBq4mVfmPVUqDNx8npI99b/TKZXETRw2QyeXMHgfYCKzPITqDt1UX08Jab9Ok6Wr27jm4v0APtD0bugTaf76LVe9bhPDGNbi+2X68h0B5h1DnQ6sMj73ukTp+u4yGNj2RR9CKOUhYxhKj85WXlAj2dpgTaXp3zUUz3Qq3fAMCCxewESvdAm4/n8mgyD+qw/sA6xuwE0nOgeBWWTJ8hEDDrVdi5XIVJf9iYtv2GZTwwO4Hkc6C4E2LPf9j0Od6+ThZiHdYfWMeYpUDl0WH9gXWMQSBgJAwCASNhEAgYCYNAwEgYBAJGwiAQMBIGgYCRMAgEjIRBIGAkDAIBI2EQCBgJg0DASBgEAkbCIBAwEgaBgJEwCASMhEEgYCQMAgEjYRAIGAmDQMBIGAQCRsIgEDASBoGAkTAIBIyEQSBgJAwCASNhEAgYCYNAwEhYIwIhEOiBgNXCIBAwEgaBgJEwCASMhEEgYCQMAgEjYRAIGAmDQMBIGAQCRsIgEDASBoGAkTAIBIyEQSBgJAwCASNhEAgYCYNAwEgYBAJGwiAQMBIGgYCRMAgEjIRBIGAkDAIBI2EQCBgJg0DASBgEAkbCIBAwEgaBgJEwCASMhEEgYCQMAgEjYZYCbT5OTh/Te/oABNprzE6g7dVF9PA2tacPQKD9xuwE2ny+i1bv7/SePgCB9huzE2j14THafLrWe/rAizhKWcReRLlAT6fKF7mnD7Do8AYA1jFmJ1BJDwSB9huzEwhzIGDEVdh5sgo7F6uwc6zCgH13fA7E+hw8BwJmHLYTqDw6rD+wjjEIBIyEQSBgJAwCASNhEAgYCYNAwEgYBAJGwiAQMBLWiEBO4fe9e5TmqTQIhNJIpUEglEYqDQKhNFJp+JupCFJAIAQpIBCCFBAIQQoIhCCFJ4EeJpPJm7vqdI0E/9C28dHJ1kvz1L7VL5PJhbe2ydLK2+ZJoNsLP+WweGLNNb9C23ZpntrHvg+zenftqW2ytIq2+RFo+/W6OlFDcfv6d/YRbuPrI22X5ql9T8ya2wtPbZOlVbTNj0Bxn8t7Qz/BTq75Bba2S/PYvtyX89ouraJtfgRiPaG/XohdUvMrtG2X5q997HtV/trGSqtom8dVmLd5kP8eiIeP9m0+nkf+2sZL47G7bUMVyNccyK9Aq19YGb7aJkrj0bVArNPdfvO5jDe/Qtt2aZ7aJ6+op7bJ0ira5u850GtvC7FungN5aB97IsMmtH7apkorbxueRCNIAYEQpIBACFJAIAQpIBCCFBAIQQoIhCAFBEKQAgLFMR+NRgdfXF/SsTi8ETvPl2eFCZYvRRbrn6qy6l1AoPiqH90zU4qu/ZypsSh8KRWJQPNxcQIlULRgRQ0qIFA0Exd1XnBtZY8yq7jsSqCdHUwi0K4uqr8BgdZTfU2Xx/GIdRItX/1zxJ14vjxRr7z8dTRiHj1fjvhraruejg5+lQIxB5cv/xVncsJyOksovuX92OC6IAiU9A7SpXjUWh6P5ZEF84mnOj68eb4cR+wfE0Vt19OTGBMCcd2Wx7Eic2YNz0hQ4iBLlSptGAGBlq9u1O4frHeIL/HyWHdKbBY9Zl6c8ZcWotc5M7ZzIRD3TySUqbNbs78bREAgo09Y8EVXpptYT4/u1dVnPrFhLtmyIUk6KARiCdV/itIH9aA4kIBAqk+IZ8DrabxiV9c9FSkV1FTb2EKgvQ7pQjwO8RnuItUDyZ1kEHp1s5APhZItX+cf7hJIUvoghrDhhX4OxKxYHqeHsNkB7zXGqUl0nDhOp7br6TiZREezk5xAchKdPthRM1sKCBTHTD1ujncOfpMjjgg+1zmRy/hxJJbvwiqxTS/jF3zFbgxhgtIHi5429TogkF1Y9Ry5B4k5Cg8S9zXshp7sWxk5anDPESGQZdgJlO1gshTeTEUgzIBACFJAIAQpIBCCFBAIQQoIhCAFBEKQ4v8Jy4geKglYFwAAAABJRU5ErkJggg==" /><!-- --></p>
+<p>The new argument <code>q = *</code> is used to specify the quantile (70 feet in this case) used for computing the probabilities. It’s clear that the probability of surviving declines quickly after 15 mph. (This data set is from the 1920s. It is safer to drive toward cliffs in today’s vehicles).</p>
+<p>Another optional argument is <code>comparison</code>, which defaults to <code>&quot;&lt;&quot;</code>. In this example, we wanted to know the probability that we’d be able to stop the car before it went over the cliff, which means a stopping distance less than 70 feet. If we were to specify <code>comparison = &quot;&gt;&quot;</code>, then <code>add_probs()</code> would return the probability that the stopping distance was greater than 70 feet.</p>
+</div>
+<div id="response-quantiles" class="section level2">
+<h2>Response Quantiles</h2>
+<p>On the other hand, suppose my car is hurdling toward a cliff, and I’m comfortable with stopping at whatever distance guarantees about 90% survivability given my speed. These distances are called response quantiles, and what we wish to compute is the 0.9-quantile (or the 90th percentile) of the distibution of Stopping Distances <em>conditional</em> on my car’s speed and the linear model. In <code>ciTools</code> we use the function <code>add_quantile</code> with the argument <code>p = 0.9</code> to calculate the 90th percentile of the predictive distibution for each row in the data set. These quantiles will be parallel to the bounds of the prediction intervals that we calculated previously.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">my_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_pi</span>(model, <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">&quot;lpb&quot;</span>, <span class="st">&quot;upb&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_quantile</span>(model, <span class="dt">p =</span> <span class="fl">0.9</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> speed, <span class="dt">y =</span> dist)) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> pred), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">&quot;maroon&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> quantile0.<span class="dv">9</span>), <span class="dt">size =</span> <span class="dv">2</span>, <span class="dt">color =</span> <span class="st">&quot;forestgreen&quot;</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin =</span> lpb, <span class="dt">ymax =</span> upb), <span class="dt">fill =</span> <span class="st">&quot;orange2&quot;</span>,
+                <span class="dt">alpha =</span> <span class="fl">0.3</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ggtitle</span>(<span class="st">&quot;Stopping Distance vs. Car Speed: 95% PI with 0.9-Quantile&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Car Speed (mph)&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">ylab</span>(<span class="st">&quot;Stopping Distance (ft)&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAkAAAAGACAMAAAByRC0tAAAA9lBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrYiiyIzMzM6AAA6ADo6AGY6OgA6Ojo6ZmY6kLY6kNtILwBNTU1NTW5NTY5NbqtNjshgkBhmAABmADpmAGZmOgBmZmZmtrZmtv9uTU1uTW5uTY5ubqtuq+SOTU2OTW6OTY6OyP+QOgCQZpCQkDqQkGaQtpCQ27aQ2/+rbk2rbm6rbo6ryKur5P+wMGC2ZgC2kDq2tma2/7a2/9u2///DUEPIjk3I///bkDrbtmbb/7bb/9vb///kq27k///r6+vs06T64bL/tmb/yI7/25D/29v/5Kv//7b//8j//9v//+T///9u9yLaAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAer0lEQVR4nO2dCZsbt5GGKSXieuw9qLFlzW42k9iSPZP1rpVEyz0kDTfR0aZm5+L//zNpAH030CgUUGigWfU8NikOq79C1Utc3WyuDmxsHraaOwC2vI0BYvMyBojNyxggNi9jgNi8jAFi8zIGiM3LGCA2L/MCaLsqbSOeXX/1xvLe+8sn781/3a2kPX4zeqf9yG4mYz63vWEDPNr95br3733pq6KXhxHHub+s9HadZlXtffSzKTHyVdH20Z9vz6o8DRV7x4Y0oD78dGks5gGQaMmqCn/3OAhAMtX9d9qP7GLXJ0pmbXpDt1EAGwC0az4GAhtVx+2T93sByu3Z+fCNsr0TAIm2D/+sWtAkpVUcNEBIWqw+/FwA7RTmW/HgW+bKfz9ud1CAyuyu1YOpD+o2CmB9gNRx90Lj+uS8fm0j/+t1QG17J8unA0hG1oTXUawDkuyXD/a81amdC6Ct0r89W8uP26btXcuE7dVnoH1Wof5/dfcqut5/atJft2Vf/lG2Rx7y/FAfed+MB70jKNx6nbqKqgyqPkTXKjzK8oqUtQdd72py20Z1Yu9KtM/KPz7+X9GCfa1yfbKpj7GvPwkCHoFZrwNq2lu+tS6fetxVAZX/+qtse/nkL2ftkHR7pvioSt5R7LdQPlFvU5CPMnhfH75CeDA0Qs2/Bzoc6jLv677z9uwfT4bPVKTNOLXrDyXdD0PnnefVkXdtf98/gihTIytNVXNfufYJur/sZqhz0F+d1GNW26hO7B2J9pl0//VvdACVf949/u/6g6N6oG1/rBsDpF7bqu5r0wHo17/ptKOSqP07ioMWCtI6AI0zOACon0W4ec+BNk3jy4hkXZ+8VyPFbrU+tM8qLJrXJVMjgOqMysSIbqA6svjz9cn60B7h/rI8guqwhKz4YxXVWh2mPUQn4s6/egftUNM0qht7LdE+G7ZAeSjGyv9vG9DVHOj6y15pmiFs3e1Nzssj/IPqvjpzoJUsb6VTDY27qtIdxWELGzYFQLoM9uZAgyzCzX8V1kyiK/Xy06D6WdGE9pmKUg1wa1n5brxjgOqM1X8Rla0TIY5QffZGn0n5RHzk20M01sdpcNBRo9rYW4nhs0HGVa/4k6h/s8BSq7CyA9p15u71JLrqmpvorr/8SdBX9Qrth6eJvOrtaoBaxVELewDpMtgDaJhFsPnuA4lFwboGSLZtLwCSIe+6z9rBVjRIJeB+NAdqmr3tolkvnuqPq/BrZqn7thZVROdqBtIcorE+QIODjhrVxt5KdJ+dH0arMDUva6rb1rnsgGRe6p6us23Rqpfc7MoJz0ZNm3qrsEZn0AO1imrx3gWoN4RpMtgDaJhFsPlvJEqkQwHUvku2uDqy+OycVxNjK0Dij1tZk/oQ/VAPTWj9g44ahQFIWmdKWwUlJkIipm0t1Pmkt+pl5rbl7HktmmYGSNdTlIoKoO4cqJstXQbnBqjpvbcNQP0hTBWhftYHyDSENaswdeSy0S2aagRvAWqGsMGSfPf4f5pPujxE50/VZOf2TIxB/YOOGtXG3kp0n20OmkHxoJZ4gzrvy0c7QLdnvy2Xarsn/1VzowFosAprFaune7XSKoGSnXA74I8zOBjCpjZXJwwPUD2BFHsZ8qPWm0Rvmkn0pjuJbj8R2kn0flW1SQEmjir+k2UtD9U9gpxlqKWGmm40Jbk++Vc1s6wP0Vq7D7QZHXTUqG7stUT7TO7AjCbRas6zGcxcRAcEAKhcDZZT7f2jv1/XG4nNFKnt6Yb7QLVi2wDx/q1aCGzrGHUZbA6v/htkEWoeQ1i9q1utaXvL+F9Vo0f7rA/QaBlf9aD1TnS12BRJlB3zqvpn5wj7+v1V7zvMYXuIfdsLdXaihwcdNaqNvSMxeNZfxlfNaPaY6gFhL4/RmwPpACrd1Xhdb8fvqnV2F6B2J3rfbod0+qN6J7qNQsSozeBuvIwHn8NpzH8VJoOXcMvGVZ+8vfpD+2wAkAz4t2cDgNpzYbLF6/rIIivlBKG/rtivqt0RmdPeeQKZhuYQHYCqTMp/Dw46alQbe1ei92ywkajaodpU5+LQnMTorcK0AMl+orOAE23/6wCgdsNPybaK3RhW1dZo+bw8wnrU2PvqNXn4zqTTfRwjORvfzgx0c4Tu+5yBj2jTsSdv93/An59wsJkAUpPVLYL4eJY5QJFsJoDaCUq6xgBBbK4hrJmgpGsMEMT4ikQ2L2OA2LyMAWLzMgaIzcsYIDYvY4DYvIwBYvMyPECfXMzt3b5uy5ZLI0oGKFu5NKJkgLKVSyNKBihbuTSi9AeIje3APVCGcmlEyQBlK5dGlAxQtnJpRMkAZSuXRpQMULZyaUTJAGUrRxXlarVycGOAspUjilJepA53Y4CylaOJsvo6ItiNAcpWjgEid1u2HANE7rZsOZ4DkbstW45XYeRuy5ZLI0oGKFu5NKJkgLKVSyNKBihbuTSiZICylUsjSgYoW7k0omSAspVLI0oGKFu5NKJkgLKVSyNKBihbuTSiZICylYsZZVEUDNDS5KJFWUhjgJYmFyfKojYGaGlyEaIsOsYALU2OOsqibwzQ0uRIoyxGxgAtTY4syjE8DNAS5Yii1OPDAC1PjiJKEz0M0ALlgkc5QQ8DtEC5sFFO08MALVAuZJRWfBig5ckFixJADwO0QLkwUcLoYYAWKBcgSjA9DNAC5XyjdKGHAVqgnFeUjvQwQAuUw0fpTk9RPGeAliaHdCt+QdBTmi9AN99dHQ53L0+ffWweGKBZ5TBuggZXgJ4r8wTo8+k3V4eHVxeHD9/WDwzQvHLObhUQTgA9b+zvDFHAAHr39Z/LHujuxyvRE1UPDNC8ck5uHSYcAHr+PBRAagi7+f7j4e6H19VD+eIXpdkc2Wa3X1D2vG8WDRBAn59JcqqH6g90nxpvt2XLAd1G3QqoBxrQU/gv47U9EAM0oxzETceGHaAxPYEA4jlQSnJWNwMeFoC09AQC6OHVC7UKe8GrsPnlpt3MhEwB9NyETxiAeB8oJbkJt8kuxgjQBD0BADJaqEYTuC1bzuQ2SY8RoGl6GKAFymndbPToAbLSwwAtUG7sBqBHAxCEHgZogXIDNxg9Q4CA9DBAC5TruoHp6QI0hKei5+nTpwzQMcg1bi70NAAZ6JH8aAligJYmp9wc6VEAGemp+NERxAAtTe6AoaeYpIcBOiY5xJWFNnoYoKORK9yvLIQtuRigI5BTFXUECLhgZ4CWLtdUFHlloWW7h1dhi5brVhQKkAs9FUG6lxmg7OUGFcVcWSjoQU2+GaDc5cYVdb6ysOp7GKCjk9NX1O3KwnbkYoCOS85YUeSVhQzQMclNVRR5ZSEDdDRylooiryxEAvR0tdIHzwClKWcvKfLKQhxAT0uAtAQxQCnJ1UUC1RR5ZSEKoKcSIB1BDFBCcitZJGhRkVcWMkCLlSsrZDiNYAHBgR4GaMFyxvOYkyC40YMEiOdAycsVEyfCzSA404MFiFdhScvVRXLhpxjefwVET8H7QIuT61TUgR8kPQUDlICcYTqAkcNVFE8PSq60t29dANrJ9eRqwwBpbWVYkDjL4SrqRY+7XCHoeesA0O1ZTc5u9ehnBmhk6tOlXdI6aCAr6kuPo1xR0eMA0O2/vGnh6P2DAVIWACBkRQPQ4yJXtPSU9p+GXI16IFeDJs0txUHc0gQIWdERPcjJMNzvbc8cALo9OxcP+8f27ucYAfKaAyErqut7aAF6OzCXVRgDZPk7dhWGq+gQnnrkIgRoRE/hsIyvlmClrSH8HCNAKD9IRcf7QCZ6YCBY5LQ2hOdt9bp7DwS0cCkO7paOHKyiw53oCXrsINjlNGaip4ADVNLDAAWVA1e0fy5smh4LCBC5kU3QUzBAM8m5VLQDkJWeKRCAcn2bpqdAzYF4Eu3p51jRGiDgdk9AgKz0FIRzIDa9IX7eROAzpAf3QykuNoTH8DZLc3kjMagcrkuADFyTPYmbnDBA11MZn8qIJoerqBs9QxCc5QrYwNWay8nUagTjk6kIP1xFnekpfAFyo6dwux5oy5dzoAxZUgw9hRdAzvQUfEEZuRuypEh6kGrCMPQUDBCtG7KkaHhQasIA9PANpmLLIUvqRY+zmjBQ18O3uIsqhywpfuDCqEkDDlx8k82IcsiShqAHribMYdrDAMWSQ5ZUQ4/NzTApgQLkNmkOA9ButTrfPXnPABnMkHxrSfV9j8XNNCkBAaShBynntA/05C9n5/eXfEGZ1sy5ny6NceSadjN2CXaA9H0PssNzO5kqzqfyJa0am0z9RGmmpj00ABlHLvpvpjJAhtdtOTaVxjJpDg/QCJ7uESJ8tXknhrDbMz6V0TVAjnWlASy5As+Bxl1Pn8EY343fw0+FHQdAsByPSgNbsIdchWkHrvgAuZhnaSjdAsmBc9wvDXi7B3nDnjFWpmkPAzQfQE457pQGTA+2osOBbQTPW9ObIwB0f7k5QFfxSwbINcd1aVzoKXAV7XcqU/DUb/eSKxz3gdaSouPeB0LkWJbGDZ7GzdE6AFnpCSBXYC6qP+ZlPC7Hv+DOsPsA5EoPUq5ggBwMmWLHgas19BwIQQ9WznEfSKBzpPtAyBSj6cHJoa8rxMrxPhDIgCkerqB96AHIjQ1PD0pOGi/jLQZPcW9RPILH/eoezyvDnOhxl6uNAZoylxRPfYUddW0Y8p5zKHoc5TrmAtD1yVF9N94xxaavsKNvOoe85xyKHhe5vjkABN5DXAJA7il+qvsKu89N55D3nCO/R2Lf3JfxRwAQLsXGgYsOIF3Xky5A95dHARAuxVOzHhqATANXugBBtxBzBgiXYsuc2Rug8Rl287TH4Xc1THJO5jSELfsGU8gU21dcvgBZz7B3/ma6zMxBzs14Ga8MmWLQet0TIJcz7MYLXeFyjsYAfXK+51xt0M2ecABZF+xpA7TMfSBkiqH04GclQ4Aguz1BAHI6gNMqbFMuxKCL+Rgk+AOESzFo4OqUw7OiujPswdXMU65pc9wH2m4Oe9hXU2OQ4AkQLsVO9Pj0Cbh7znmvwhwDdgRot17K9UC4FDvS416Pvlzhfp4iYYDEJa0lPcAvx8cgAQtQzHvOeQHkSk+IIYwQIHFR/RZ0h82UASpwCw4UPU1BEIKoc6QhJtFkcyA3oycB4zbIFdSw8EhDFRRDT5H4Ksx8TfSH09PTb64Ody9Pn31MGCBNriDmRY+jnKodDp7KP919IDNA7y7E/x9eXRw+fJsqQLhcoQcunJzLgt18hDRPZUz84NzDH1+Lh7sfrw43312lCBAuV0HogcuV1UcOXL1jpHwy1bCFWA5dp6cXh5vvPx7ufhAsfVGa/q1zGO63Rkb0oH+1BGojesgVQ5gl+aBJ9M3vX4te6POzGiBhNF2Jqxvyw6bveyivtNH0PcFurgCzCOfC5B2mTKfC3l20PVAiACFzZRy5yADSj1xBbq4Atzjfjd89frPTXxn97iKtORAyV1PTHhqAjPMe/5srOFmUOZC4rn68ChNj18Ofrh5evUhlFYbMlWXSjNwpcbnpHNDNGERkgMw1MAAkvtes3wf6+vUhlX0gXK4ASy7kXi34pnNAt6kgIgI0XTodQPeXm/2jn9VNXuwWgASMGy5XsAU78myRtjSABTv4e4yjl8GRweX6Zi+dDiBxQdn6sE34RuO4XIG3e4IBBNvuQQEUYRUGKp0WICfzIgHhhswVmJ4iFEAwekZuQzMGQfq1HnDpMgMImSsXeoogcyAwPQVuDmR3w8rp4Jko3QggtQeU4jXR2Fy5wdNPMW4V5kJPgVuFAdxwcq6ly6QHQufKnR5rii1+bvD05YKs+Tz8EKXLACB0rhwHLlCKLX7u9BToETM0QLjS6QCS9ydbQb8f7wSDK0D4XKHpwckVHjdfQc7ZgwKELt0YoPtLOfe5PZt7Ge+RKx96EHKF3617ZgfIp3RjgOpr6cWF0fMB5JErT3pc5QoLPXokuq/OC5Bn6UYAtfd2me9bGR658qfHSc7yEwOFaV7Te3W+OVCA0o0Aaq8mm+l7YR65GsHjfb8Vi9noMfUq/VdnWoU5FS4TgHxypet6SAEaw6PxcwOIIEqDn1PVpkqXEEAeuTINXHSl0XY9uQDkVDJL6VIByCNXE9MemtIYBy6dn8scKGiUJgt8TZYGoOZbGbEA8snV9KSZoDRTsx6tH3wVFjBKk02QgCpdAjvRPrmyLrlCl8YyZyYiIdS5sGkS3EunXp4VIGjTkVcWhq2odcVFBFCQs/F2EhxL17w8G0AuzbdeWQj1Q8rpfkibVK5jAa4HApHgULrey/MA5JViID1OOZ50G8ET9godWoCgJEBLN3x5BoB8UgwZuBrzv2r4qeYr7OYzDukB5EACqHSal2MD5JNiJ3qC3LRQO+0xHjexOZAbCfbS6V/WANSu5CHfy3CIwSvFjvQEuGmhcdJsOmpCqzB3Emzm0gPVP3kJ+tkeaAA+KR7BAzlH6geQdcll8NOFYXkVl5SJpqFIsBnq/kCQzWiQuk+uUPQUXgBh6Cni7kQb24YlAekWASBbiicNCc90ji2Go6eIei7M8OnwIAHppgOo/dVmyCVB07L2FE+YDz1Vlh09RvT4fjc+JkB+JCDdtACpq6LPDzvIjVonNEEpNhh24ELKKUP3PUa5WAD5k4B00wPkYgY9cIp1FgIeBzllnvQY5GLMgYKQgHRLECANPTTfoeuaPz0mOepVWCgSkG5agEL8Wo9DijtmGLiCAjSu6HDRRc9rKLeAJCDddAAF+dVmRK7M056QFR2OKZolex4AIUGIt4yPC9DktCdgRfuzT/2GTwYA4UGI0gPFBsg2aaYBaEiP70XKsQDyAyHGHCjErzaDcwVZryMrY1z/aH4WUL+uts+A7S9bzaV1/iBEPJkaYRINXK+j1ykGgsYjl35dDViDW1+2G7h1QUBY0DIevtuD3ykZl3QIz9vm3SM5yC6g7WWAgVoXDISFAAQZuBxTPDRdRQ30GORSASgoCPRf6wlzh7KpXLnRA0mxzkYVnaQn2R4oNAjJ9UAGM/5oxwgesp8HkQWt/zGiZ+K9qFdNL3tZ6KrQWZwhzLnrAX1GjdZ0CNaRq999JLIKo+lJovRAO4dblBn0xvlwpEc3pqBKA5n2mABCyAVyIwMh6vVA4QBy7nr062rn0oAmzckBRAlC1CsSAwGEGLhCVBS25Oro1f+YFyDPilL5zQUQctrjDZALPZVg83w+gAJUlMrP6VSGuBIxxBA2XnFBk+oHkCs9RRCAfCfRYSpK5Yf6XhhkK8igpx+44KXBjykIeoIMYdhtICUXrKJUfrF3ovUDl0NpcF0Cip4gUy6fjcSQFaXymxWgTq5QBnQbwgOv55wABf8ZRxq/2PtA+jkzIUDjrsehoLMBFL6iVH7R94G0Ky4igLQDl6mi2irPMgciqSiVX/RlPP0twyozTXumTnqOjxJ7FUZWUSq/OTcSW/MHaFCliUmzHiDISEO+D0RZUSq/WfaBQpWmd3azrb5lyWXugGYFiLiiVH7x94EClqZ/jan+knjNgt0wA5oTIPqKUvkldkUisjJ1+YG7PfDvGkc5lRGlolR+CwIISI9JjmoVZvGLVVEqP/d9INgUKPIcCDBwYeQC7ANN+kWsKJXfzNcD+ZWmcnOjx0WOEqDIFY0spwMozWW8Mz0ucmQAxa9oZLk8ABrBAzxHGuPk/4ScX2mI3I5vCMPS4yYXfBXmXRoityObROPhQcl5uXX8QpSGyC2TZfwqxL3c4fQYtgbnAShQaYjc8pgDrVb6knpcGQa+JB4lF8JN+oUrDZFbFgCtJED4X5hxHLiMpyciAxSXhFQB2jUnwmA3utMd1QsgDT0WtyQACl4aIrcsbnGHB0jf9yQPEEVpiNzymETj5kDGkctW0XnnQESlIXKjB0jcn15c0eG1jHdfhU1Ne6wVnW0VRlgaIjdygMTVZOJGv1E3Ei2T5tm/rK432tIQuVEDdH+5EXcaL2dBkF9aCQEQYMmVIkDkpSFyowZIzqDlNa1RzoXBFuypARSlNERuUQCSnQ89QJP0xLhEEOcWqTREbvRD2Hn1Wwdb2iHM0vfQXyKIc4tXGiI3+o3EJ+/lFGgP/GqqQW+6NNaRi/oSQZxb1NIQudEv47diBX9/CfmxORxAkGlPggDFLg2RWx4bieZ9INCkOUGA4peGyC0PgPQ70bAll7Kk5kCzlIbILQuAdOfCXOgRlswqzDvHabnlCZArPWFACABQiByn5ZYCQHcvT599hAPkSQ8eBF+AAuU4LbcEAHp4dXH48O0UQJ05kD89eBC8AAqX47TcEgDo7serw813V1MAVauwETyzXeXu6BY0x2m5JQDQzfcfD3c/vC6ffVGa4U3jnzcJ/DskdOaQCrbaXAD6/KwGSJgBWP3AlX4P5PEZ5R4IaG0PBATIm4RYAPmlmAECGmQO9ElDD56EGAD5p5gBAtrDqxe2VdinT4V2yZUqQEFSzACBuyDbPtAnCVA4EmgBCpViBghlBr2gJBACFDDFDNDRARQ2xQzQcQEUPMUM0BEBRJFiBuhIAKJKMQN0DAARppgBWjxAfrmi8mOAdBaUhDxuWsgALRigELmi8mOAdBaUhDxuWsgALRKgcLmi8mOAdJYEQFmXhsiNAYJa8FxR+WUd5VIBosgVlV/WUS4SIKJcUfllHeXyAKLLFZVf1lEuDCDSXFH5ZR3lkgCizhWVX9ZRLgWgGLmi8ss6ymUAFCdXVH5ZR7kAgKLlisov6yhzByhmrqj8so4ya4Ai5yoxuTSizBig6LlKTC6NKHMFyKvRRG4MUC4A+TaayI0BygKgAI0mcmOA0gcoTKOJ3BigxAEK1mgiNwYoZYBCNprIjQFKFaBEcpWYXBpRpg+QR5vzLg2R23EB5NfmvEtD5HY8APm3Oe/SELkdCUBB2px3aYjcjgGgUG3OuzREbosHKGCb8y4NkduyAQrb5rxLQ+SWHEAG49+oOC6bvQei+NDk/dkmckuuBzLoOQFE1Oa8S0PktjyA6Nqcd2mI3BYGkFfwVH55yKUR5awA+QZP5ZeHXBpRzgdQgOCp/PKQSyPKmQAKEzyVXx5yaUQ5B0DBgqfyy0MujSijAxQyeCq/POTSiDIuQHnnKjG5NKKMCFD44Kn88pBLI8pYAJEET+WXh1waUUYBiCp4Kr885NKIkh4gwuCp/PKQSyNKYoBog6fyy0MujSgpASIPnsovD7k0oiQDKEbwxy2XRpQMULZyaUTJAGUrl0aUDFC2cmlEyQBlK5dGlAxQtnJpRMkAZSuXRpQMULZyaUTJAGUrl0aUDFC2cmlEyQBlK5dGlAxQtnJpRMkAZSuXRpQMULZyaUTpD5CTfRFH5ijk0mocA5SdXFqNY4Cyk0urcQxQdnJpNS4SQGxLNQaIzcsYIDYvY4DYvIwBYvOyGAB9OD09/eYqgpC0m+9KqbuXp88+xpOL1MKb352eXsRrXCU33bgYAL27iCBS22fR2IdXF4cP30aTi9TCux9eH25+/zpW4yo5S+MiAPTwx9f0IrW9+/rPZZdw9+OV6hriyEVq4WdBzbuLWI2r5CyNiwBQ2ePKrjCSidzefP9RfoAiyUVsYdmqiI0TOpbGRQBIdIMReyFR0c/PogIUr4UPr17EbJyQszQu1ios3jxohh5IWowW3r18cYjYOCknzdy4ZQIUbQ4UF6Cb3wmNaI1TctJmBUh0uQ9/irqMF11vnFVYM2JGaGFV0FiNq+QsjYu0D/R1vIXYTPtAEVooNmTEfDZS42q56cbxTjSblzFAbF7GALF5GQPE5mUMEJuXMUBsXsYAsXkZA8TmZQzQYbdarR797Pqn1vaP36gn95fn2jdcf6kOcfvPtkNlaEcP0P3lk/eCFF3tdwKNvfZPHWsA2q31b6gBOuyF1MLs6AHaqqLuNLWtepStpew1QMYOpgHI1EXlbMcO0O1ZW9Prk3LE2hyuv/q3lWTi/nJT/+XLn1YrwdH95Ur+rX68PVs9+qkCSDB4/eW/lwfZiCOdN17yUfZjC+yCjh2gpneoWCpHreuTeijaC57ku04ev7m/XB/EfwKU+vH2bFO6KYAkbtcnJSI7QY08kPJSL4p3ddSWYkcP0Fdv6qf/L3qHssTXJ22nJGbRa8HFufzTXvU6573HnQJI8qfeWL17+Njv7xZiRw9Qt0/Yy0XXoJu4PXvyvq6+4EkMc82jGJIqBhVA4o31/2qv9sV2UFyMHTtAdZ9QzoBvz8oVe133jnVQqKfavUcG6KitYqEch+QMd9/pgaonzSD01Zt9tSnUPMp1/mMTQJVX+yIPYcuzdh9IUHF90h3Cto9kr7HuTKLLN5fvqx9vz9bNJPqw3YwAqibR3RfnaymNHT1AZeHr7ebyyaP/qEYcZXKus6mW8WJtJpbviir12F3G7+WKvTeEKa/2Rd1uU+bGAEEM1HOMNhJHXryReKwGG3qGpzJGXgvcR2SAQAYDaNjBDL34ZCob29AYIDYvY4DYvIwBYvMyBojNyxggNi9jgNi87G93OzhhxLXsYgAAAABJRU5ErkJggg==" /><!-- --></p>
+<p>The 0.9 quantile lies slightly below the upper prediction bound, which in this case is the same as the 0.975-quantile. The red line is the prediction the linear model makes, which is the same as the 0.5-quantile in this case because our model assumes normally distributed errors.</p>
+<p>The examples above have taken each piece of analysis one step at a time. However, because <code>ciTools</code> was built to be fully compatible with the <code>tidyverse</code>, these functions can easily be chained or “piped” together in clear, legible code:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data_with_results &lt;-<span class="st"> </span>my_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_ci</span>(model) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_pi</span>(model) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_probs</span>(model, <span class="dt">q=</span> <span class="dv">70</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">add_quantile</span>(model, <span class="dt">p =</span> <span class="fl">0.9</span>) 
+
+<span class="kw">kable</span>(<span class="kw">head</span>(data_with_results))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">speed</th>
+<th align="right">dist</th>
+<th align="right">pred</th>
+<th align="right">LCB0.025</th>
+<th align="right">UCB0.975</th>
+<th align="right">LPB0.025</th>
+<th align="right">UPB0.975</th>
+<th align="right">prob_less_than70</th>
+<th align="right">quantile0.9</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">-1.849460</td>
+<td align="right">-12.329543</td>
+<td align="right">8.630624</td>
+<td align="right">-34.49984</td>
+<td align="right">30.80092</td>
+<td align="right">0.9999723</td>
+<td align="right">19.25192</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">10</td>
+<td align="right">-1.849460</td>
+<td align="right">-12.329543</td>
+<td align="right">8.630624</td>
+<td align="right">-34.49984</td>
+<td align="right">30.80092</td>
+<td align="right">0.9999723</td>
+<td align="right">19.25192</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">9.947766</td>
+<td align="right">1.678977</td>
+<td align="right">18.216556</td>
+<td align="right">-22.06142</td>
+<td align="right">41.95696</td>
+<td align="right">0.9997778</td>
+<td align="right">30.63476</td>
+</tr>
+<tr class="even">
+<td align="right">7</td>
+<td align="right">22</td>
+<td align="right">9.947766</td>
+<td align="right">1.678977</td>
+<td align="right">18.216556</td>
+<td align="right">-22.06142</td>
+<td align="right">41.95696</td>
+<td align="right">0.9997778</td>
+<td align="right">30.63476</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="right">16</td>
+<td align="right">13.880175</td>
+<td align="right">6.307527</td>
+<td align="right">21.452823</td>
+<td align="right">-17.95629</td>
+<td align="right">45.71664</td>
+<td align="right">0.9995553</td>
+<td align="right">34.45554</td>
+</tr>
+<tr class="even">
+<td align="right">9</td>
+<td align="right">10</td>
+<td align="right">17.812584</td>
+<td align="right">10.905121</td>
+<td align="right">24.720047</td>
+<td align="right">-13.87224</td>
+<td align="right">49.49741</td>
+<td align="right">0.9991164</td>
+<td align="right">38.28995</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="scope-of-citools" class="section level1">
+<h1>Scope of <code>ciTools</code></h1>
+<p><code>ciTools</code> handles more than just linear models but the workflow is the same as the example above. Here is current status of development:</p>
+<table>
+<colgroup>
+<col width="22%"></col>
+<col width="19%"></col>
+<col width="19%"></col>
+<col width="21%"></col>
+<col width="17%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th>Models</th>
+<th align="center">Confidence Intervals</th>
+<th align="center">Prediction Intervals</th>
+<th align="center">Response Probabilities</th>
+<th align="center">Response Quantiles</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linear</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+</tr>
+<tr class="even">
+<td>Log-Linear</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+</tr>
+<tr class="odd">
+<td>GLM</td>
+<td align="center">[X]</td>
+<td align="center">[Poisson]</td>
+<td align="center">[Poisson]</td>
+<td align="center">[Poisson]</td>
+</tr>
+<tr class="even">
+<td>Linear Mixed Model</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+</tr>
+<tr class="odd">
+<td>Log-Linear Mixed</td>
+<td align="center">[TODO]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+<td align="center">[X]</td>
+</tr>
+<tr class="even">
+<td>Survival</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+</tr>
+<tr class="odd">
+<td>Generalized Linear Mixed</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+<td align="center">[TODO]</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[X] = complete, available now</li>
+</ul>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<p>Open up <strong>R</strong> and run:</p>
+<ol style="list-style-type: decimal">
+<li><code>install.packages(&quot;ciTools&quot;)</code></li>
+<li><code>library(ciTools)</code></li>
+</ol>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

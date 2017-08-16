@@ -58,12 +58,14 @@ add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 # Logistic regression
 fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 dat <- cbind(cars, I(cars$dist > 30))
-add_ci(dat, fit)
-add_ci(dat, fit, alpha = 0.5)
+# Form 95\% confidence intervals for the fit:
+add_ci(dat, fit2)
+# Form 50\% confidence intervals for the fit:
+add_ci(dat, fit2, alpha = 0.5)
 # Make confidence intervals on the scale of the linear predictor
-add_ci(dat, fit, alpha = 0.5, response = FALSE)
+add_ci(dat, fit2, alpha = 0.5, response = FALSE)
 # Add custom names to the confidence bounds
-add_ci(dat, fit, alpha = 0.5, names = c("lwr", "upr"))
+add_ci(dat, fit2, alpha = 0.5, names = c("lwr", "upr"))
 
 
 }
