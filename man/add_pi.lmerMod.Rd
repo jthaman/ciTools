@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE,
+  yhatName = "pred", type = "parametric", includeRanef = TRUE,
   log_response = FALSE, nSims = 200, ...)
 }
 \arguments{
