@@ -1,7 +1,7 @@
 ---
 title: Mixed models with `ciTools`
-author: John Haman and Matthew Avery
-date: August 8, 2017
+author: Matthew Avery
+date: August 17, 2017
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{ Mixed models with `ciTools`}
@@ -109,7 +109,7 @@ $$(l, u) s.t. \Phi(\frac{u-E(Y_{ij}|G_j = g_j)}{\sigma}) - \Phi(\frac{l-E(Y_{ij}
 
 Plugging in our estimated model parameters, we can find $l$ and $u$ by solving
 
-$$\Phi(\frac{\hat{u}- (X_{ij}\hat{\beta} + \hat{g_j})}{\hat{\sigma}}) = 1-\frac{\alpha}{2}$$
+$$\Phi(\frac{\hat{u}- (X_{ij}\hat{\beta} + \hat{g_j})}{\hat{\sigma}}) = 1-\frac{\alpha}{2}.$$
 
 and 
 
@@ -117,7 +117,7 @@ $$\Phi(\frac{\hat{l}- (X_{ij}\hat{\beta} + \hat{g_j})}{\hat{\sigma}}) = \frac{\a
 
 In this framework, 1, 2, and 4 are relevant sources of variance. Alternatively, consider the unconditional prediction interval:
 
-$$(l, u) s.t. P(Y \in (l, u)) = 1 - \alpha$$.
+$$(l, u) s.t. P(Y \in (l, u)) = 1 - \alpha.$$
 
 Here, we are instead solving
 $$\Phi(\frac{\hat{u}- X_{ij}\hat{\beta}}{\hat{\sigma}_C}) = 1-\frac{\alpha}{2}$$
@@ -161,7 +161,7 @@ tb %>% add_ci(fit2, type = "parametric", includeRanef = T)
 Plotting these results lets us visualize the uncertainty around our expected values. The figure below shows the parametric conditional confidence intervals described above for the first three groups from our example data set: 
 
 
-```{r, fig.width = 6, fig.heither = 4}
+```{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
@@ -186,7 +186,7 @@ tb %>%
 We can plot our intervals side by side for comparison. The plot below shows both sets of conditional confidence intervals, with the intervals from `simulate.merMod` shown in red and the invervals from `add_ci` shown in blue. 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -215,7 +215,7 @@ tb %>% add_ci(fit2, includeRanef = F, type = "parametric")
 To illustrate the differences fitting the unconditional intervals vice the conditional intervals, the chart below shows the parametric unconditional intervals for a single group from our data set in blue while the conditional intervals as plotten in red. 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -233,7 +233,7 @@ The difference is readily apparent. For each group, the red intervals are shifte
 It's also worth noting that the unconditional intervals for parametric and bootstrap methods are virtually identical, unlike the conditional intervals:
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -252,7 +252,7 @@ Taking a step back, it's not clear what exactly these interval estimates are use
 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
@@ -269,7 +269,7 @@ By way of contrast, attempting to plot fitted values against *unconditional* mea
 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   add_ci(fit2, type = "parametric", includeRanef = F, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
@@ -311,7 +311,7 @@ Graphically, the prediction intervals should look like the conditional confidenc
 tb %>% add_pi(fit2, includeRanef = T, type = "parametric")
 ```
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
@@ -359,7 +359,7 @@ Finally, one potentially interesting visual could be to plot an overall predicti
 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+``````{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
