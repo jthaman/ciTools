@@ -273,7 +273,7 @@ intervals from `simulate.merMod` shown in red and the invervals from
 `add_ci` shown in blue.
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -313,7 +313,7 @@ unconditional intervals for a single group from our data set in blue
 while the conditional intervals as plotten in red.
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -338,7 +338,7 @@ and bootstrap methods are virtually identical, unlike the conditional
 intervals:
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
 tb %>% 
   filter(group %in% c(1:3)) %>%
@@ -367,7 +367,7 @@ plotting the fitted values against these conditional mean estimates:
 
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
@@ -389,7 +389,7 @@ By way of contrast, attempting to plot fitted values against
 
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   add_ci(fit2, type = "parametric", includeRanef = F, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
@@ -418,7 +418,7 @@ intervals are useful when making such comparisons:
 
 
 
-``````{r, fig.width = 6, fig.heither = 4}
+```{r, fig.width = 6, fig.heither = 4}
 tb %>% 
   add_ci(fit2, type = "parametric", includeRanef = F, names = c("LCB", "UCB")) %>%
   ggplot(aes(x = x2)) + 
@@ -453,7 +453,7 @@ confidence intervals only wider:
 tb %>% add_pi(fit2, includeRanef = T, type = "parametric")
 ```
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
@@ -488,8 +488,7 @@ interested in getting a visual indication of the likelihood that a
 single observation can meet or exceed a threshold:
 
 
-
-``````{r, fig.width = 6, fig.heither = 4}
+```{r, fig.width = 6, fig.heither = 4}
 tb %>% 
   add_pi(fit2, type = "parametric", includeRanef = F, names = c("LPB", "UPB")) %>%
   ggplot(aes(x = x2)) + 
@@ -520,7 +519,7 @@ could drive variation:
 
 
 
-``````{r, fig.width = 8, fig.heither = 5}
+```{r, fig.width = 8, fig.heither = 5}
 tb %>% 
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
