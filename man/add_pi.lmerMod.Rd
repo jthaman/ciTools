@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE,
+  yhatName = "pred", type = "parametric", includeRanef = TRUE,
   log_response = FALSE, nSims = 200, ...)
 }
 \arguments{
@@ -24,7 +24,7 @@ named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{type}{A string, either \code{"parametric"}, \code{"sim"}, or
+\item{type}{A string, either \code{"parametric"} or
 \code{"boot"}. Determines the method used to calculate the
 prediction intervals.}
 
@@ -36,9 +36,9 @@ intervals should be conditioned on the random effects. If
 scale in the model fit. If \code{TRUE}, prediction intervals
 will be returned on the response scale.}
 
-\item{nSims}{A positive integer. If \code{type = "sim"} or
-\code{type = "boot"}, \code{nSims} will determine the number of
-simulated draws to make.}
+\item{nSims}{A positive integer. If \code{type = "boot"},
+\code{nSims} will determine the number of bootstrap simulations
+to perform.}
 
 \item{...}{Additional arguments.}
 }
@@ -54,33 +54,21 @@ class \code{lmerMod}.
 \details{
 It is recommended that one use parametric prediction intervals when
 modeling with a random intercept linear mixed model. Otherwise,
-prediction intervals may be simulated using one of two
-methods: \code{"sim"} indicates that
-\code{merTools::predictInterval} should be used to simulate
-responses to form prediction intervals, and \code{"boot"} indicates
-that \code{lme4::simulate} should be used to simulate predictions
-for the model \code{fit}. The recommended method for determining
-prediction intervals is parametric bootstrap, which corresponds to
-\code{type = "boot"}.
+prediction intervals may be simulated via a parametric bootstrap
+using the function \code{lme4.simulate()}.
 }
 \examples{
 dat <- lme4::sleepstudy
 # Fit a (random intercept) linear mixed model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-# Add prediction intervals to the original data using the default
-# method, parametric bootstrap. (You may want to use more than 100
-# bootstrap replicates in practice).
-add_pi(dat, fit, alpha = 0.5, nSims = 100)
+# Add 50\% prediction intervals to the original data using the default
+# method. 
+add_pi(dat, fit, alpha = 0.5)
 
-# Add prediction intervals to the original data using the
-# parametric method. Form prediction intervals at the population
-# level (unconditional on the random effects)
-add_pi(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
-
-# Use a simulation method to form the parametric intervals. Add
-# custom names to the prediction bounds. This method is faster
-# than the parametric bootstrap, so we can set nSims higher.
-add_pi(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+# Add 50\% prediction intervals to the original data using the
+# parametric bootstrap method. Form prediction intervals at the population
+# level (unconditional on the random effects).
+add_pi(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE)
 
 }
 \seealso{

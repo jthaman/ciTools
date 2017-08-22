@@ -9,14 +9,13 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r }
+```{r, include = F}
 ## setup 
 set.seed(20170808)
-knitr::opts_chunk$set(fig.width=6, fig.height=4) 
-##library(rmarkdown)
-##library(ciTools)
-##library(tidyverse)
-##library(knitr)
+knitr::opts_chunk$set(fig.width=8, fig.height=4) 
+library(ciTools)
+library(tidyverse)
+library(knitr)
 ```
 
 # Overview

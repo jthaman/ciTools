@@ -21,14 +21,14 @@
 #' is called automatically when \code{add_quantile} is applied to an
 #' object of class \code{lmerMod}.
 #'
-#' \code{add_qauntile.lmerMod} may use three different methods for
-#' determining quantiles: a parametric method, a simulation method
-#' (via \code{merTools::predictInterval}), or a parametric bootstrap
-#' method (via \code{lme4::simulate}). The default and recommended
-#' method is parametric bootstrap, which corresponds to setting
-#' \code{type = "boot"}. Only use the parametric method (\code{type =
+#' \code{add_qauntile.lmerMod} may use one of two different methods
+#' for determining quantiles: a parametric method or a parametric
+#' bootstrap method (via \code{lme4::simulate}). The parametric method
+#' is the default. Only use the parametric method (\code{type =
 #' "parametric"}) if \code{fit} is a random intercept model,
-#' e.g. \code{fit = lmer(y ~ x + (1|group))}.
+#' e.g. \code{fit = lmer(y ~ x + (1|group))}. If your model of
+#' interest is random slope and random intercept, use the parametric
+#' bootstrap metod (\code{type = "boot"}).
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lm}. Predictions are made with
@@ -44,11 +44,10 @@
 #'     \code{TRUE}, quantiles will be calculated at the
 #'     "group level". Otherwise, quantiles will be calculated at the
 #'     "population level", where random effects are set to \eqn{0}.
-#' @param type A string. Options are \code{"parametric"},
-#'     \code{"boot"}, or \code{"sim"}.
-#' @param nSims A positive integer. Set the number of simulations to
-#'     perform. Only applied when \code{type = "boot"} or \code{type =
-#'     "sim"}
+#' @param type A string. Options are \code{"parametric"} or
+#'     \code{"boot"}.
+#' @param nSims A positive integer. Set the number of bootstrap
+#'     simulations to perform. Only applied when \code{type = "boot"}.
 #' @param log_response A logical. Set to \code{TRUE} if the model is a
 #'     log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma +
 #'     \epsilon}.
@@ -68,19 +67,15 @@
 #' # Fit a random intercept model
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #'
-#' # Using the parametric bootstrap: given the model fit, what value
+#' # Using the parametric method: given the model fit, what value
 #' # of reaction time do we expect half of new reaction times to fall
 #' # under?
 #' add_quantile(dat, fit, p = 0.5)
 #'
 #' # Using the parametric method:
 #' # as above, but we ignore the random effects.
-#' add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
+#' add_quantile(dat, fit, p = 0.5, includeRanef = FALSE)
 #'
-#' # Using the simulation method: give the vector of quantiles a
-#' # custom name.
-#' add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
-#' 
 #' @export
 
 add_quantile.lmerMod <- function(tb, fit, 
@@ -101,11 +96,9 @@ add_quantile.lmerMod <- function(tb, fit,
         parametric_quantile_mermod(tb, fit, p, name, includeRanef, log_response, yhatName)
     else if (type == "boot")
         boot_quantile_mermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
-    else if (type == "sim")
-        sim_quantile_mermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
     else
         stop ("Incorrect type specified")
- }
+}
 
 parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef, log_response, yhatName){
     
@@ -150,38 +143,4 @@ boot_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_resp
     if (log_response)
         tb[[name]]<- exp(quant)
     tibble::as_data_frame(tb)
-}
-
-
-sim_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
-
-    if (includeRanef) {
-        which = "full"
-        reform = NULL
-    } else {
-        which = "fixed"
-        reform = NA
-    }
-
-    pi <- suppressWarnings(predictInterval(fit, tb, which = which, level = 0.95,
-                              n.sims = nSims,
-                              stat = "median",
-                              include.resid.var = TRUE,
-                              returnSims = TRUE))
-
-    store_sim <- attributes(pi)$sim.results
-    quant <- apply(store_sim, 1, FUN = quantile, p = p)
-    out <- predict(fit, tb, re.form = reform)
-
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- quant
-
-    if (log_response){
-        tb[[yhatName]] <- exp(out)
-        tb[[name]] <- exp(quant)
-    }
-
-    tibble::as_data_frame(tb)
-    
 }

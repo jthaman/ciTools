@@ -29,12 +29,11 @@ predictions.}
 "group level". Otherwise, quantiles will be calculated at the
 "population level", where random effects are set to \eqn{0}.}
 
-\item{type}{A string. Options are \code{"parametric"},
-\code{"boot"}, or \code{"sim"}.}
+\item{type}{A string. Options are \code{"parametric"} or
+\code{"boot"}.}
 
-\item{nSims}{A positive integer. Set the number of simulations to
-perform. Only applied when \code{type = "boot"} or \code{type =
-"sim"}}
+\item{nSims}{A positive integer. Set the number of bootstrap
+simulations to perform. Only applied when \code{type = "boot"}.}
 
 \item{log_response}{A logical. Set to \code{TRUE} if the model is a
 log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma +
@@ -52,14 +51,14 @@ is called automatically when \code{add_quantile} is applied to an
 object of class \code{lmerMod}.
 }
 \details{
-\code{add_qauntile.lmerMod} may use three different methods for
-determining quantiles: a parametric method, a simulation method
-(via \code{merTools::predictInterval}), or a parametric bootstrap
-method (via \code{lme4::simulate}). The default and recommended
-method is parametric bootstrap, which corresponds to setting
-\code{type = "boot"}. Only use the parametric method (\code{type =
+\code{add_qauntile.lmerMod} may use one of two different methods
+for determining quantiles: a parametric method or a parametric
+bootstrap method (via \code{lme4::simulate}). The parametric method
+is the default. Only use the parametric method (\code{type =
 "parametric"}) if \code{fit} is a random intercept model,
-e.g. \code{fit = lmer(y ~ x + (1|group))}.
+e.g. \code{fit = lmer(y ~ x + (1|group))}. If your model of
+interest is random slope and random intercept, use the parametric
+bootstrap metod (\code{type = "boot"}).
 }
 \examples{
 dat <- lme4::sleepstudy
@@ -67,18 +66,14 @@ dat <- lme4::sleepstudy
 # Fit a random intercept model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 
-# Using the parametric bootstrap: given the model fit, what value
+# Using the parametric method: given the model fit, what value
 # of reaction time do we expect half of new reaction times to fall
 # under?
 add_quantile(dat, fit, p = 0.5)
 
 # Using the parametric method:
 # as above, but we ignore the random effects.
-add_quantile(dat, fit, p = 0.5, type = "parametric", includeRanef = FALSE)
-
-# Using the simulation method: give the vector of quantiles a
-# custom name.
-add_quantile(dat, fit, p = 0.5, type = "sim", name = "my_quantile", nSims = 1000)
+add_quantile(dat, fit, p = 0.5, includeRanef = FALSE)
 
 }
 \seealso{
