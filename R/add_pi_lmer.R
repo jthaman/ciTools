@@ -23,15 +23,9 @@
 #'
 #' It is recommended that one use parametric prediction intervals when
 #' modeling with a random intercept linear mixed model. Otherwise,
-#' prediction intervals may be simulated using one of two
-#' methods: \code{"sim"} indicates that
-#' \code{merTools::predictInterval} should be used to simulate
-#' responses to form prediction intervals, and \code{"boot"} indicates
-#' that \code{lme4::simulate} should be used to simulate predictions
-#' for the model \code{fit}. The recommended method for determining
-#' prediction intervals is parametric bootstrap, which corresponds to
-#' \code{type = "boot"}.
-#' 
+#' prediction intervals may be simulated via a parametric bootstrap
+#' using the function \code{lme4.simulate()}.
+#'
 #' @param tb A tibble or data frame of new data
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -42,15 +36,15 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string, either \code{"parametric"}, \code{"sim"}, or
+#' @param type A string, either \code{"parametric"} or
 #'     \code{"boot"}. Determines the method used to calculate the
 #'     prediction intervals.
 #' @param includeRanef A logical. Set whether the predictions and
 #'     intervals should be conditioned on the random effects. If
 #'     \code{FALSE}, random effects will not be included.
-#' @param nSims A positive integer. If \code{type = "sim"} or
-#'     \code{type = "boot"}, \code{nSims} will determine the number of
-#'     simulated draws to make.
+#' @param nSims A positive integer. If \code{type = "boot"},
+#'     \code{nSims} will determine the number of bootstrap simulations
+#'     to perform.
 #' @param log_response A logical, indicating if the response is on log
 #'     scale in the model fit. If \code{TRUE}, prediction intervals
 #'     will be returned on the response scale.
@@ -68,27 +62,21 @@
 #' dat <- lme4::sleepstudy
 #' # Fit a (random intercept) linear mixed model
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
-#' # Add prediction intervals to the original data using the default
-#' # method, parametric bootstrap. (You may want to use more than 100
-#' # bootstrap replicates in practice).
-#' add_pi(dat, fit, alpha = 0.5, nSims = 100)
+#' # Add 50% prediction intervals to the original data using the default
+#' # method. 
+#' add_pi(dat, fit, alpha = 0.5)
 #' 
-#' # Add prediction intervals to the original data using the
-#' # parametric method. Form prediction intervals at the population
-#' # level (unconditional on the random effects)
-#' add_pi(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE)
-#'
-#' # Use a simulation method to form the parametric intervals. Add
-#' # custom names to the prediction bounds. This method is faster
-#' # than the parametric bootstrap, so we can set nSims higher.
-#' add_pi(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+#' # Add 50% prediction intervals to the original data using the
+#' # parametric bootstrap method. Form prediction intervals at the population
+#' # level (unconditional on the random effects).
+#' add_pi(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE)
 #' 
 #' @export
 
 add_pi.lmerMod <- function(tb, fit, 
                            alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "parametric", includeRanef = TRUE,
-                          log_response = FALSE, nSims = 200, ...) {
+                           log_response = FALSE, nSims = 200, ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
@@ -97,47 +85,15 @@ add_pi.lmerMod <- function(tb, fit,
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
-    if(type == "sim") 
-        sim_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
-    else if(type == "parametric")
+    if(type == "parametric")
         parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
     else if(type == "boot")
         boot_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else
         stop("Incorrect type specified!")
 
- }
-
-sim_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
-
-    if (includeRanef) {
-        which = "full"
-        reform = NULL
-    } else {
-        which = "fixed"
-        reform = NA
-    }
-
-    pi_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 1 - alpha,
-                              n.sims = nSims,
-                              stat = "median",
-                              include.resid.var = TRUE))
-
-    out <- predict(fit, tb, re.form = reform)
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- pi_out$lwr
-    tb[[names[2]]] <- pi_out$upr
-
-    if (log_response){
-        tb[[yhatName]] <- exp(predict(fit, tb, re.form = reform))
-        tb[[names[1]]] <- exp(tb[[names[1]]])
-        tb[[names[2]]] <- exp(tb[[names[2]]])
-    }
-
-    tibble::as_data_frame(tb)
-    
 }
+
 
 parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
     

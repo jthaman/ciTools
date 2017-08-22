@@ -22,11 +22,10 @@
 #' class \code{lmerMod}. It is recommended that one use parametric
 #' confidence intervals when modeling with a random intercept linear
 #' mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
-#' (1|group))}). Otherwise, confidence intervals may be simulated (type
-#' = \code{"sim"}) via \code{merTools::predictInterval} or
-#' bootstrapped via \code{lme4::bootMer}. 
+#' (1|group))}). Otherwise, confidence intervals may be simulated
+#' bootstrapped via \code{lme4::bootMer}.
 #'
-#' Bootstrapped intervals are the slowest to compute, but they are the
+#' Bootstrapped intervals are slower to compute, but they are the
 #' recommended method when working with any linear mixed models more
 #' complicated than the random intercept model.
 #' 
@@ -40,17 +39,19 @@
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Must be \code{"parametric"}, \code{"boot"}, or
-#'     \code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
-#'     \code{merTools::predictInterval}. If \code{type = "boot"}, then
-#'     \code{add_ci} calls \code{lme4::bootMer}.
+#' @param type A string. Must be \code{"parametric"} or \code{"boot"},
+#'     If \code{type = "boot"}, then \code{add_ci} calls
+#'     \code{lme4::bootMer} to calculate the confidence
+#'     intervals. This method may be time consuming, but is applicable
+#'     with random slope and random intercept models. The parametric
+#'     method is fast, but currently only works well for random
+#'     intercept models.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
 #'     included.
 #' @param nSims A positive integer.  Controls the number of bootstrap
-#'     replicates if \code{type = "boot"}, or the number of simulated
-#'     draws if \code{type = "sim"}. 
+#'     replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
@@ -69,10 +70,8 @@
 #' # Get the fitted values for each observation in dat, and
 #' # append CIs for those fitted values to dat
 #' add_ci(dat, fit, alpha = 0.5, nSims = 100)
-#' # Try another method, and make prediction at the population level
-#' add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE, nSims = 100)
-#' # Try another method, and add custom names to the confidence bounds
-#' add_ci(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+#' # Try the parametric bootstrap method, and make prediction at the population level
+#' add_ci(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE, nSims = 100)
 #'
 #' @export
 
@@ -94,8 +93,6 @@ add_ci.lmerMod <- function(tb, fit,
 
     if (type == "parametric")
         parametric_ci_mermod(tb, fit, alpha, names, includeRanef, yhatName)
-    else if (type == "sim")
-        sim_ci_mermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else if (type == "boot")
         bootstrap_ci_mermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else
@@ -130,35 +127,12 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
     
 }
 
-sim_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims = 200, yhatName) {
-
-    if (includeRanef) {
-        which = "full"
-        reform = NULL
-    } else {
-        which = "fixed"
-        reform = NA
-    }
-
-    ci_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 1 - alpha,
-                              n.sims = nSims,
-                              stat = "median",
-                              include.resid.var = FALSE))
-
-    out <- predict(fit, tb, re.form = reform) 
-    if(is.null(tb[[yhatName]])) 
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- ci_out$lwr
-    tb[[names[2]]] <- ci_out$upr
-    tibble::as_data_frame(tb)
-    
-}
 
 ciTools_data <- new.env(parent = emptyenv())
 
 bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
 
-   ciTools_data$tb_temp <- tb 
+    ciTools_data$tb_temp <- tb 
 
     if (includeRanef) { 
         rform = NULL
