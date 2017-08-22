@@ -30,3 +30,4 @@ README.org
 TODO.org
 NEWS.org
 R/TAGS
+^data-raw$
