@@ -27,7 +27,7 @@ probabilities will be named \code{name} in the returned tibble.}
 \eqn{Pr(Y|x < q)} is calculated for each x in the new data,
 \code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.}
 
-\item{type}{A string, either \code{"parametric"} , \code{"sim"}, or
+\item{type}{A string, either \code{"parametric"} or
 \code{"boot"}. Determines the method used to determine the
 probabilities.}
 
@@ -36,9 +36,9 @@ predictions will be calculated at the group level. If
 \code{FALSE}, random effects will not be included, and
 probabilities will be calculated at the population level.}
 
-\item{nSims}{A positive integer. If \code{type = "sim"} or
-\code{type = "boot"}, \code{nSims} will determine the number of
-simulated draws to make.}
+\item{nSims}{A positive integer. If \code{type = "boot"},
+\code{nSims} will determine the number of bootstrap simulations to
+perform.}
 
 \item{log_response}{A logical. Set to \code{TRUE} if your model is
 a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
@@ -70,12 +70,9 @@ fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 # than 300? (given the random effects).
 add_probs(dat, fit, q = 300)
 
-# As above, but using a different method.
-add_probs(dat, fit, q = 300, type = "sim")
-
 # What is the probability that a new reaction time will be greater
 # than 300? (ignoring the random effects). 
-add_probs(dat, fit, q = 300, type = "parametric", includeRanef = FALSE, comparison = ">")
+add_probs(dat, fit, q = 300, includeRanef = FALSE, comparison = ">")
 
 }
 \seealso{
