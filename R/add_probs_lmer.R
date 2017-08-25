@@ -33,16 +33,16 @@
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param q A real number. A quantile of the conditional response
 #'     distribution.
-#' @param type A string, either \code{"parametric"} , \code{"sim"}, or
+#' @param type A string, either \code{"parametric"} or
 #'     \code{"boot"}. Determines the method used to determine the
 #'     probabilities.
 #' @param includeRanef A logical. If \code{TRUE}, probabilities and
 #'     predictions will be calculated at the group level. If
 #'     \code{FALSE}, random effects will not be included, and
 #'     probabilities will be calculated at the population level.
-#' @param nSims A positive integer. If \code{type = "sim"} or
-#'     \code{type = "boot"}, \code{nSims} will determine the number of
-#'     simulated draws to make.
+#' @param nSims A positive integer. If \code{type = "boot"},
+#'     \code{nSims} will determine the number of bootstrap simulations to
+#'     perform.
 #' @param comparison A character vector of length one. Must be either
 #'     \code{"<"} or \code{">"}. If \code{comparison = "<"}, then
 #'     \eqn{Pr(Y|x < q)} is calculated for each x in the new data,
@@ -71,12 +71,9 @@
 #' # than 300? (given the random effects).
 #' add_probs(dat, fit, q = 300)
 #'
-#' # As above, but using a different method.
-#' add_probs(dat, fit, q = 300, type = "sim")
-#' 
 #' # What is the probability that a new reaction time will be greater
 #' # than 300? (ignoring the random effects). 
-#' add_probs(dat, fit, q = 300, type = "parametric", includeRanef = FALSE, comparison = ">")
+#' add_probs(dat, fit, q = 300, includeRanef = FALSE, comparison = ">")
 #' 
 #' @export
 
@@ -101,8 +98,6 @@ add_probs.lmerMod <- function(tb, fit,
 
     if (type == "parametric") 
         parametric_probs_mermod(tb, fit, q, name, includeRanef, comparison, yhatName)
-    else if (type == "sim") 
-        sim_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
     else if (type == "boot")
         boot_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
     else  
@@ -136,32 +131,6 @@ parametric_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, 
 }
 
 
-sim_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims = 200, yhatName) {
-
-    if (includeRanef) {
-        which <-  "full"
-        re.form <- NULL
-    } else {
-        which <- "fixed"
-        re.form <- NA
-    }
-
-    pi_out <- suppressWarnings(predictInterval(fit, tb, which = which, level = 0.95,
-                              n.sims = nSims,
-                              stat = "median",
-                              include.resid.var = TRUE,
-                              returnSims = TRUE))
-    
-    store_sim <- attributes(pi_out)$sim.results
-    probs <- apply(store_sim, 1, FUN = calc_prob, quant = q, comparison = comparison)
-
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- predict(fit, tb, re.form = re.form)
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
-    
-}
-
 boot_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims, yhatName){
 
     if (includeRanef) 
@@ -177,5 +146,4 @@ boot_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims,
         tb[[yhatName]] <- predict(fit, tb, re.form = reform)
     tb[[name]] <- probs
     tibble::as_data_frame(tb)
-
 }

@@ -24,10 +24,13 @@ named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{type}{A string. Must be \code{"parametric"}, \code{"boot"}, or
-\code{"sim"}. If \code{type = "sim"}, then \code{add_ci} calls
-\code{merTools::predictInterval}. If \code{type = "boot"}, then
-\code{add_ci} calls \code{lme4::bootMer}.}
+\item{type}{A string. Must be \code{"parametric"} or \code{"boot"},
+If \code{type = "boot"}, then \code{add_ci} calls
+\code{lme4::bootMer} to calculate the confidence
+intervals. This method may be time consuming, but is applicable
+with random slope and random intercept models. The parametric
+method is fast, but currently only works well for random
+intercept models.}
 
 \item{includeRanef}{A logical. Default is \code{TRUE}. Set whether
 the predictions and intervals should be made conditional on the
@@ -35,8 +38,7 @@ random effects. If \code{FALSE}, random effects will not be
 included.}
 
 \item{nSims}{A positive integer.  Controls the number of bootstrap
-replicates if \code{type = "boot"}, or the number of simulated
-draws if \code{type = "sim"}.}
+replicates if \code{type = "boot"}.}
 
 \item{...}{Additional arguments.}
 }
@@ -50,12 +52,11 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{lmerMod}. It is recommended that one use parametric
 confidence intervals when modeling with a random intercept linear
 mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
-(1|group))}). Otherwise, confidence intervals may be simulated (type
-= \code{"sim"}) via \code{merTools::predictInterval} or
+(1|group))}). Otherwise, confidence intervals may be simulated
 bootstrapped via \code{lme4::bootMer}.
 }
 \details{
-Bootstrapped intervals are the slowest to compute, but they are the
+Bootstrapped intervals are slower to compute, but they are the
 recommended method when working with any linear mixed models more
 complicated than the random intercept model.
 }
@@ -67,10 +68,8 @@ fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 # Get the fitted values for each observation in dat, and
 # append CIs for those fitted values to dat
 add_ci(dat, fit, alpha = 0.5, nSims = 100)
-# Try another method, and make prediction at the population level
-add_ci(dat, fit, alpha = 0.5, type = "parametric", includeRanef = FALSE, nSims = 100)
-# Try another method, and add custom names to the confidence bounds
-add_ci(dat, fit, alpha = 0.5, type = "sim", names = c("lwr", "upr"), nSims = 1000)
+# Try the parametric bootstrap method, and make prediction at the population level
+add_ci(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE, nSims = 100)
 
 }
 \seealso{

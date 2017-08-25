@@ -20,7 +20,6 @@ Imports:
     dplyr,
     lme4,
     magrittr,
-    merTools,
     methods,
     stats,
     tibble

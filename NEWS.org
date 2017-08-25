@@ -1,2 +1,10 @@
 * Inital Release - Version 0.1.0
   SCHEDULED: <2017-07-31 Mon>
+  
+* Version 0.2.0
+  SCHEDULED: <2017-08-22 Tue>
+  - Two new vignettes have been added
+    1. An Introduction to ciTools with examples featuring linear
+       models
+    2. Mixed Models with ciTools - Examples and Simulation Study
+    3. merTools dependency has been removed

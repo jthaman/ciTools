@@ -12,7 +12,7 @@ vignette: >
 ```{r, include = F}
 ## setup 
 set.seed(20170808)
-knitr::opts_chunk$set(fig.width=6, fig.height=4) 
+knitr::opts_chunk$set(fig.width=8, fig.height=4) 
 library(ciTools)
 library(tidyverse)
 library(knitr)

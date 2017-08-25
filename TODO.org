@@ -1,11 +1,10 @@
 * Short Term
 - Add more GLMs to add_pi (currently only handles Poisson model)
+- Edit Vignettes
 - Implement a parametric method for GLM prediction intervals.
 - reorder columns of new data if they are not already in the right order
-- Merge in vignettes
 - Display version and build date on load
 - Develop set of test functions (testthat plus test folder)
-
 * Long Term
 - Add survival models method
 - Add GLMMs method

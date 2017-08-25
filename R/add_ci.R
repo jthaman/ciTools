@@ -41,7 +41,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom dplyr bind_rows
 #' @importFrom tibble as_data_frame
-#' @importFrom merTools predictInterval
 #' @importFrom arm se.ranef
 #' @importFrom arm sim
 #'
@@ -98,5 +97,5 @@
 #' @export
 
 add_ci <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
-  UseMethod("add_ci", fit)
+    UseMethod("add_ci", fit)
 }
