@@ -69,7 +69,7 @@
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #' # Get the fitted values for each observation in dat, and
 #' # append CIs for those fitted values to dat
-#' add_ci(dat, fit, alpha = 0.5, nSims = 100)
+#' add_ci(dat, fit, alpha = 0.5)
 #' # Try the parametric bootstrap method, and make prediction at the population level
 #' add_ci(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE, nSims = 100)
 #'
@@ -103,7 +103,7 @@ add_ci.lmerMod <- function(tb, fit,
 parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
 
     if (length(fit@cnms[[1]]) != 1)
-        stop("parametric confidence intervals are currently not implemented for random slope models.")
+        stop("parametric confidence intervals are currently only implemented for random intercept models.")
 
     seFixed <- get_prediction_se_mermod(tb, fit)
     seRandom <- arm::se.ranef(fit)[[1]][1,] 

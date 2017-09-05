@@ -22,17 +22,17 @@ get_x_matrix_mermod <- function(tb, fit){
     ##factors from the original data set. New and old data sets are
     ##appended, the model matrix is generated, and the function returns
     ##only the rows corresponding to the new data.
-  mm <- fit@frame
-  rv <- names(mm)[1]
-  mm[[rv]] <- as.numeric(mm[[rv]])
-  
-  for(i in names(mm)){
-    if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
-  }
-  
-  model.matrix(reformulate(attributes(terms(fit))$term.labels), 
-               dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ]
-  
+    mm <- fit@frame
+    rv <- names(mm)[1]
+    mm[[rv]] <- as.numeric(mm[[rv]])
+    
+    for(i in names(mm)){
+        if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
+    }
+    
+    model.matrix(reformulate(attributes(terms(fit))$term.labels), 
+                 dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ]
+    
 }
 
 
