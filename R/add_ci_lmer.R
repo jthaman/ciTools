@@ -92,15 +92,15 @@ add_ci.lmerMod <- function(tb, fit,
     }
 
     if (type == "parametric")
-        parametric_ci_mermod(tb, fit, alpha, names, includeRanef, yhatName)
+        parametric_ci_lmermod(tb, fit, alpha, names, includeRanef, yhatName)
     else if (type == "boot")
-        bootstrap_ci_mermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_ci_lmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
 
 
-parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
+parametric_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
 
     if (length(fit@cnms[[1]]) != 1)
         stop("parametric confidence intervals are currently only implemented for random intercept models.")
@@ -130,7 +130,7 @@ parametric_ci_mermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
 
 ciTools_data <- new.env(parent = emptyenv())
 
-bootstrap_ci_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
 
     ciTools_data$tb_temp <- tb 
 
