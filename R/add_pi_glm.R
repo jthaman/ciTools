@@ -76,13 +76,14 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
-    if(fit$family$family == "binomial"){
+    if(fit$family$family == "binomial")
         stop("Prediction interval for Bernoulli response doesn't make sense")
-    }
-
-    if(fit$family$family == "poisson"){
+    
+    if(fit$family$family == "poisson")
         warning("The response is not continuous, so Prediction Intervals are only approximate")
-    }
+    
+    if(fit$family$family == "quasipoisson")
+        warning("The response is not continuous, so Prediction Intervals are only approximate")
 
     if(type == "sim"){
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
@@ -92,7 +93,6 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 }
 
 ## TODO : hardcode more response distributions
-## TODO : Smooth the prediction intervals
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
@@ -104,10 +104,8 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
 
     for (i in 1:nPreds){
-        if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims,
-                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-            }
+        if(response_distr == "poisson")
+            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
     }
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
