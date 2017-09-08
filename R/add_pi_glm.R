@@ -21,11 +21,11 @@
 #' called automatically when \code{add_pi} is used on a \code{fit} of
 #' class \code{glm}.
 #'
-#' Prediction intervals are generated through simulation via
-#' \code{arm::sim}. At the moment, only prediction intervals for
-#' Poisson GLMs with the log link function are supported. Note that if
-#' the response is count data, prediction intervals are only
-#' approximate.
+#' Prediction intervals are generated through simulation with the aid
+#' \code{arm::sim}, which simulates the uncertainty in the regression
+#' coefficients. At the moment, only prediction intervals for Poisson
+#' and Quasipoisson GLMs is supported. Note that if the response is
+#' count data, prediction intervals are only approximate.
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -66,16 +66,15 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 1000, type = "sim", ...){
+                       nSims = 2000, type = "sim", ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(tb))) 
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-    }
-
+    
     if(fit$family$family == "binomial")
         stop("Prediction interval for Bernoulli response doesn't make sense")
     
@@ -85,14 +84,13 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family == "quasipoisson")
         warning("The response is not continuous, so Prediction Intervals are only approximate")
 
-    if(type == "sim"){
+    if(type == "sim")
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
-    }
+    
     else if(!(type %in% c("sim")))
         stop("Only Simulated prediction intervals are implemented for glm objects")
 }
 
-## TODO : hardcode more response distributions
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
@@ -102,16 +100,25 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     out <- inverselink(predict(fit, tb))
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+    overdisp <- summary(fit)$dispersion
 
     for (i in 1:nPreds){
-        if(response_distr == "poisson")
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+        if(response_distr == "poisson"){
+            sim_response[i,] <- rpois(n = nSims,
+                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+        }
+        if(response_distr == "quasipoisson"){
+            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[i,] <- rnegbin(n = nSims,
+                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
+                                        theta = a)
+        }
     }
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
-    
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr

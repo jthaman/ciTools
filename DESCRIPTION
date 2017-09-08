@@ -22,6 +22,7 @@ Imports:
     dplyr,
     lme4,
     magrittr,
+    MASS,
     stats,
     tibble
 Suggests:

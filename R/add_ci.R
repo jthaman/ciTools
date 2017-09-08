@@ -43,6 +43,7 @@
 #' @importFrom tibble as_data_frame
 #' @importFrom arm se.ranef
 #' @importFrom arm sim
+#' @importFrom MASS rnegbin
 #'
 #' @param tb A tibble or data frame of new data. \code{tb} can be
 #'     the original data or new data.

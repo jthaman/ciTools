@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Generalized Linear Models}
 \usage{
 \method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", nSims = 1000, type = "sim", ...)
+  yhatName = "pred", nSims = 2000, type = "sim", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -41,11 +41,11 @@ called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{glm}.
 }
 \details{
-Prediction intervals are generated through simulation via
-\code{arm::sim}. At the moment, only prediction intervals for
-Poisson GLMs with the log link function are supported. Note that if
-the response is count data, prediction intervals are only
-approximate.
+Prediction intervals are generated through simulation with the aid
+\code{arm::sim}, which simulates the uncertainty in the regression
+coefficients. At the moment, only prediction intervals for Poisson
+and Quasipoisson GLMs is supported. Note that if the response is
+count data, prediction intervals are only approximate.
 }
 \examples{
 # Fit a Poisson model
