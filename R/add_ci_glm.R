@@ -98,13 +98,18 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 }
 
 parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
-    out <- predict(fit, tb, se.fit = TRUE)
-
+    out <- predict(fit, tb, se.fit = TRUE, type = "link")
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
     inverselink <- fit$family$linkinv
+
     if (response){
         upr <- inverselink(out$fit + crit_val * out$se.fit)
         lwr <- inverselink(out$fit - crit_val * out$se.fit)
+        if(fit$family$link == "inverse"){
+            upr1 <- lwr
+            lwr <- upr
+            upr <- upr1
+        }
         pred <- inverselink(out$fit)
     }else{
         upr <- out$fit + crit_val * out$se.fit

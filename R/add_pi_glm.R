@@ -78,10 +78,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family == "binomial")
         stop("Prediction interval for Bernoulli response doesn't make sense")
     
-    if(fit$family$family == "poisson")
-        warning("The response is not continuous, so Prediction Intervals are only approximate")
-    
-    if(fit$family$family == "quasipoisson")
+    if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are only approximate")
 
     if(type == "sim")
@@ -91,6 +88,8 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         stop("Only Simulated prediction intervals are implemented for glm objects")
 }
 
+## We might be able to get a more general solution if we use a
+## bootstrap
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
@@ -113,11 +112,15 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
                                         mu = inverselink(sims@coef[i,] %*% modmat[i,]),
                                         theta = a)
         }
+        if(response_distr == "Gamma"){
+            sim_response[i,] <- rgamma(n = nSims,
+                                       shape = 1/overdisp,
+                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
+        }
     }
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
