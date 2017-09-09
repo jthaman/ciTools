@@ -19,6 +19,7 @@ Depends:
     R (>= 3.4.0)
 Imports:
     arm,
+    boot,
     dplyr,
     lme4,
     magrittr,
