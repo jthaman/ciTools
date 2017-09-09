@@ -106,6 +106,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     inverselink <- fit$family$linkinv
 
     if (response){
+        pred <- inverselink(out$fit)
         upr <- inverselink(out$fit + crit_val * out$se.fit)
         lwr <- inverselink(out$fit - crit_val * out$se.fit)
         if(fit$family$link == "inverse"){
@@ -115,7 +116,6 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
             lwr <- upr
             upr <- upr1
         }
-        pred <- inverselink(out$fit)
     }else{
         upr <- out$fit + crit_val * out$se.fit
         lwr <- out$fit - crit_val * out$se.fit
@@ -131,7 +131,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
 boot_fit <- function(tb, fit, lvl, indices){
     temp_tb <- tb[indices,]
     form <- fit$formula
-    fam <- fit$family$family
+    fam <- fit$family
     temp_fit <- glm(form, data = temp_tb, family = fam)
     predict(temp_fit, newdata = tb, type = lvl)
 }
