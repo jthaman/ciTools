@@ -1,19 +1,19 @@
-# Copyright (C) 2017 Institute for Defense Analyses
-#
-# This file is part of ciTools.
-#
-# ciTools is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-                                        # ciTools is distributed in the hope that it will be useful, but
-                                        # WITHOUT ANY WARRANTY; without even the implied warranty of
-                                        # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-                                        # GNU General Public License for more details.
-                                        #
-                                        # You should have received a copy of the GNU General Public License
-                                        # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
+## Copyright (C) 2017 Institute for Defense Analyses
+##
+## This file is part of ciTools.
+##
+## ciTools is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## ciTools is distributed in the hope that it will be useful, but
+## WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
 #' Confidence Intervals for Generalized Linear Model Predictions
 #'
@@ -35,8 +35,9 @@
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of predictions made
 #'     for each observation in tb
-#' @param type A string. Currently \code{type = "parametric"} is the
-#'     only supported method.
+#' @param type A string. Must be \code{type = "parametric"} or
+#'     \code{type = "boot"}. \code{type} determines the method used to
+#'     compute the confidence intervals.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
 #'     the expected response; if \code{FALSE}, confidence intervals
@@ -128,7 +129,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
 }
 
 ## which new data? tb or tb_temp?
-glm_fit <- function(tb, fit, lvl, indices){
+boot_fit <- function(tb, fit, lvl, indices){
     temp_tb <- tb[indices,]
     form <- fit$formula
     fam <- fit$family$family
@@ -146,7 +147,7 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
 
     out <- predict(fit, tb, type = lvl)
     boot_obj <- boot(data = tb,
-                     statistic = glm_fit,
+                     statistic = boot_fit,
                      R = nSims,
                      fit = fit,
                      lvl = lvl)
