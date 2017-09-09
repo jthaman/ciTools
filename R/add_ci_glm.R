@@ -128,7 +128,6 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     tibble::as_data_frame(tb)
 }
 
-## which new data? tb or tb_temp?
 boot_fit <- function(tb, fit, lvl, indices){
     temp_tb <- tb[indices,]
     form <- fit$formula

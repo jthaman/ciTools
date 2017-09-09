@@ -108,5 +108,6 @@ boot_quants <- function(merBoot, alpha) {
 }
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("ciTools (C) Institute for Defense Analyses")
+    packageStartupMessage(
+        paste("ciTools version", packageVersion("ciTools"),"(C) Institute for Defense Analyses", sep = " "))
 }
