@@ -127,7 +127,6 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     tibble::as_data_frame(tb)
 }
 
-
 ## which new data? tb or tb_temp?
 glm_fit <- function(tb, fit, lvl, indices){
     temp_tb <- tb[indices,]
@@ -139,13 +138,13 @@ glm_fit <- function(tb, fit, lvl, indices){
 
 boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
     if (response){
-        out <- predict(fit, tb, type = "response")
         lvl <- "response"
     }
     else{
-        out <- predict(fit, tb, type = "link")
         lvl <- "link"
     }
+
+    out <- predict(fit, tb, type = lvl)
     boot_obj <- boot(data = tb,
                      statistic = glm_fit,
                      R = nSims,
