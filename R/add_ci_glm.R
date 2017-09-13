@@ -109,7 +109,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
         pred <- inverselink(out$fit)
         upr <- inverselink(out$fit + crit_val * out$se.fit)
         lwr <- inverselink(out$fit - crit_val * out$se.fit)
-        if(fit$family$link == "inverse"){
+        if(fit$family$link %in% c("inverse", "1/mu^2")){
             ## need to do something like this for any decreasing link
             ## function.
             upr1 <- lwr
