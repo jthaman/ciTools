@@ -80,7 +80,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         stop("Prediction interval for Bernoulli response doesn't make sense")
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
-        warning("The response is not continuous, so Prediction Intervals are only approximate")
+        warning("The response is not continuous, so Prediction Intervals are approximate")
 
     if(type == "sim")
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
@@ -103,6 +103,11 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     overdisp <- summary(fit)$dispersion
 
     for (i in 1:nPreds){
+        if(response_distr == "poisson"){
+             sim_response[i,] <- rbinom(n = nSims,
+                                  p = inverselink(sims@coef[i,] %*% modmat[i,]))
+       }
+      
         if(response_distr == "poisson"){
             sim_response[i,] <- rpois(n = nSims,
                                       lambda = inverselink(sims@coef[i,] %*% modmat[i,]))

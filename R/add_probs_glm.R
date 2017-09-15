@@ -104,12 +104,12 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     }
 
     if (fit$family$family == "binomial"){
-        warning ("Be careful. You should only be asking probabilities that are equivalent to Pr(Y = 0) or Pr(Y = 1).")
+        warning ("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = ">" is specified)")
         probs_logistic(tb, fit, q, name, yhatName, comparison)
     }
 
     else if (fit$family$family == "poisson"){
-        warning("The response is not continuous, so estimated probabilities are only approximate")
+        warning("The response is not continuous, so estimated probabilities are approximate")
         sim_probs_pois(tb, fit, q, name, yhatName, nSims, comparison)
     }
 
