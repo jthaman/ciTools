@@ -97,15 +97,15 @@ add_probs.lmerMod <- function(tb, fit,
     }
 
     if (type == "parametric") 
-        parametric_probs_mermod(tb, fit, q, name, includeRanef, comparison, yhatName)
+        parametric_probs_lmermod(tb, fit, q, name, includeRanef, comparison, yhatName)
     else if (type == "boot")
-        boot_probs_mermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
+        boot_probs_lmermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
     else  
         stop("Incorrect type specified!")
     
 }
 
-parametric_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, yhatName){
+parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, yhatName){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -131,7 +131,7 @@ parametric_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, 
 }
 
 
-boot_probs_mermod <- function(tb, fit, q, name, includeRanef, comparison, nSims, yhatName){
+boot_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, nSims, yhatName){
 
     if (includeRanef) 
         reform = NULL
