@@ -93,14 +93,14 @@ add_quantile.lmerMod <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (type == "parametric")
-        parametric_quantile_mermod(tb, fit, p, name, includeRanef, log_response, yhatName)
+        parametric_quantile_lmermod(tb, fit, p, name, includeRanef, log_response, yhatName)
     else if (type == "boot")
-        boot_quantile_mermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
+        boot_quantile_lmermod(tb, fit, p, name, includeRanef, nSims, log_response, yhatName)
     else
         stop ("Incorrect type specified")
 }
 
-parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef, log_response, yhatName){
+parametric_quantile_lmermod <- function(tb, fit, p, name, includeRanef, log_response, yhatName){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -123,7 +123,7 @@ parametric_quantile_mermod <- function(tb, fit, p, name, includeRanef, log_respo
 }
 
 
-boot_quantile_mermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
+boot_quantile_lmermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) 
         reform = NULL

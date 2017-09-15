@@ -26,8 +26,8 @@
 *** All commands in =ciTools=:
     - =add_ci(data, fit, ...)= - get confidence intervals and append to =data=
     - =add_pi(data, fit, ...)= - get prediction intervals and append to =data=
-    - =add_probs(data, fit, q, ...)= - get conditional response level probabilities
-    - =add_quantile(data, fit, p, ...)= - get conditional response level quantiles
+    - =add_probs(data, fit, q, ...)= - get conditional response probabilities, Pr(Response|Covariates < =q=)
+    - =add_quantile(data, fit, p, ...)= - get conditional response quantiles at level =p=
 
 ** Installation
    Install from CRAN:

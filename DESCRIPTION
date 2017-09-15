@@ -15,12 +15,15 @@ Description: Functions to append confidence intervals, prediction intervals,
     This package has a data frame first syntax that allows for easy piping.
     Currently supported models include (log-) linear, (log-) linear mixed,
     and generalized linear models.
+Depends:
+    R (>= 3.4.0)
 Imports:
     arm,
+    boot,
     dplyr,
     lme4,
     magrittr,
-    methods,
+    MASS,
     stats,
     tibble
 Suggests:
