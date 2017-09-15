@@ -29,10 +29,9 @@ get_x_matrix_mermod <- function(tb, fit){
     for(i in names(mm)){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
-    
+
     suppressWarnings(model.matrix(reformulate(attributes(terms(fit))$term.labels), 
                                   dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
-    
 }
 
 
