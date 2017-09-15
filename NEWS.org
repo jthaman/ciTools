@@ -7,4 +7,7 @@
     1. An Introduction to ciTools with examples featuring linear
        models
     2. Mixed Models with ciTools - Examples and Simulation Study
-    3. merTools dependency has been removed
+  - merTools dependency has been removed
+  - A new bootstrap method is available for compute GLM CIs.
+  - GLM prediction intervals may be computed (via simulation) for
+    Negative Binomial and Gamma models.

@@ -86,16 +86,16 @@ add_pi.lmerMod <- function(tb, fit,
     }
 
     if(type == "parametric")
-        parametric_pi_mermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
+        parametric_pi_lmermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
     else if(type == "boot")
-        boot_pi_mermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
+        boot_pi_lmermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else
         stop("Incorrect type specified!")
 
 }
 
 
-parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
+parametric_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
     
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
@@ -120,7 +120,7 @@ parametric_pi_mermod <- function(tb, fit, alpha, names, includeRanef, log_respon
 
 
 
-boot_pi_mermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
+boot_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef) 
         reform = NULL
