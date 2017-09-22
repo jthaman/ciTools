@@ -96,8 +96,6 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         name <- paste("prob_greater_than_or_equal", q, sep="")
     else if (is.null(name) && comparison == "=")
         name <- paste("prob_equal_to", q, sep="")
-    else
-        stop ("Cannot understand this probability statement")
 
     if ((name %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
@@ -108,10 +106,11 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         probs_logistic(tb, fit, q, name, yhatName, comparison)
     }
 
-    else if (fit$family$family == "poisson"){
+    if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
-        sim_probs_pois(tb, fit, q, name, yhatName, nSims, comparison)
-    }
+
+    else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma"))
+        sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
 
     else
         stop("This family is not supported")
@@ -131,7 +130,7 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
     tibble::as_data_frame(tb)
 }
 
-sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
+sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -140,11 +139,25 @@ sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
     fitted_values <- fit$family$linkinv
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+    overdisp <- summary(fit)$dispersion
 
     for (i in 1:nPreds){
+
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-            }
+            sim_response[i,] <- rpois(n = nSims,
+                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+        }
+        if(response_distr == "quasipoisson"){
+            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[i,] <- rnegbin(n = nSims,
+                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
+                                        theta = a)
+        }
+        if(response_distr == "Gamma"){
+            sim_response[i,] <- rgamma(n = nSims,
+                                       shape = 1/overdisp,
+                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
+        }
     }
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)

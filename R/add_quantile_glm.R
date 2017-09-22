@@ -74,13 +74,15 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
     if (fit$family$family == "binomial"){
        stop ("Quantiles for Logistic Regression don't make sense") 
     }
-    if (fit$family$family == "poisson"){
-        warning ("The response is not continuous, so estimated quantiles are only approximate")
-        sim_quantile_pois(tb, fit, p, name, yhatName, nSims)
+    if (fit$family$family %in% c("poisson", "qausipoisson"))
+        warning("The response is not continuous, so estimated quantiles are only approximate")
+
+    if (fit$family$family %in% c("poisson", "quasipoisson", "Gamma")){
+        sim_quantile_other(tb, fit, p, name, yhatName, nSims)
     }
 }
 
-sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
+sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -88,11 +90,24 @@ sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
     out <- predict(fit, newdata = tb, type = "response")
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+    overdisp <- summary(fit)$dispersion
 
     for (i in 1:nPreds){
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-            }
+            sim_response[i,] <- rpois(n = nSims,
+                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+        }
+        if(response_distr == "quasipoisson"){
+            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[i,] <- rnegbin(n = nSims,
+                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
+                                        theta = a)
+        }
+        if(response_distr == "Gamma"){
+            sim_response[i,] <- rgamma(n = nSims,
+                                       shape = 1/overdisp,
+                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
+        }
     }
 
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
@@ -101,6 +116,4 @@ sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
         tb[[yhatName]] <- out
     tb[[name]] <- quants
     tibble::as_data_frame(tb)
-
-
 }
