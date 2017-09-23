@@ -92,21 +92,23 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
 
-    for (i in 1:nPreds){
+    for (i in 1:nSims){
+
+        yhat <- inverselink(modmat %*% sims@coef[i,])
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims,
-                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+            sim_response[,i] <- rpois(n = nPreds,
+                                      lambda = yhat)
         }
         if(response_distr == "quasipoisson"){
-            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
-            sim_response[i,] <- rnegbin(n = nSims,
-                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
+            a <- inverselink (modmat %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[,i] <- rnegbin(n = nPreds,
+                                        mu = yhat,
                                         theta = a)
         }
         if(response_distr == "Gamma"){
-            sim_response[i,] <- rgamma(n = nSims,
+            sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
-                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
+                                       rate = 1/yhat * 1/overdisp)
         }
     }
 
