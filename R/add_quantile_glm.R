@@ -19,11 +19,14 @@
 #'
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
-#' compute the quantiles of the response of a Poisson regression with
-#' the \eqn{\log}-link function.
+#' compute the quantiles of the response of Poisson, Quasipoisson, or
+#' Gamma regression models.
 #'
 #' Quantiles of generalized linear models are determined by
-#' \code{add_quantile} through a simulation using \code{arm::sim}.
+#' \code{add_quantile} through a simulation using \code{arm::sim}. If
+#' a Quasipoisson regression model is fit, simulation using the
+#' Negative Binomial distribution is performed, see Gelman and Hill
+#' (2007).
 #'
 #' 
 #' @param tb A tibble or data frame of new data.
@@ -59,11 +62,12 @@
 #' # the number of simulations to run, and give the vector of
 #' # quantiles a custom name.
 #' add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
+#'
 #' 
 #' @export
 
 add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
-                             nSims = 200, ...){
+                             nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
@@ -84,7 +88,7 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
+    modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- predict(fit, newdata = tb, type = "response")

@@ -10,4 +10,4 @@
   - merTools dependency has been removed
   - A new bootstrap method is available for compute GLM CIs.
   - GLM prediction intervals may be computed (via simulation) for
-    Negative Binomial and Gamma models.
+    Quasipoisson and Gamma models.

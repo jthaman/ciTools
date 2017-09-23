@@ -20,15 +20,17 @@
 #' This is the method \code{add_probs} uses if the model fit is an
 #' object of class \code{glm}. Probabilities are determined through
 #' simulation, using the same method as \code{add_pi.glm}. Currently,
-#' only logistic and Poisson models are supported.
+#' only logistic, Poisson, Quasipoisson, and Gamma models are
+#' supported.
 #'
-#' Any of the five comparisons may be made for a Poisson model:
-#' \code{comparison = "<"}, \code{">"}, \code{"="}, \code{"<="}, or
-#' \code{">="}. For logistic regression, the comparison statement must
-#' be equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}.
+#' Any of the five comparisons may be made for a Poisson,
+#' quasipoisson, or Gamma model: \code{comparison = "<"}, \code{">"},
+#' \code{"="}, \code{"<="}, or \code{">="}. For logistic regression,
+#' the comparison statement must be equivalent to \eqn{Pr(Y|x = 0)} or
+#' \eqn{Pr(Y|x = 1)}.
 #'
-#' If \code{add_probs} is called on a Poisson model, a simulation is
-#' preformed using \code{arm::sim}.
+#' If \code{add_probs} is called on a Poisson, quasiPoisson or Gamma
+#' model, a simulation is performed using \code{arm::sim}.
 #'
 #' If \code{add_probs} is called on a logistic model, the fitted
 #' probabilities are used directly (no simulation is required).
@@ -82,10 +84,7 @@
 #' add_probs(cars, fit2, q = 1, comparison = "=")
 #' 
 #' @export
-
-add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
-                          comparison = "<", nSims = 200, ...){
-
+add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison = "<", nSims = 2000, ...){
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")
     else if (is.null(name) && comparison == ">")
@@ -109,7 +108,7 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
 
-    else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma"))
+    if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma"))
         sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
 
 }
@@ -130,7 +129,7 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
 
 sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
+    modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- inverselink(predict(fit, tb))

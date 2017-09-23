@@ -24,9 +24,10 @@
 #' Prediction intervals are generated through simulation with the aid
 #' \code{arm::sim}, which simulates the uncertainty in the regression
 #' coefficients. At the moment, only prediction intervals for Poisson,
-#' Quasipoisson, and Gamma(link = "inverse") GLMs are supported. Note
-#' that if the response is count data, prediction intervals are only
-#' approximate.
+#' Quasipoisson, and Gamma GLMs are supported. Note that if the
+#' response is count data, prediction intervals are only
+#' approximate. Simulation from the QuasiPoisson model is done with
+#' the negative binomial distribution, see Gelman and Hill (2007).
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -92,7 +93,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
+    modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- inverselink(predict(fit, tb))
