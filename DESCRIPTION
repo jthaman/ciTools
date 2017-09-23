@@ -25,7 +25,8 @@ Imports:
     magrittr,
     MASS,
     stats,
-    tibble
+    tibble,
+    utils
 Suggests:
     knitr,
     rmarkdown,

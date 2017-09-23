@@ -107,7 +107,7 @@
 |------------------+----------------------+----------------------+------------------------+--------------------|
 | Linear           | [X]                  | [X]                  | [X]                    | [X]                |
 | Log-Linear       | [X]                  | [X]                  | [X]                    | [X]                |
-| GLM              | [X]                  | [Several]            | [Poisson]              | [Poisson]          |
+| GLM              | [X]                  | [X]                  | [X]                    | [X]                |
 | Linear Mixed     | [X]                  | [X]                  | [X]                    | [X]                |
 | Log-Linear Mixed | [TODO]               | [X]                  | [X]                    | [X]                |
 | Survival         | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
