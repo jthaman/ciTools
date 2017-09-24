@@ -24,9 +24,10 @@
 #' Prediction intervals are generated through simulation with the aid
 #' \code{arm::sim}, which simulates the uncertainty in the regression
 #' coefficients. At the moment, only prediction intervals for Poisson,
-#' Quasipoisson, and Gamma(link = "inverse") GLMs are supported. Note
-#' that if the response is count data, prediction intervals are only
-#' approximate.
+#' Quasipoisson, and Gamma GLMs are supported. Note that if the
+#' response is count data, prediction intervals are only
+#' approximate. Simulation from the QuasiPoisson model is done with
+#' the negative binomial distribution, see Gelman and Hill (2007).
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -89,12 +90,10 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         stop("Only Simulated prediction intervals are implemented for glm objects")
 }
 
-## We might be able to get a more general solution if we use a
-## bootstrap
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
+    modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     out <- inverselink(predict(fit, tb))
@@ -102,25 +101,26 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
 
-    for (i in 1:nPreds){
+    for (i in 1:nSims){
+        yhat <- inverselink(modmat %*% sims@coef[i,])
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims,
-                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
+            sim_response[,i] <- rpois(n = nPreds,
+                                      lambda = yhat)
         }
         if(response_distr == "quasipoisson"){
-            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
-            sim_response[i,] <- rnegbin(n = nSims,
-                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
+            a <- inverselink (modmat %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[,i] <- rnegbin(n = nPreds,
+                                        mu = yhat,
                                         theta = a)
         }
         if(response_distr == "Gamma"){
-            sim_response[i,] <- rgamma(n = nSims,
+            sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
-                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
+                                       rate = 1/yhat * 1/overdisp)
         }
     }
 
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
     if(is.null(tb[[yhatName]]))
