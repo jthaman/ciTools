@@ -1,4 +1,5 @@
 * ciTools: An *R* Package for Quick Uncertainty Intervals
+  [[file:lmer.png]]
 ** Overview
    =ciTools= is an *R* package that makes working with model uncertainty
    as easy as possible. It gives the user easy access to confidence or
