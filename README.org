@@ -1,3 +1,4 @@
+#+STARTUP: noinlineimages
 * ciTools: An *R* Package for Quick Uncertainty Intervals
   [[file:lmer.png]]
 ** Overview
