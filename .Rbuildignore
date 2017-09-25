@@ -24,6 +24,7 @@ jss\.cls
 framed.sty
 a4wide.sty
 LICENSE
+lmer.png
 figure/.*
 cache/.*
 README.org
