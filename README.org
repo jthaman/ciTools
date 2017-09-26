@@ -75,7 +75,6 @@
      new_dat <- sleepstudy[sample(NROW(dat), 20),]
 
      ## Append (conditional) 50% CIs and PIs to the new data:
-     ## (Default method is bootstrap)
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
          add_pi(fit, alpha = 0.5)
 

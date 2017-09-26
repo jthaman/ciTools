@@ -1,6 +1,7 @@
 misc
 testsx
 CONTRIBUTING.org
+lmer.png
 do-roxy*
 ^.*\.Rproj$
 \.travis\.yml
