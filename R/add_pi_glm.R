@@ -77,7 +77,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     
     if(fit$family$family == "binomial")
-      if(max(fit$prior.weights == 1))
+      if(max(fit$prior.weights) == 1)
         stop("Prediction intervals for Bernoulli response variables aren't useful") else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
