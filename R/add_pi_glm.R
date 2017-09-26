@@ -77,7 +77,13 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     
     if(fit$family$family == "binomial")
-        stop("Prediction interval for Bernoulli response doesn't make sense")
+      if(max(fit$prior.weights == 1))
+        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          warning("The response variable is not continuous so Prediction Intervals are approximate")
+          
+        }
+          
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
@@ -102,23 +108,34 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
 
-    for (i in 1:nPreds){
-        if(response_distr == "poisson"){
-             sim_response[i,] <- rbinom(n = nSims,
-                                  p = inverselink(sims@coef[i,] %*% modmat[i,]))
-       }
+    if(response_distr == "binomial"){
+      out <- out * fit$prior.weights 
+      #Predict at best gives you the estimate for p. This returns the estimate for a binomail response with n > 1
+      for (i in 1:nPreds){
+            sim_response[i,] <- rbinom(n = nSims, 
+                                        size = fit$prior.weights,
+                                        p = inverselink(sims@coef[i,] %*% modmat[i,]))
+      }
+    }
       
-        if(response_distr == "poisson"){
+    if(response_distr == "poisson"){
+      for (i in 1:nPreds){
             sim_response[i,] <- rpois(n = nSims,
                                       lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
-        }
-        if(response_distr == "quasipoisson"){
+      }
+    }
+    
+    if(response_distr == "quasipoisson"){
+      for (i in 1:nPreds){
             a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
             sim_response[i,] <- rnegbin(n = nSims,
                                         mu = inverselink(sims@coef[i,] %*% modmat[i,]),
                                         theta = a)
-        }
-        if(response_distr == "Gamma"){
+      }
+    }
+    
+    if(response_distr == "Gamma"){
+      for (i in 1:nPreds){
             sim_response[i,] <- rgamma(n = nSims,
                                        shape = 1/overdisp,
                                        rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)

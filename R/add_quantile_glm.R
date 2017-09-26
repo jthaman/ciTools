@@ -20,7 +20,11 @@
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
 #' compute the quantiles of the response of a Poisson regression with
-#' the \eqn{\log}-link function.
+#' the \eqn{\log}-link function. 
+#' 
+#' Quantile esitmates for Bernoulli response variables (i.e., logistic 
+#' regression) are not supported. Such variables can only take two levels, 
+#' so the quantile esitmate is equivalent to 
 #'
 #' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}.
@@ -72,15 +76,26 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (fit$family$family == "binomial"){
-       stop ("Quantiles for Logistic Regression don't make sense") 
+      if(max(fit$prior.weights) == 1)
+        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          warning("The response variable is not continuous so Prediction Intervals are approximate")
+          
+        }
     }
+    
     if (fit$family$family == "poisson"){
-        warning ("The response is not continuous, so estimated quantiles are only approximate")
-        sim_quantile_pois(tb, fit, p, name, yhatName, nSims)
+        warning ("The response variable is not continuous, so estimated quantiles are onlyapproximate")
     }
+    if(type == "sim")
+      sim_quantile_glm(tb, fit, p, name, yhatName, nSims)
+    
+    else if(!(type %in% c("sim")))
+      stop("Only Simulated prediction intervals are implemented for glm objects")
+    
 }
 
-sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
+sim_quantile_glm <- function(tb, fit, p, name, yhatName, nSims){
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit)
     response_distr <- fit$family$family
@@ -89,9 +104,20 @@ sim_quantile_pois <- function(tb, fit, p, name, yhatName, nSims){
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
 
-    for (i in 1:nPreds){
-        if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+    if(response_distr == "binomial"){
+      out <- out * fit$prior.weights 
+      #Predict at best gives you the estimate for p. This returns the estimate for a binomail response with n > 1
+      for (i in 1:nPreds){
+        sim_response[i,] <- rbinom(n = nSims, 
+                                   size = fit$prior.weights,
+                                   p = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+      }
+    }
+    
+    if(response_distr == "poisson"){
+      for (i in 1:nPreds){
+            sim_response[i,] <- rpois(n = nSims, 
+                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
             }
     }
 
