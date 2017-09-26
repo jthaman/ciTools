@@ -66,7 +66,7 @@
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+add_quantile.glm <- function(tb, fit, p, type = "sim", name = NULL, yhatName = "pred",
                              nSims = 200, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
