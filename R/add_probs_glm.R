@@ -104,9 +104,14 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     }
 
     if (fit$family$family == "binomial"){
+      if(max(fit$prior.weights) == 1){
         warning ("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = ">" is specified)")
         probs_logistic(tb, fit, q, name, yhatName, comparison)
+      } else 
+        
     }
+    
+        
 
     else if (fit$family$family == "poisson"){
         warning("The response is not continuous, so estimated probabilities are approximate")
@@ -129,6 +134,36 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
         tb[[yhatName]] <- out
     tb[[name]] <- probs
     tibble::as_data_frame(tb)
+}
+
+probs_binom <- function(tb, fit, q, name, yhatName, comparison){
+  
+  nPreds <- NROW(tb)
+  modmat <- model.matrix(fit)
+  response_distr <- fit$family$family
+  inverselink <- fit$family$linkinv
+  out <- inverselink(predict(fit, tb))
+  fitted_values <- fit$family$linkinv
+  sims <- arm::sim(fit, n.sims = nSims)
+  sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+  
+  for (i in 1:nPreds){
+    if(response_distr == "poisson"){
+      sim_response[i,] <- rbinom(n = nSims, 
+                                 size = fit$prior.weights,
+                                 p = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+    }
+  }
+  
+  probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
+  
+  if(is.null(tb[[yhatName]]))
+    tb[[yhatName]] <- out
+  tb[[name]] <- probs
+  tibble::as_data_frame(tb)
+  
+  
+  
 }
 
 sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
