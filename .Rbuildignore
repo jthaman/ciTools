@@ -1,5 +1,6 @@
 misc
 testsx
+CONTRIBUTING.org
 do-roxy*
 ^.*\.Rproj$
 \.travis\.yml
