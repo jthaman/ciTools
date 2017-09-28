@@ -12,7 +12,10 @@
    or tibble, and the output of a method should always be a tibble.
 1. Each method (and functions pertaining directly to that method)
    belongs in a separate file.
-1. Think twice before adding a dependency and keep the number of
+1. Use existing interval estimation functions -- there is no 
+   reason to duplicate this effort. For example, add_ci.lm is just a 
+   wrapper around =predict.lm=.
+1. But twice before adding a dependency and keep the number of
    dependencies to a minimum. Only rely on other packages that are
    well trusted in the R ecosystem. Consider adding new dependencies
    to the "Enhances:" line of the DESCRIPTION file instead of the
