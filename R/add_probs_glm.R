@@ -110,7 +110,7 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
       } 
       else {
         warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
-        probs_binom(tb, fit, q, name, yhatName, comparison)
+        probs_binom(tb, fit, q, name, yhatName, nSims, comparison)
       }
         
     }
