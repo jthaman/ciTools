@@ -105,11 +105,13 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
 
     if (fit$family$family == "binomial"){
       if(max(fit$prior.weights) == 1){
-        warning ("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = ">" is specified)")
+        warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
         probs_logistic(tb, fit, q, name, yhatName, comparison)
-      } else 
+      } 
+      else {
         warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
         probs_binom(tb, fit, q, name, yhatName, comparison)
+      }
         
     }
     
