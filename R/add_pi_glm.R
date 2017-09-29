@@ -110,7 +110,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
 
     if(response_distr == "binomial"){
       out <- out * fit$prior.weights 
-      #Predict at best gives you the estimate for p. This returns the estimate for a binomail response with n > 1
+      #Predict at best gives you the estimate for p. This returns the estimate for a binomial response with n > 1
       for (i in 1:nPreds){
             sim_response[i,] <- rbinom(n = nSims, 
                                         size = fit$prior.weights,
