@@ -108,11 +108,12 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         warning ("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = ">" is specified)")
         probs_logistic(tb, fit, q, name, yhatName, comparison)
       } else 
+        warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+        probs_binom(tb, fit, q, name, yhatName, comparison)
         
     }
     
         
-
     else if (fit$family$family == "poisson"){
         warning("The response is not continuous, so estimated probabilities are approximate")
         sim_probs_pois(tb, fit, q, name, yhatName, nSims, comparison)
@@ -136,23 +137,20 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
     tibble::as_data_frame(tb)
 }
 
-probs_binom <- function(tb, fit, q, name, yhatName, comparison){
+probs_binom <- function(tb, fit, q, name, yhatName, nSims, comparison){
   
   nPreds <- NROW(tb)
   modmat <- model.matrix(fit)
   response_distr <- fit$family$family
   inverselink <- fit$family$linkinv
-  out <- inverselink(predict(fit, tb))
-  fitted_values <- fit$family$linkinv
+  out <- inverselink(predict(fit, tb)) * fit$prior.weights 
   sims <- arm::sim(fit, n.sims = nSims)
   sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
   
   for (i in 1:nPreds){
-    if(response_distr == "poisson"){
       sim_response[i,] <- rbinom(n = nSims, 
-                                 size = fit$prior.weights,
-                                 p = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-    }
+                                 size = fit$prior.weights[i],
+                                 p = inverselink(rnorm(nSims, sims@coef %*% modmat[i,], sd = sims@sigma)))
   }
   
   probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
@@ -178,7 +176,8 @@ sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
 
     for (i in 1:nPreds){
         if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
+            sim_response[i,] <- rpois(n = nSims, 
+                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
             }
     }
 
