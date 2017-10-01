@@ -97,7 +97,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     out <- predict(fit, newdata = tb, type = "response")
 
-    sim_response <- get_sim_reponse(tb, fit, nSims)
+    sim_response <- get_sim_response(tb, fit, nSims)
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)

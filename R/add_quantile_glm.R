@@ -96,8 +96,8 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
 
-    sim_response <- get_sim_reponse(tb, fit, nSims)
-
+    out <- predict(fit, newdata = tb, type = "response")
+    sim_response <- get_sim_response(tb, fit, nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
     if(is.null(tb[[yhatName]]))

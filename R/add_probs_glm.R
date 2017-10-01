@@ -135,7 +135,8 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
 
 sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
 
-    sim_response <- get_sim_reponse(tb, fit, nSims)
+    out <- predict(fit, newdata = tb, type = "response")
+    sim_response <- get_sim_response(tb, fit, nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
