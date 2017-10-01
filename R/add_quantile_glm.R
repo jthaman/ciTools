@@ -20,15 +20,15 @@
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
 #' compute the quantiles of the response of Poisson, Quasipoisson, or
-#' Gamma regression models.
-#'
+#' Gamma regression models.  Quantile esitmates for Bernoulli response
+#' variables (i.e., logistic regression) are not supported.
+#' 
 #' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}. If
 #' a Quasipoisson regression model is fit, simulation using the
 #' Negative Binomial distribution is performed, see Gelman and Hill
 #' (2007).
 #'
-#' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
@@ -76,7 +76,12 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     if (fit$family$family == "binomial"){
-       stop ("Quantiles for Logistic Regression don't make sense") 
+      if(max(fit$prior.weights) == 1)
+        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          warning("The response variable is not continuous so Prediction Intervals are approximate")
+          
+        }
     }
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
@@ -84,6 +89,12 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
     if (fit$family$family %in% c("poisson", "quasipoisson", "Gamma")){
         sim_quantile_other(tb, fit, p, name, yhatName, nSims)
     }
+    if(type == "sim")
+      sim_quantile_glm(tb, fit, p, name, yhatName, nSims)
+    
+    else if(!(type %in% c("sim")))
+      stop("Only Simulated prediction intervals are implemented for glm objects")
+    
 }
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
@@ -113,6 +124,12 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
             sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
                                        rate = 1/yhat * 1/overdisp)
+        }
+        if(response_distr == "binomial"){
+            yhat <- yhat * fit$prior.weights 
+            sim_response[,i] <- rbinom(n = nPreds, 
+                                       size = fit$prior.weights,
+                                       p = yhat)
         }
     }
 

@@ -42,7 +42,7 @@
 #'     made for each observation in tb
 #' @param log_response Logical. Default is \code{FALSE}. If
 #'     \code{TRUE}, confidence intervals will be generated for the
-#'     \emph{response level} of a log-linear model:  \eqn{\log(Y) =
+#'     \emph{response level} of a log-linear model:  \eqn{log(Y) =
 #'     X\beta + \epsilon}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower

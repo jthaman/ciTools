@@ -101,10 +101,16 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison
     }
 
     if (fit$family$family == "binomial"){
-        warning ("Be careful. You should only be asking probabilities that are equivalent to Pr(Y = 0) or Pr(Y = 1).")
+      if(max(fit$prior.weights) == 1){
+        warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
         probs_logistic(tb, fit, q, name, yhatName, comparison)
+      } 
+      else {
+        warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+        probs_binom(tb, fit, q, name, yhatName, nSims, comparison)
+      }
+        
     }
-
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
 
@@ -155,6 +161,12 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
             sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
                                        rate = 1/yhat * 1/overdisp)
+        }
+        if(response_distr == "binomial"){
+            yhat <- yhat * fit$prior.weights 
+            sim_response[,i] <- rbinom(n = nPreds, 
+                                       size = fit$prior.weights,
+                                       p = yhat)
         }
     }
 

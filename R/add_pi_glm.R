@@ -78,10 +78,16 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     
     if(fit$family$family == "binomial")
-        stop("Prediction interval for Bernoulli response doesn't make sense")
+      if(max(fit$prior.weights) == 1)
+        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          warning("The response variable is not continuous so Prediction Intervals are approximate")
+          
+        }
+          
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
-        warning("The response is not continuous, so Prediction Intervals are only approximate")
+        warning("The response is not continuous, so Prediction Intervals are approximate")
 
     if(type == "sim")
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
@@ -118,6 +124,13 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
                                        shape = 1/overdisp,
                                        rate = 1/yhat * 1/overdisp)
         }
+        if(response_distr == "binomial"){
+            out <- out * fit$prior.weights 
+            sim_response[,i] <- rbinom(n = nPreds, 
+                                       size = fit$prior.weights,
+                                       p = yhat)
+        }
+      
     }
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
