@@ -95,14 +95,30 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
+    out <- predict(fit, newdata = tb, type = "response")
+
+    sim_response <- get_sim_reponse(tb, fit, nSims)
+
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
+    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
+
+}
+
+get_sim_response <- function(tb, fit, nSims){
+
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
+    overdisp <- summary(fit)$dispersion
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-    overdisp <- summary(fit)$dispersion
-    out <- predict(fit, newdata = tb, type = "response")
 
     for (i in 1:nSims){
         yhat <- inverselink(modmat %*% sims@coef[i,])
@@ -127,17 +143,6 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
                                        size = fit$prior.weights,
                                        prob = yhat)
         }
-      
     }
-
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
-    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
-
+    sim_response
 }
-

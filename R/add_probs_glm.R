@@ -134,40 +134,8 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
 }
 
 sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit, data = tb)
-    response_distr <- fit$family$family
-    inverselink <- fit$family$linkinv
-    sims <- arm::sim(fit, n.sims = nSims)
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-    overdisp <- summary(fit)$dispersion
-    out <- predict(fit, newdata = tb, type = "response")
 
-    for (i in 1:nSims){
-
-        yhat <- inverselink(modmat %*% sims@coef[i,])
-        if(response_distr == "poisson"){
-            sim_response[,i] <- rpois(n = nPreds,
-                                      lambda = yhat)
-        }
-        if(response_distr == "quasipoisson"){
-            a <- inverselink (modmat %*% sims@coef[i,]) / (overdisp - 1)
-            sim_response[,i] <- rnegbin(n = nPreds,
-                                        mu = yhat,
-                                        theta = a)
-        }
-        if(response_distr == "Gamma"){
-            sim_response[,i] <- rgamma(n = nPreds,
-                                       shape = 1/overdisp,
-                                       rate = 1/yhat * 1/overdisp)
-        }
-        if(response_distr == "binomial"){
-            yhat <- yhat * fit$prior.weights 
-            sim_response[,i] <- rbinom(n = nPreds, 
-                                       size = fit$prior.weights,
-                                       prob = yhat)
-        }
-    }
+    sim_response <- get_sim_reponse(tb, fit, nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
