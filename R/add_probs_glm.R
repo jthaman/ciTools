@@ -86,15 +86,16 @@
 #' @export
 add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                           comparison = "<", nSims = 2000, ...){
-    if (is.null(name) && comparison == "<")
+
+    if (is.null(name) & (comparison == "<"))
         name <- paste("prob_less_than", q, sep="")
-    else if (is.null(name) && comparison == ">")
+    if (is.null(name) & (comparison == ">"))
         name <- paste("prob_greater_than", q, sep="")
-    else if (is.null(name) && comparison == "<=")
-        name <- paste("prob_less_than_or_equal", q, sep="")
-    else if (is.null(name) && comparison == ">=")
-        name <- paste("prob_greater_than_or_equal", q, sep="")
-    else if (is.null(name) && comparison == "=")
+    if (is.null(name) & (comparison == "<="))
+        name <- paste("prob_less_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == ">="))
+        name <- paste("prob_greater_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
 
     if ((name %in% colnames(tb))) {
@@ -114,14 +115,14 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
 
-    if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma"))
-        sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+
+    sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
 }
 
 probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
-    inverselink <- fit$family$linkinv
-    out <- predict(fit, tb, se.fit = TRUE)
-    out <- inverselink(out$fit)
+    out <- predict(fit, newdata = tb, type = "response")
     if (((comparison == "=") && (q == 0)) || ((comparison == "<") && (q < 1) && (q > 0)))
         probs <- 1 - out
     else
@@ -140,6 +141,7 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
+    out <- predict(fit, newdata = tb, type = "response")
 
     for (i in 1:nSims){
 
@@ -163,7 +165,7 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
             yhat <- yhat * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
-                                       p = yhat)
+                                       prob = yhat)
         }
     }
 

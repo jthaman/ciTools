@@ -88,6 +88,9 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
 
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+
     sim_quantile_other(tb, fit, p, name, yhatName, nSims)
 }
 
@@ -99,6 +102,7 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
+    out <- predict(fit, newdata = tb, type = "response")
 
     for (i in 1:nSims){
 
@@ -122,7 +126,7 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
             yhat <- yhat * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
-                                       p = yhat)
+                                       prob = yhat)
         }
     }
 

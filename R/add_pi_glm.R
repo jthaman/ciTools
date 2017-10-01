@@ -40,8 +40,6 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Currently \code{type = "sim"} is the only
-#'     valid string.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
@@ -80,14 +78,17 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     
     if(fit$family$family == "binomial")
       if(max(fit$prior.weights) == 1)
-        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          stop("Prediction intervals for Bernoulli response variables aren't useful")
+      else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
-          
         }
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
+
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
 
     sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
@@ -101,6 +102,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
+    out <- predict(fit, newdata = tb, type = "response")
 
     for (i in 1:nSims){
         yhat <- inverselink(modmat %*% sims@coef[i,])
@@ -123,7 +125,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
             yhat <- yhat * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
-                                       p = yhat)
+                                       prob = yhat)
         }
       
     }

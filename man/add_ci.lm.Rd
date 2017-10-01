@@ -27,7 +27,7 @@ made for each observation in tb}
 
 \item{log_response}{Logical. Default is \code{FALSE}. If
 \code{TRUE}, confidence intervals will be generated for the
-\emph{response level} of a log-linear model:  \eqn{\log(Y) =
+\emph{response level} of a log-linear model:  \eqn{log(Y) =
 X\beta + \epsilon}.}
 
 \item{...}{Additional arguments.}
