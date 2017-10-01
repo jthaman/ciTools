@@ -102,7 +102,12 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 
 parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     out <- predict(fit, tb, se.fit = TRUE, type = "link")
-    crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
+
+    if (fit$family$family %in% c("binomial", "poisson")) 
+        crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
+    else
+        crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
+
     inverselink <- fit$family$linkinv
 
     if (response){
