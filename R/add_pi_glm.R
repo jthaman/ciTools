@@ -26,8 +26,9 @@
 #' coefficients. At the moment, only prediction intervals for Poisson,
 #' Quasipoisson, and Gamma GLMs are supported. Note that if the
 #' response is count data, prediction intervals are only
-#' approximate. Simulation from the QuasiPoisson model is done with
-#' the negative binomial distribution, see Gelman and Hill (2007).
+#' approximate. Simulation from the QuasiPoisson model is performed
+#' with the negative binomial distribution, see Gelman and Hill
+#' (2007).
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -68,7 +69,7 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 2000, type = "sim", ...){
+                       nSims = 2000, ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -84,16 +85,11 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
           warning("The response variable is not continuous so Prediction Intervals are approximate")
           
         }
-          
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(type == "sim")
-        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
-    
-    else if(!(type %in% c("sim")))
-        stop("Only Simulated prediction intervals are implemented for glm objects")
+    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
 
@@ -102,7 +98,6 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
-    out <- inverselink(predict(fit, tb))
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
@@ -125,7 +120,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
                                        rate = 1/yhat * 1/overdisp)
         }
         if(response_distr == "binomial"){
-            out <- out * fit$prior.weights 
+            yhat <- yhat * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
                                        p = yhat)

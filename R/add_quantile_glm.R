@@ -75,26 +75,20 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
     if ((name %in% colnames(tb))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
+
     if (fit$family$family == "binomial"){
-      if(max(fit$prior.weights) == 1)
+        if(max(fit$prior.weights) == 1)
         stop("Prediction intervals for Bernoulli response variables aren't useful") else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
           
         }
     }
+
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
 
-    if (fit$family$family %in% c("poisson", "quasipoisson", "Gamma")){
-        sim_quantile_other(tb, fit, p, name, yhatName, nSims)
-    }
-    if(type == "sim")
-      sim_quantile_glm(tb, fit, p, name, yhatName, nSims)
-    
-    else if(!(type %in% c("sim")))
-      stop("Only Simulated prediction intervals are implemented for glm objects")
-    
+    sim_quantile_other(tb, fit, p, name, yhatName, nSims)
 }
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
@@ -102,7 +96,6 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
-    out <- predict(fit, newdata = tb, type = "response")
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion

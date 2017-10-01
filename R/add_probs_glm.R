@@ -84,7 +84,8 @@
 #' add_probs(cars, fit2, q = 1, comparison = "=")
 #' 
 #' @export
-add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison = "<", nSims = 2000, ...){
+add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
+                          comparison = "<", nSims = 2000, ...){
     if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")
     else if (is.null(name) && comparison == ">")
@@ -106,17 +107,15 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison
         probs_logistic(tb, fit, q, name, yhatName, comparison)
       } 
       else {
-        warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
-        probs_binom(tb, fit, q, name, yhatName, nSims, comparison)
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
       }
-        
     }
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
 
     if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma"))
         sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
-
 }
 
 probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
@@ -138,8 +137,6 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
-    out <- inverselink(predict(fit, tb))
-    fitted_values <- fit$family$linkinv
     sims <- arm::sim(fit, n.sims = nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     overdisp <- summary(fit)$dispersion
