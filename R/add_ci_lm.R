@@ -80,6 +80,7 @@ add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", lo
             warning ("These CIs may have already been appended to your dataframe. Overwriting.")
         }
         out <- predict(fit, tb, interval = "confidence", level = 1 - alpha)
+
         if(is.null(tb[[yhatName]]))
             tb[[yhatName]] <- out[, 1]
         if (is.null(tb[[names[1]]]))

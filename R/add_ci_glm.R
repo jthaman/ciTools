@@ -91,12 +91,13 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
+    
     if (type == "boot")
         boot_ci_glm(tb, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
         parametric_ci_glm(tb, fit, alpha, names, yhatName, response)
-    else
-        if(!(type %in% c("boot", "parametric"))) stop("Incorrect interval type specified!")
+    else 
+        stop("Incorrect interval type specified!")
 
 }
 
@@ -126,6 +127,7 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
         lwr <- out$fit - crit_val * out$se.fit
         pred <- out$fit
     }
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- pred
     tb[[names[1]]] <- lwr

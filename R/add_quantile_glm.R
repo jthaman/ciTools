@@ -81,7 +81,6 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
         stop("Prediction intervals for Bernoulli response variables aren't useful") else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
-          
         }
     }
 

@@ -127,15 +127,15 @@ get_sim_response <- function(tb, fit, nSims){
                                       lambda = yhat)
         }
         if(response_distr == "quasipoisson"){
-            a <- inverselink (modmat %*% sims@coef[i,]) / (overdisp - 1)
+            a <- yhat / (overdisp - 1)
             sim_response[,i] <- rnegbin(n = nPreds,
                                         mu = yhat,
                                         theta = a)
-        }
+            }
         if(response_distr == "Gamma"){
             sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
-                                       rate = 1/yhat * 1/overdisp)
+                                       rate = 1/(yhat *overdisp))
         }
         if(response_distr == "binomial"){
             yhat <- yhat * fit$prior.weights 
