@@ -15,7 +15,7 @@
 1. Use existing interval estimation functions -- there is no 
    reason to duplicate this effort. For example, add_ci.lm is just a 
    wrapper around =predict.lm=.
-1. But twice before adding a dependency and keep the number of
+1. But think twice before adding a dependency and keep the number of
    dependencies to a minimum. Only rely on other packages that are
    well trusted in the R ecosystem. Consider adding new dependencies
    to the "Enhances:" line of the DESCRIPTION file instead of the
