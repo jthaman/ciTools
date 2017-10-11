@@ -138,10 +138,10 @@ get_sim_response <- function(tb, fit, nSims){
                                        rate = 1/yhat * 1/overdisp)
         }
         if(response_distr == "binomial"){
-            yhat <- yhat * fit$prior.weights 
+            yhat <- inverselink(modmat %*% sims@coef[i,]) * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
-                                       prob = yhat)
+                                       prob = yhat / fit$prior.weights)
         }
     }
     sim_response
