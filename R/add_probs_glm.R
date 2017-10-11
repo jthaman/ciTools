@@ -127,6 +127,7 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
         probs <- 1 - out
     else
         probs <- out
+    if(response_distr == "binomial") out <- out * fit$prior.weights;
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[name]] <- probs
@@ -140,6 +141,10 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
+    if(response_distr == "binomial"){
+      out <- out * fit$prior.weights
+      warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+    }
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[name]] <- probs
