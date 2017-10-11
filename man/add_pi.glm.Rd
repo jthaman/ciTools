@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Generalized Linear Models}
 \usage{
 \method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", nSims = 2000, type = "sim", ...)
+  yhatName = "pred", nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -26,9 +26,6 @@ named \code{names[2]}.}
 \item{nSims}{A positive integer. Determines the number of
 simulations to run.}
 
-\item{type}{A string. Currently \code{type = "sim"} is the only
-valid string.}
-
 \item{...}{Additional arguments.}
 }
 \value{
@@ -44,9 +41,11 @@ class \code{glm}.
 Prediction intervals are generated through simulation with the aid
 \code{arm::sim}, which simulates the uncertainty in the regression
 coefficients. At the moment, only prediction intervals for Poisson,
-Quasipoisson, and Gamma(link = "inverse") GLMs are supported. Note
-that if the response is count data, prediction intervals are only
-approximate.
+Quasipoisson, and Gamma GLMs are supported. Note that if the
+response is count data, prediction intervals are only
+approximate. Simulation from the QuasiPoisson model is performed
+with the negative binomial distribution, see Gelman and Hill
+(2007).
 }
 \examples{
 # Fit a Poisson model

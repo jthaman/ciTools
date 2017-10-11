@@ -46,6 +46,7 @@
 #' @importFrom MASS rnegbin
 #' @importFrom boot boot
 #' @importFrom boot boot.ci
+#' @importFrom utils packageVersion
 #'
 #' @param tb A tibble or data frame of new data. \code{tb} can be
 #'     the original data or new data.

@@ -19,17 +19,16 @@
 #'
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
-#' compute the quantiles of the response of a Poisson regression with
-#' the \eqn{\log}-link function. 
+#' compute the quantiles of the response of Poisson, Quasipoisson, or
+#' Gamma regression models.  Quantile esitmates for Bernoulli response
+#' variables (i.e., logistic regression) are not supported.
 #' 
-#' Quantile esitmates for Bernoulli response variables (i.e., logistic 
-#' regression) are not supported. Such variables can only take two levels, 
-#' so the quantile esitmate is equivalent to 
-#'
 #' Quantiles of generalized linear models are determined by
-#' \code{add_quantile} through a simulation using \code{arm::sim}.
+#' \code{add_quantile} through a simulation using \code{arm::sim}. If
+#' a Quasipoisson regression model is fit, simulation using the
+#' Negative Binomial distribution is performed, see Gelman and Hill
+#' (2007).
 #'
-#' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
@@ -63,11 +62,12 @@
 #' # the number of simulations to run, and give the vector of
 #' # quantiles a custom name.
 #' add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
+#'
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, type = "sim", name = NULL, yhatName = "pred",
-                             nSims = 200, ...){
+add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+                             nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
@@ -75,58 +75,33 @@ add_quantile.glm <- function(tb, fit, p, type = "sim", name = NULL, yhatName = "
     if ((name %in% colnames(tb))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
+
     if (fit$family$family == "binomial"){
-      if(max(fit$prior.weights) == 1)
+        if(max(fit$prior.weights) == 1)
         stop("Prediction intervals for Bernoulli response variables aren't useful") else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
           
         }
     }
-    
-    if (fit$family$family == "poisson"){
-        warning ("The response variable is not continuous, so estimated quantiles are onlyapproximate")
-    }
-    if(type == "sim")
-      sim_quantile_glm(tb, fit, p, name, yhatName, nSims)
-    
-    else if(!(type %in% c("sim")))
-      stop("Only Simulated prediction intervals are implemented for glm objects")
-    
+
+    if (fit$family$family %in% c("poisson", "qausipoisson"))
+        warning("The response is not continuous, so estimated quantiles are only approximate")
+
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+
+    sim_quantile_other(tb, fit, p, name, yhatName, nSims)
 }
 
-sim_quantile_glm <- function(tb, fit, p, name, yhatName, nSims){
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
-    response_distr <- fit$family$family
-    inverselink <- fit$family$linkinv
+sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
+
     out <- predict(fit, newdata = tb, type = "response")
-    sims <- arm::sim(fit, n.sims = nSims)
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-
-    if(response_distr == "binomial"){
-      out <- out * fit$prior.weights 
-      #Predict at best gives you the estimate for p. This returns the estimate for a binomail response with n > 1
-      for (i in 1:nPreds){
-        sim_response[i,] <- rbinom(n = nSims, 
-                                   size = fit$prior.weights,
-                                   p = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-      }
-    }
-    
-    if(response_distr == "poisson"){
-      for (i in 1:nPreds){
-            sim_response[i,] <- rpois(n = nSims, 
-                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-            }
-    }
-
+    sim_response <- get_sim_response(tb, fit, nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[name]] <- quants
     tibble::as_data_frame(tb)
-
-
 }

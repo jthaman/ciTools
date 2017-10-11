@@ -30,8 +30,9 @@ for each observation in tb}
 the expected response; if \code{FALSE}, confidence intervals
 will be made on the scale of the linear predictor.}
 
-\item{type}{A string. Currently \code{type = "parametric"} is the
-only supported method.}
+\item{type}{A string. Must be \code{type = "parametric"} or
+\code{type = "boot"}. \code{type} determines the method used to
+compute the confidence intervals.}
 
 \item{nSims}{An integer. Number of simulations to perform if the
 bootstrap method is used.}

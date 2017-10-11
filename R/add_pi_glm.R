@@ -24,9 +24,11 @@
 #' Prediction intervals are generated through simulation with the aid
 #' \code{arm::sim}, which simulates the uncertainty in the regression
 #' coefficients. At the moment, only prediction intervals for Poisson,
-#' Quasipoisson, and Gamma(link = "inverse") GLMs are supported. Note
-#' that if the response is count data, prediction intervals are only
-#' approximate.
+#' Quasipoisson, and Gamma GLMs are supported. Note that if the
+#' response is count data, prediction intervals are only
+#' approximate. Simulation from the QuasiPoisson model is performed
+#' with the negative binomial distribution, see Gelman and Hill
+#' (2007).
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -38,8 +40,6 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Currently \code{type = "sim"} is the only
-#'     valid string.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
@@ -67,7 +67,7 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 2000, type = "sim", ...){
+                       nSims = 2000, ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -78,71 +78,28 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     
     if(fit$family$family == "binomial")
       if(max(fit$prior.weights) == 1)
-        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
+          stop("Prediction intervals for Bernoulli response variables aren't useful")
+      else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
-          
         }
-          
     
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(type == "sim")
-        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
-    
-    else if(!(type %in% c("sim")))
-        stop("Only Simulated prediction intervals are implemented for glm objects")
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+
+    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
-## We might be able to get a more general solution if we use a
-## bootstrap
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
-    response_distr <- fit$family$family
-    inverselink <- fit$family$linkinv
-    out <- inverselink(predict(fit, tb))
-    sims <- arm::sim(fit, n.sims = nSims)
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-    overdisp <- summary(fit)$dispersion
+    out <- predict(fit, newdata = tb, type = "response")
 
-    if(response_distr == "binomial"){
-      out <- out * fit$prior.weights 
-      #Predict at best gives you the estimate for p. This returns the estimate for a binomial response with n > 1
-      for (i in 1:nPreds){
-            sim_response[i,] <- rbinom(n = nSims, 
-                                        size = fit$prior.weights,
-                                        p = inverselink(sims@coef[i,] %*% modmat[i,]))
-      }
-    }
-      
-    if(response_distr == "poisson"){
-      for (i in 1:nPreds){
-            sim_response[i,] <- rpois(n = nSims,
-                                      lambda = inverselink(sims@coef[i,] %*% modmat[i,]))
-      }
-    }
-    
-    if(response_distr == "quasipoisson"){
-      for (i in 1:nPreds){
-            a <- inverselink (modmat[i,] %*% sims@coef[i,]) / (overdisp - 1)
-            sim_response[i,] <- rnegbin(n = nSims,
-                                        mu = inverselink(sims@coef[i,] %*% modmat[i,]),
-                                        theta = a)
-      }
-    }
-    
-    if(response_distr == "Gamma"){
-      for (i in 1:nPreds){
-            sim_response[i,] <- rgamma(n = nSims,
-                                       shape = 1/overdisp,
-                                       rate = 1/inverselink(sims@coef[i,] %*% modmat[i,]) * 1/overdisp)
-        }
-    }
+    sim_response <- get_sim_response(tb, fit, nSims)
 
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha / 2, type = 1)
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
     if(is.null(tb[[yhatName]]))
@@ -153,3 +110,39 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
 
 }
 
+get_sim_response <- function(tb, fit, nSims){
+
+    nPreds <- NROW(tb)
+    modmat <- model.matrix(fit, data = tb)
+    response_distr <- fit$family$family
+    inverselink <- fit$family$linkinv
+    overdisp <- summary(fit)$dispersion
+    sims <- arm::sim(fit, n.sims = nSims)
+    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+
+    for (i in 1:nSims){
+        yhat <- inverselink(modmat %*% sims@coef[i,])
+        if(response_distr == "poisson"){
+            sim_response[,i] <- rpois(n = nPreds,
+                                      lambda = yhat)
+        }
+        if(response_distr == "quasipoisson"){
+            a <- inverselink (modmat %*% sims@coef[i,]) / (overdisp - 1)
+            sim_response[,i] <- rnegbin(n = nPreds,
+                                        mu = yhat,
+                                        theta = a)
+        }
+        if(response_distr == "Gamma"){
+            sim_response[,i] <- rgamma(n = nPreds,
+                                       shape = 1/overdisp,
+                                       rate = 1/yhat * 1/overdisp)
+        }
+        if(response_distr == "binomial"){
+            yhat <- yhat * fit$prior.weights 
+            sim_response[,i] <- rbinom(n = nPreds, 
+                                       size = fit$prior.weights,
+                                       prob = yhat)
+        }
+    }
+    sim_response
+}

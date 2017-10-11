@@ -20,15 +20,17 @@
 #' This is the method \code{add_probs} uses if the model fit is an
 #' object of class \code{glm}. Probabilities are determined through
 #' simulation, using the same method as \code{add_pi.glm}. Currently,
-#' only logistic and Poisson models are supported.
+#' only logistic, Poisson, Quasipoisson, and Gamma models are
+#' supported.
 #'
-#' Any of the five comparisons may be made for a Poisson model:
-#' \code{comparison = "<"}, \code{">"}, \code{"="}, \code{"<="}, or
-#' \code{">="}. For logistic regression, the comparison statement must
-#' be equivalent to \eqn{Pr(Y|x = 0)} or \eqn{Pr(Y|x = 1)}.
+#' Any of the five comparisons may be made for a Poisson,
+#' quasipoisson, or Gamma model: \code{comparison = "<"}, \code{">"},
+#' \code{"="}, \code{"<="}, or \code{">="}. For logistic regression,
+#' the comparison statement must be equivalent to \eqn{Pr(Y|x = 0)} or
+#' \eqn{Pr(Y|x = 1)}.
 #'
-#' If \code{add_probs} is called on a Poisson model, a simulation is
-#' preformed using \code{arm::sim}.
+#' If \code{add_probs} is called on a Poisson, quasiPoisson or Gamma
+#' model, a simulation is performed using \code{arm::sim}.
 #'
 #' If \code{add_probs} is called on a logistic model, the fitted
 #' probabilities are used directly (no simulation is required).
@@ -82,22 +84,19 @@
 #' add_probs(cars, fit2, q = 1, comparison = "=")
 #' 
 #' @export
-
 add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
-                          comparison = "<", nSims = 200, ...){
+                          comparison = "<", nSims = 2000, ...){
 
-    if (is.null(name) && comparison == "<")
+    if (is.null(name) & (comparison == "<"))
         name <- paste("prob_less_than", q, sep="")
-    else if (is.null(name) && comparison == ">")
+    if (is.null(name) & (comparison == ">"))
         name <- paste("prob_greater_than", q, sep="")
-    else if (is.null(name) && comparison == "<=")
-        name <- paste("prob_less_than_or_equal", q, sep="")
-    else if (is.null(name) && comparison == ">=")
-        name <- paste("prob_greater_than_or_equal", q, sep="")
-    else if (is.null(name) && comparison == "=")
+    if (is.null(name) & (comparison == "<="))
+        name <- paste("prob_less_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == ">="))
+        name <- paste("prob_greater_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
-    else
-        stop ("Cannot understand this probability statement")
 
     if ((name %in% colnames(tb))) {
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
@@ -109,26 +108,21 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         probs_logistic(tb, fit, q, name, yhatName, comparison)
       } 
       else {
-        warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
-        probs_binom(tb, fit, q, name, yhatName, nSims, comparison)
+          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+          sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
       }
-        
     }
-    
-        
-    else if (fit$family$family == "poisson"){
-        warning("The response is not continuous, so estimated probabilities are approximate")
-        sim_probs_pois(tb, fit, q, name, yhatName, nSims, comparison)
-    }
+    if (fit$family$family %in% c("poisson", "qausipoisson"))
+        warning("The response is not continuous, so estimated probabilities are only approximate")
 
-    else
-        stop("This family is not supported")
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+
+    sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
 }
 
 probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
-    inverselink <- fit$family$linkinv
-    out <- predict(fit, tb, se.fit = TRUE)
-    out <- inverselink(out$fit)
+    out <- predict(fit, newdata = tb, type = "response")
     if (((comparison == "=") && (q == 0)) || ((comparison == "<") && (q < 1) && (q > 0)))
         probs <- 1 - out
     else
@@ -139,49 +133,10 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
     tibble::as_data_frame(tb)
 }
 
-probs_binom <- function(tb, fit, q, name, yhatName, nSims, comparison){
-  
-  nPreds <- NROW(tb)
-  modmat <- model.matrix(fit)
-  response_distr <- fit$family$family
-  inverselink <- fit$family$linkinv
-  out <- inverselink(predict(fit, tb)) * fit$prior.weights 
-  sims <- arm::sim(fit, n.sims = nSims)
-  sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-  
-  for (i in 1:nPreds){
-      sim_response[i,] <- rbinom(n = nSims, 
-                                 size = fit$prior.weights[i],
-                                 p = inverselink(rnorm(nSims, sims@coef %*% modmat[i,], sd = sims@sigma)))
-  }
-  
-  probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
-  
-  if(is.null(tb[[yhatName]]))
-    tb[[yhatName]] <- out
-  tb[[name]] <- probs
-  tibble::as_data_frame(tb)
-  
-  
-  
-}
+sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
 
-sim_probs_pois <- function(tb, fit, q, name, yhatName, nSims, comparison){
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit)
-    response_distr <- fit$family$family
-    inverselink <- fit$family$linkinv
-    out <- inverselink(predict(fit, tb))
-    fitted_values <- fit$family$linkinv
-    sims <- arm::sim(fit, n.sims = nSims)
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-
-    for (i in 1:nPreds){
-        if(response_distr == "poisson"){
-            sim_response[i,] <- rpois(n = nSims, 
-                                      lambda = inverselink(rnorm(nPreds,sims@coef[i,] %*% modmat[i,], sd = sims@sigma[i])))
-            }
-    }
+    out <- predict(fit, newdata = tb, type = "response")
+    sim_response <- get_sim_response(tb, fit, nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     

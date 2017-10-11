@@ -1,5 +1,7 @@
 misc
 testsx
+CONTRIBUTING.org
+lmer.png
 do-roxy*
 ^.*\.Rproj$
 \.travis\.yml
@@ -24,6 +26,7 @@ jss\.cls
 framed.sty
 a4wide.sty
 LICENSE
+lmer.png
 figure/.*
 cache/.*
 README.org

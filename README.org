@@ -1,4 +1,6 @@
+#+STARTUP: noinlineimages
 * ciTools: An *R* Package for Quick Uncertainty Intervals
+  [[file:lmer.png]]
 ** Overview
    =ciTools= is an *R* package that makes working with model uncertainty
    as easy as possible. It gives the user easy access to confidence or
@@ -20,7 +22,7 @@
 ** Main Components
    This package has three main features that make it useful to *R* users:
    - Data frame first design - Easily pipe commands together (great for ggplot users)
-   - Uniform syntax - all commands have that same simple syntax and sane defaults.
+   - Uniform syntax - all commands have the same simple syntax and sane defaults.
    - Generic design - One command for each statistical quantity
      
 *** All commands in =ciTools=:
@@ -73,7 +75,6 @@
      new_dat <- sleepstudy[sample(NROW(dat), 20),]
 
      ## Append (conditional) 50% CIs and PIs to the new data:
-     ## (Default method is bootstrap)
      new_dat <- add_ci(new_dat, fit, alpha = 0.5) %>%
          add_pi(fit, alpha = 0.5)
 
@@ -107,12 +108,13 @@
 |------------------+----------------------+----------------------+------------------------+--------------------|
 | Linear           | [X]                  | [X]                  | [X]                    | [X]                |
 | Log-Linear       | [X]                  | [X]                  | [X]                    | [X]                |
-| GLM              | [X]                  | [Poisson]            | [Poisson]              | [Poisson]          |
+| GLM              | [X]                  | [X]                  | [X]                    | [X]                |
 | Linear Mixed     | [X]                  | [X]                  | [X]                    | [X]                |
 | Log-Linear Mixed | [TODO]               | [X]                  | [X]                    | [X]                |
 | Survival         | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
 | GLMM             | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
 
+  [X] = Implemented
 ** Help us out?
    We still have work to do. Submit an Issue if you run into a bug, or
    a PR if you think you can help us out (see the TODO file).
