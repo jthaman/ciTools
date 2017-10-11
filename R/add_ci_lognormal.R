@@ -86,10 +86,8 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
     
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- pred
-    if (is.null(tb[[names[1]]]))
-        tb[[names[1]]] <- lwr
-    if (is.null(tb[[names[2]]]))
-        tb[[names[2]]] <- upr
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
 
     tibble::as_data_frame(tb)
 }
