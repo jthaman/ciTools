@@ -100,7 +100,7 @@ sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
     sim_response <- get_sim_response(tb, fit, nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
-    if(response_distr == "binomial"){
+    if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_quantile's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }

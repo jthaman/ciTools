@@ -103,7 +103,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
     
 
-    if(response_distr == "binomial"){
+    if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
