@@ -58,7 +58,7 @@ is the default. Only use the parametric method (\code{type =
 "parametric"}) if \code{fit} is a random intercept model,
 e.g. \code{fit = lmer(y ~ x + (1|group))}. If your model of
 interest is random slope and random intercept, use the parametric
-bootstrap metod (\code{type = "boot"}).
+bootstrap method (\code{type = "boot"}).
 }
 \examples{
 dat <- lme4::sleepstudy

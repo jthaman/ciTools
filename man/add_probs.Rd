@@ -56,7 +56,7 @@ in each method, consult:
 Note that the probabilities calculated by \code{add_probs} are on
 the distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use
 the same distribution from which a prediction interval is
-detmermined, not the distribution that determines a confidence
+determined, not the distribution that determines a confidence
 interval.
 }
 \examples{

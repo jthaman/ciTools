@@ -20,7 +20,7 @@
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
 #' compute the quantiles of the response of Poisson, Quasipoisson, or
-#' Gamma regression models.  Quantile esitmates for Bernoulli response
+#' Gamma regression models.  Quantile estimates for Bernoulli response
 #' variables (i.e., logistic regression) are not supported.
 #' 
 #' Quantiles of generalized linear models are determined by

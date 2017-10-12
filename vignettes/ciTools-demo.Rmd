@@ -52,7 +52,7 @@ the bug tracker](https://github.com/jthaman/ciTools/issues).
 [here](https://www.rdocumentation.org/packages/ciTools/versions/0.1.0)
 
 1. The main CRAN page for `ciTools` is
-[here](https://cran.r-project.org/web/packages/ciTools/index.html)
+[here](https://cran.r-project.org/package=ciTools)
 
 # Using `ciTools`
 
