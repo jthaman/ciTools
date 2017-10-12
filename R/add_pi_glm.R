@@ -101,7 +101,12 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
+    
 
+    if(fit$family$family == "binomial"){
+      out <- out * fit$prior.weights
+      warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+    }
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
@@ -138,10 +143,10 @@ get_sim_response <- function(tb, fit, nSims){
                                        rate = 1/(yhat *overdisp))
         }
         if(response_distr == "binomial"){
-            yhat <- yhat * fit$prior.weights 
+            yhat <- inverselink(modmat %*% sims@coef[i,]) * fit$prior.weights 
             sim_response[,i] <- rbinom(n = nPreds, 
                                        size = fit$prior.weights,
-                                       prob = yhat)
+                                       prob = yhat / fit$prior.weights)
         }
     }
     sim_response

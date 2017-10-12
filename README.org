@@ -22,7 +22,7 @@
 ** Main Components
    This package has three main features that make it useful to *R* users:
    - Data frame first design - Easily pipe commands together (great for ggplot users)
-   - Uniform syntax - all commands have that same simple syntax and sane defaults.
+   - Uniform syntax - all commands have the same simple syntax and sane defaults.
    - Generic design - One command for each statistical quantity
      
 *** All commands in =ciTools=:

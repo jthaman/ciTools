@@ -83,10 +83,8 @@ add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", lo
 
         if(is.null(tb[[yhatName]]))
             tb[[yhatName]] <- out[, 1]
-        if (is.null(tb[[names[1]]]))
-            tb[[names[1]]] <- out[, 2]
-        if (is.null(tb[[names[2]]]))
-            tb[[names[2]]] <- out[, 3]
+        tb[[names[1]]] <- out[, 2]
+        tb[[names[2]]] <- out[, 3]
         tibble::as_data_frame(tb)
     } 
 }
