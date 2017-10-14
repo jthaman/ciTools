@@ -24,6 +24,7 @@ Imports:
     lme4,
     magrittr,
     MASS,
+    Rdpack,
     stats,
     tibble,
     utils
@@ -31,8 +32,11 @@ Suggests:
     knitr,
     rmarkdown,
     tidyverse
-VignetteBuilder: rmarkdown,
+VignetteBuilder:
+    rmarkdown,
     knitr
+RdMacros:
+    Rdpack
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues
 License: GPL (>=3)
