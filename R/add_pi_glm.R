@@ -27,8 +27,7 @@
 #' Quasipoisson, and Gamma GLMs are supported. Note that if the
 #' response is count data, prediction intervals are only
 #' approximate. Simulation from the QuasiPoisson model is performed
-#' with the negative binomial distribution, see Gelman and Hill
-#' (2007).
+#' with the negative binomial distribution.
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -52,6 +51,10 @@
 #'     probabilities of \code{glm} objects, and
 #'     \code{\link{add_quantile.glm}} for response quantiles of
 #'     \code{glm} objects.
+#'
+#' @references
+#' On simulating predictions from certain GLMs (Poisson, Quasipoisson):
+#' \insertRef{gelman2007}{ciTools}
 #'
 #' @examples
 #' # Fit a Poisson model

@@ -58,6 +58,21 @@
 #'     \code{\link{add_quantile.lmerMod}} for response quantiles of
 #'     \code{lmerMod} objects.
 #'
+#' @references
+#' The linear mixed model definition:
+#' \insertRef{bates2010}{ciTools}
+#' 
+#' \insertRef{mccullochglmm}{ciTools}
+#'
+#' \insertRef{rencher2008}{ciTools}
+#'
+#' On the parametric bootstrap for mixed models: 
+#' \insertRef{glmm-faq}{ciTools}
+#'
+#' On parametric (asymptotic) prediction intervals:
+#' \insertRef{avery2017}{ciTools}
+#' 
+#'
 #' @examples
 #' dat <- lme4::sleepstudy
 #' # Fit a (random intercept) linear mixed model

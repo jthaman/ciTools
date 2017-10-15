@@ -25,8 +25,7 @@
 #' parametrically. This function is essentially a wrapper for
 #' \code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, confidence intervals
-#' for the response are calculated using Wald's Method. See Meeker and
-#' Escobar (1998) for details.
+#' for the response are calculated using Wald's Method.
 #'
 #' @param tb A tibble or data frame.
 #' @param fit An object of class \code{lm}. Predictions are made with this
@@ -54,6 +53,19 @@
 #'     \code{\link{add_quantile.lm}} for response quantiles of
 #'     \code{lm} objects.
 #'
+#' @references
+#' On the linear model:
+#' \insertRef{rencher2008}{ciTools}
+#'
+#' Parametric confidence intervals in linear models:
+#' \insertRef{neter1996}{ciTools}
+#'
+#' Log-Normal Confidence intervals:
+#' \insertRef{meeker2014}{ciTools}
+#'
+#' The delta method:
+#' \insertRef{casella2002}{ciTools}
+#'
 #' @examples
 #' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)
@@ -62,7 +74,7 @@
 #' add_ci(cars, fit)
 #' # Try a different confidence level
 #' add_ci(cars, fit, alpha = 0.5)
-#' # Try custom names for the confidence bounds 
+#' # Try custom names for the confidence bounds
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 #' 
 #' @export

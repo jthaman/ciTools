@@ -44,8 +44,7 @@ coefficients. At the moment, only prediction intervals for Poisson,
 Quasipoisson, and Gamma GLMs are supported. Note that if the
 response is count data, prediction intervals are only
 approximate. Simulation from the QuasiPoisson model is performed
-with the negative binomial distribution, see Gelman and Hill
-(2007).
+with the negative binomial distribution.
 }
 \examples{
 # Fit a Poisson model
@@ -57,6 +56,10 @@ add_pi(cars, fit, alpha = 0.5)
 # Try custom names for the prediction bounds (may be useful for plotting)
 add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 
+}
+\references{
+On simulating predictions from certain GLMs (Poisson, Quasipoisson):
+\insertRef{gelman2007}{ciTools}
 }
 \seealso{
 \code{\link{add_ci.glm}} for confidence intervals for

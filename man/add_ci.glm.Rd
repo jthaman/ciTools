@@ -75,7 +75,14 @@ add_ci(dat, fit2, alpha = 0.5, names = c("lwr", "upr"))
 
 }
 \references{
+For general theory of GLMs:
 \insertRef{nelder1972}{ciTools}
+
+On parametric confidence intervals:
+\insertRef{anderson2010}{ciTools}
+
+On bootstrap confidence intervals:
+\insertRef{fox2002linear}{ciTools}
 }
 \seealso{
 \code{\link{add_pi.glm}} for prediction intervals for

@@ -56,7 +56,15 @@
 #'     \code{glm} objects.
 #' 
 #' @references
+#' For general theory of GLMs:
 #' \insertRef{nelder1972}{ciTools}
+#' 
+#' On parametric confidence intervals:
+#' \insertRef{anderson2010}{ciTools}
+#'
+#' On bootstrap confidence intervals:
+#' \insertRef{fox2002linear}{ciTools}
+#' 
 #'
 #' @examples
 #' # Poisson regression

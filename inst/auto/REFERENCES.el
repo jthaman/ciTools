@@ -3,10 +3,12 @@
  (lambda ()
    (LaTeX-add-bibitems
     "meeker2014"
+    "glmm-faq"
     "R-manual"
     "rencher2008"
     "nelder1972"
     "bates2010"
+    "avery2017"
     "mccullochglmm"
     "fox2002linear"
     "land1971confidence"

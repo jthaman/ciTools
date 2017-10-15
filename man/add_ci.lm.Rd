@@ -46,8 +46,7 @@ Confidence intervals for \code{lm} objects are calculated
 parametrically. This function is essentially a wrapper for
 \code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
 linear model. If \code{log_response = TRUE}, confidence intervals
-for the response are calculated using Wald's Method. See Meeker and
-Escobar (1998) for details.
+for the response are calculated using Wald's Method.
 }
 \examples{
 # Fit a linear model
@@ -57,9 +56,22 @@ fit <- lm(dist ~ speed, data = cars)
 add_ci(cars, fit)
 # Try a different confidence level
 add_ci(cars, fit, alpha = 0.5)
-# Try custom names for the confidence bounds 
+# Try custom names for the confidence bounds
 add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 
+}
+\references{
+On the linear model:
+\insertRef{rencher2008}{ciTools}
+
+Parametric confidence intervals in linear models:
+\insertRef{neter1996}{ciTools}
+
+Log-Normal Confidence intervals:
+\insertRef{meeker2014}{ciTools}
+
+The delta method:
+\insertRef{casella2002}{ciTools}
 }
 \seealso{
 \code{\link{add_pi.lm}} for prediction intervals for

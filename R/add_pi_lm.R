@@ -54,6 +54,13 @@
 #'     \code{\link{add_quantile.lm}} for response quantiles of
 #'     \code{lm} objects.
 #'
+#' @references
+#' On linear model intervals:
+#' \insertRef{neter1996}{ciTools}
+#'
+#' On forming prediction intervals for log-linear models:
+#' \insertRef{gelman2007}{ciTools}
+#'
 #' @examples
 #' # Fit a linear model
 #' fit <- lm(dist ~ speed, data = cars)

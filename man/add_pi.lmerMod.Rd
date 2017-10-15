@@ -71,6 +71,20 @@ add_pi(dat, fit, alpha = 0.5)
 add_pi(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE)
 
 }
+\references{
+The linear mixed model definition:
+\insertRef{bates2010}{ciTools}
+
+\insertRef{mccullochglmm}{ciTools}
+
+\insertRef{rencher2008}{ciTools}
+
+On the parametric bootstrap for mixed models: 
+\insertRef{glmm-faq}{ciTools}
+
+On parametric (asymptotic) prediction intervals:
+\insertRef{avery2017}{ciTools}
+}
 \seealso{
 \code{\link{add_ci.lmerMod}} for confidence intervals
     for \code{lmerMod} objects, \code{\link{add_probs.lmerMod}} for

@@ -65,6 +65,13 @@ add_pi(cars, fit, alpha = 0.5)
 # Add custom names to the prediction bounds.
 add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 }
+\references{
+On linear model intervals:
+\insertRef{neter1996}{ciTools}
+
+On forming prediction intervals for log-linear models:
+\insertRef{gelman2007}{ciTools}
+}
 \seealso{
 \code{\link{add_ci.lm}} for confidence intervals for
     \code{lm} objects. \code{\link{add_probs.lm}} for conditional

@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
+## Special thanks to Dr. Rebecca Dickins for her derivations of the
+## confidence intervals of E[Y|x] in a log-Normal model.
+
 get_sigma_mle <- function(tb, fit, alpha){
     X <- model.matrix(fit)
     n <- NROW(X)
