@@ -54,8 +54,9 @@
 #'     probabilities of \code{glm} objects, and
 #'     \code{\link{add_quantile.glm}} for response quantiles of
 #'     \code{glm} objects.
+#' 
 #' @references
-#' \insertRef{nelder1972}{Rdpack}
+#' \insertRef{nelder1972}{ciTools}
 #'
 #' @examples
 #' # Poisson regression

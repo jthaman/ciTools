@@ -74,6 +74,9 @@ add_ci(dat, fit2, alpha = 0.5, names = c("lwr", "upr"))
 
 
 }
+\references{
+\insertRef{nelder1972}{ciTools}
+}
 \seealso{
 \code{\link{add_pi.glm}} for prediction intervals for
     \code{glm} objects, \code{\link{add_probs.glm}} for conditional
