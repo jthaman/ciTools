@@ -116,9 +116,9 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
           sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
         }
     
-      } else{
-      if (fit$family$family %in% c("poisson", "qausipoisson"))
-        warning("The response is not continuous, so estimated probabilities are only approximate")
+    } else {
+        if (fit$family$family %in% c("poisson", "qausipoisson"))
+            warning("The response is not continuous, so estimated probabilities are only approximate")
         sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
     }
 }

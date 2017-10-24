@@ -75,9 +75,10 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     }
     if ((names[1] %in% colnames(tb))) 
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-    
+
+        
     if(fit$family$family == "binomial")
-      if(max(fit$prior.weights) == 1)
+        if(max(fit$prior.weights) == 1)
           stop("Prediction intervals for Bernoulli response variables aren't useful")
       else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
@@ -87,12 +88,31 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         stop("Unsupported family")
 
-    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
+    if(fit$family$family == "gaussian")
+        pi_gaussian(tb, fit, alpha, names, yhatName)
+    else
+        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
+pi_gaussian <- function(tb, fit, alpha, names, yhatName){
+    sigma_sq <- summary(fit)$dispersion
+    inverselink <- fit$family$linkinv
+    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    se_terms <- out$se.fit
+    t_quant <- qt(p = alpha/2, df = fit$df.residual, lower.tail = FALSE)
+    se_global <- sqrt(sigma_sq + se_terms^2)
+    lwr <- out$fit - t_quant * se_global
+    upr <- out$fit + t_quant * se_global
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- inverselink(out$fit)
+    tb[[names[1]]] <- inverselink(lwr)
+    tb[[names[2]]] <- inverselink(upr)
+    tibble::as_data_frame(tb)
+}
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     out <- predict(fit, newdata = tb, type = "response")
