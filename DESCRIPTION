@@ -2,7 +2,7 @@ Package: ciTools
 Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
     for Statistical Models
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     email = "mail@johnhaman.org"),
     person("Matthew", "Avery", role = "aut",

@@ -86,11 +86,29 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
 
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
-
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+    
+    if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial"))){
+        sim_quantile_other(tb, fit, p, name, yhatName, nSims)
+    } else if (fit$family$family == "gaussian"){
+        quant_gaussian(tb, fit, p, name, yhatName)
+    } else {
         stop("Unsupported family")
+    }
+}
 
-    sim_quantile_other(tb, fit, p, name, yhatName, nSims)
+quant_gaussian <- function(tb, fit, p, name, yhatName){
+    sigma_sq <- summary(fit)$dispersion
+    inverselink <- fit$family$linkinv
+    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    se_terms <- out$se.fit
+    t_quant <- qt(p = p, df = fit$df.residual, lower.tail = TRUE)
+    se_global <- sqrt(sigma_sq + se_terms^2)
+    quant <- out$fit + t_quant * se_global
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- inverselink(out$fit)
+    tb[[name]] <- inverselink(quant)
+    tibble::as_data_frame(tb)
 }
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){

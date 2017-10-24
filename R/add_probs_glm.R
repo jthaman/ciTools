@@ -87,10 +87,7 @@
 add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                           comparison = "<", nSims = 2000, ...){
 
-  if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
-    stop("Unsupported family")
-  
-  if (is.null(name) & (comparison == "<"))
+    if (is.null(name) & (comparison == "<"))
         name <- paste("prob_less_than", q, sep="")
     if (is.null(name) & (comparison == ">"))
         name <- paste("prob_greater_than", q, sep="")
@@ -101,28 +98,51 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
 
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(tb)))
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
-    }
+    if (fit$family$family %in% c("poisson", "quasipoisson"))
+        warning("The response is not continuous, so estimated probabilities are only approximate")
 
     if (fit$family$family == "binomial"){
-      if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
-        warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
-        probs_logistic(tb, fit, q, name, yhatName, comparison)
-      
+        if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
+            warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
+            probs_logistic(tb, fit, q, name, yhatName, comparison)
+            
         } else {
-          warning("Treating weights as indicating the number of trials for a 
+            warning("Treating weights as indicating the number of trials for a 
                   binomial regression where the response is the proportion of successes")
-          sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+            sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
         }
-    
-    } else {
-        if (fit$family$family %in% c("poisson", "qausipoisson"))
-            warning("The response is not continuous, so estimated probabilities are only approximate")
+        
+    } else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma")){
         sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+    } else if (fit$family$family == "gaussian"){
+        probs_gaussian(tb, fit, q, name, yhatName, comparison)
+    } else {
+        stop("Unsupported family")
     }
+
 }
 
+probs_gaussian <- function(tb, fit, q, name, yhatName, comparison){
+    sigma_sq <- summary(fit)$dispersion
+    inverselink <- fit$family$linkinv
+    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    se_terms <- out$se.fit
+    se_global <- sqrt(sigma_sq + se_terms^2)
+    t_quantile <- (q - out$fit) / se_global
+
+    if (comparison %in% c("<", "<="))
+        t_prob <- pt(q = t_quantile, df = fit$df.residual)
+    if (comparison %in% c(">", ">="))
+        t_prob <- 1 - pt(q = t_quantile, df = fit$df.residual)
+    if (comparison == "=")
+        stop("The response is assumed to be continuous -- the probability of this event is 0")
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- inverselink(out$fit)
+    tb[[name]] <- t_prob
+    tibble::as_data_frame(tb)
+}
 
 probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
     out <- predict(fit, newdata = tb, type = "response")
@@ -144,8 +164,8 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
     if(fit$family$family == "binomial"){
-      out <- out * fit$prior.weights
-      warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+        out <- out * fit$prior.weights
+        warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out

@@ -116,17 +116,15 @@ pi_gaussian <- function(tb, fit, alpha, names, yhatName){
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     out <- predict(fit, newdata = tb, type = "response")
-
     sim_response <- get_sim_response(tb, fit, nSims)
-
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-    
 
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
