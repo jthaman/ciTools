@@ -34,6 +34,13 @@
 #'
 #' If \code{add_probs} is called on a logistic model, the fitted
 #' probabilities are used directly (no simulation is required).
+#'
+#' If \code{add_probs} is called on a Gaussian GLM, the returned
+#' probabilities are identical to those given by
+#' \code{add_probs.lm}. In this case, the comparisons \code{<} and
+#' \code{<=} are identical (likewise for \code{>} and \code{>=}). If
+#' the comparison \code{=} is used in the Gaussian GLM, an informative
+#' error is returned.
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with

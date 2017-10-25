@@ -19,15 +19,21 @@
 #'
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
-#' compute the quantiles of the response of Poisson, Quasipoisson, or
-#' Gamma regression models.  Quantile estimates for Bernoulli response
-#' variables (i.e., logistic regression) are not supported.
+#' compute the quantiles of the response of Poisson, Quasipoisson,
+#' Gamma, or Gaussian regression models.  Quantile estimates for
+#' Bernoulli response variables (i.e., logistic regression) are not
+#' supported.
 #' 
 #' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}. If
 #' a Quasipoisson regression model is fit, simulation using the
 #' Negative Binomial distribution is performed, see Gelman and Hill
 #' (2007).
+#'
+#' If \code{add_quantile.glm} is called on a Gaussian GLM with
+#' identity link function, the returned quantiles are identical to
+#' those of \code{add_quantile.lm}. If a different link function is
+#' used, the appropriate inverse transformation is applied.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
