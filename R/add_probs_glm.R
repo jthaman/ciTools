@@ -87,10 +87,10 @@
 add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                           comparison = "<", nSims = 2000, ...){
 
-  if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
-    stop("Unsupported family")
-  
-  if (is.null(name) & (comparison == "<"))
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        stop("Unsupported family")
+    
+    if (is.null(name) & (comparison == "<"))
         name <- paste("prob_less_than", q, sep="")
     if (is.null(name) & (comparison == ">"))
         name <- paste("prob_greater_than", q, sep="")
@@ -106,19 +106,19 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     }
 
     if (fit$family$family == "binomial"){
-      if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
-        warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
-        probs_logistic(tb, fit, q, name, yhatName, comparison)
-      
+        if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
+            warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
+            probs_logistic(tb, fit, q, name, yhatName, comparison)
+            
         } else {
-          warning("Treating weights as indicating the number of trials for a 
+            warning("Treating weights as indicating the number of trials for a 
                   binomial regression where the response is the proportion of successes")
-          sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+            sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
         }
-    
-      } else{
-      if (fit$family$family %in% c("poisson", "qausipoisson"))
-        warning("The response is not continuous, so estimated probabilities are only approximate")
+        
+    } else{
+        if (fit$family$family %in% c("poisson", "qausipoisson"))
+            warning("The response is not continuous, so estimated probabilities are only approximate")
         sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
     }
 }
@@ -144,8 +144,8 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
     
     if(fit$family$family == "binomial"){
-      out <- out * fit$prior.weights
-      warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+        out <- out * fit$prior.weights
+        warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out

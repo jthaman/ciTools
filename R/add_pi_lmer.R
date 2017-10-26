@@ -76,7 +76,7 @@
 add_pi.lmerMod <- function(tb, fit, 
                            alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "parametric", includeRanef = TRUE,
-                           log_response = FALSE, nSims = 200, ...) {
+                           log_response = FALSE, nSims = 5000, ...) {
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")

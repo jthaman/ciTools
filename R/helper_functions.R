@@ -96,11 +96,11 @@ calc_prob <- function(x, quant, comparison){
 }
 
 my_pred_full <- function(fit) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL)
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, type = "response")
 }
 
 my_pred_fixed <- function(fit) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA)
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, type = "reponse")
 }
 
 boot_quants <- function(merBoot, alpha) {

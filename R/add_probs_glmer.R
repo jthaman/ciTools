@@ -15,39 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Prediction Intervals for Generalized Linear Mixed Model Predictions
+#' Response Probabilities for Generalized Linear Mixed Model Predictions
 #'
-#' This function is one of the methods for \code{add_pi}, and is
-#' called automatically when \code{add_pi} is used on a \code{fit} of
+#' This function is one of the methods for \code{add_probs}, and is
+#' called automatically when \code{add_probs} is used on a \code{fit} of
 #' class \code{glmerMod}. 
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
-#' @param names \code{NULL} or character vector of length two. If
-#'     \code{NULL}, prediction bounds automatically will be named by
-#'     \code{add_pi}, otherwise, the lower prediction bound will be
-#'     named \code{names[1]} and the upper prediction bound will be
-#'     named \code{names[2]}.
+#' @param name \code{NULL} or character vector of length one. If
+#'     \code{NULL}, response probabilities automatically will be named
+#'     by \code{add_probs},
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Must be \code{"boot"},
-#'     If \code{type = "boot"}, then \code{add_ci} calls
-#'     \code{lme4::bootMer} to calculate the confidence
-#'     intervals. 
+#' @param type A string. Must be \code{"boot"}, If \code{type =
+#'     "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
+#'     calculate the probabilities.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
 #'     included.
 #' @param nSims A positive integer.  Controls the number of bootstrap
-#'     replicates. 
+#'     replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
-#'     prediction bounds attached.
+#'     confidence bounds attached.
 #'
-#' @seealso \code{\link{add_ci.glmerMod}} for confidence intervals
-#'     of \code{glmerMod} objects, \code{\link{add_probs.glmerMod}} for
-#'     conditional probabilities of \code{glmerMod} objects, and
+#' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
+#'     of \code{glmerMod} objects, \code{\link{add_ci.glmerMod}} for
+#'     confidence intervals of \code{glmerMod} objects, and
 #'     \code{\link{add_quantile.glmerMod}} for response quantiles of
 #'     \code{glmerMod} objects.
 #'
@@ -59,10 +56,10 @@
 #'
 #' @export
 
-add_pi.glmerMod <- function(tb, fit, 
-                            alpha = 0.05, names = NULL, yhatName = "pred",
-                            type = "boot", includeRanef = TRUE,
-                            nSims = 10000, ...){
+add_probs.glmerMod <- function(tb, fit, 
+                               q, names = NULL, yhatName = "pred",
+                               type = "boot", includeRanef = TRUE,
+                               nSims = 10000, ...){
 
     if (!is.null(fit@optinfo$conv$lme4$code))
         warning ("Coverage probabilities may be inaccurate if the model failed to converge")
@@ -70,21 +67,28 @@ add_pi.glmerMod <- function(tb, fit,
     if(fit@resp$family$family == "binomial")
         stop("Prediction Intervals are not useful if the response is Bernoulli")
 
-    if (is.null(names)){
-        names[1] <- paste("LPB", alpha/2, sep = "")
-        names[2] <- paste("UPB", 1 - alpha/2, sep = "")
-    }
-    if ((names[1] %in% colnames(tb))) {
+    if (is.null(name) & (comparison == "<"))
+        name <- paste("prob_less_than", q, sep="")
+    if (is.null(name) & (comparison == ">"))
+        name <- paste("prob_greater_than", q, sep="")
+    if (is.null(name) & (comparison == "<="))
+        name <- paste("prob_less_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == ">="))
+        name <- paste("prob_greater_than_or_equal_to", q, sep="")
+    if (is.null(name) & (comparison == "="))
+        name <- paste("prob_equal_to", q, sep="")
+
+    if ((name %in% colnames(tb))) {
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
     if (type == "boot")
-        bootstrap_pi_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_probs_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
 
-bootstrap_pi_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_probs_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
 
     if (includeRanef) { 
         rform = NULL
@@ -95,18 +99,13 @@ bootstrap_pi_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
     }
         
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
-
     gg <- as.matrix(gg)
-    lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
-    upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
-
+    probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
     out <- predict(fit, tb, re.form = rform, type = "response")
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-
+    tb[[name]] <- probs
     tibble::as_data_frame(tb)
 }
 

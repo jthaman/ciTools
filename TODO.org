@@ -1,5 +1,4 @@
 * Short Term
-- Add more GLMs to add_pi
 - Perform and sim study and compile a vignette for GLM intervals
 - Convert this list to github issues
 - incorporate method to handle offset terms (these are common in GLMs)
