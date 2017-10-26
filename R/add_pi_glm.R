@@ -77,10 +77,10 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     }
     if ((names[1] %in% colnames(tb))) 
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-
+    
         
     if(fit$family$family == "binomial")
-        if(max(fit$prior.weights) == 1)
+      if(max(fit$prior.weights) == 1)
           stop("Prediction intervals for Bernoulli response variables aren't useful")
       else {
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
@@ -96,7 +96,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family == "gaussian")
         pi_gaussian(tb, fit, alpha, names, yhatName)
     else
-        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
+    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
 pi_gaussian <- function(tb, fit, alpha, names, yhatName){
@@ -121,7 +121,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sim_response <- get_sim_response(tb, fit, nSims)
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-
+    
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
@@ -156,7 +156,7 @@ get_sim_response <- function(tb, fit, nSims){
             sim_response[,i] <- rnegbin(n = nPreds,
                                         mu = yhat,
                                         theta = a)
-            }
+        }
         if(response_distr == "Gamma"){
             sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
@@ -168,6 +168,13 @@ get_sim_response <- function(tb, fit, nSims){
                                        size = fit$prior.weights,
                                        prob = yhat / fit$prior.weights)
         }
+        if(response_distr == "gaussian"){
+          yhat <- inverselink(modmat %*% sims@coef[i,])
+          sim_response[,i] <- rnorm(n = nPreds, 
+                                     mean = yhat,
+                                     sd = overdisp)
+        }
+        
     }
     sim_response
 }
