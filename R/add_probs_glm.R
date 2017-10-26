@@ -137,7 +137,7 @@ probs_gaussian <- function(tb, fit, q, name, yhatName, comparison){
     out <- predict(fit, newdata = tb, se.fit = TRUE)
     se_terms <- out$se.fit
     se_global <- sqrt(sigma_sq + se_terms^2)
-    t_quantile <- (q - out$fit) / se_global
+    t_quantile <- (q - inverselink(out$fit)) / se_global
 
     if (comparison %in% c("<", "<="))
         t_prob <- pt(q = t_quantile, df = fit$df.residual)
