@@ -18,13 +18,13 @@
 #' Response Probabilities for Generalized Linear Mixed Model Predictions
 #'
 #' This function is one of the methods for \code{add_probs}, and is
-#' called automatically when \code{add_probs} is used on a \code{fit} of
-#' class \code{glmerMod}. 
+#' called automatically when \code{add_probs} is used on a \code{fit}
+#' of class \code{glmerMod}. Probabilities are approximate and
+#' determined via a simulation.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
-#' @param alpha A real number between 0 and 1. Controls the confidence
-#'     level of the interval estimates.
+#' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or character vector of length one. If
 #'     \code{NULL}, response probabilities automatically will be named
 #'     by \code{add_probs},
@@ -39,8 +39,8 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
-#'     confidence bounds attached.
+#' @return A tibble, \code{tb}, with predicted values and estimated
+#'     probabilities attached.
 #'
 #' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
 #'     of \code{glmerMod} objects, \code{\link{add_ci.glmerMod}} for

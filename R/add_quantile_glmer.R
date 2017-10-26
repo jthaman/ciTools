@@ -23,8 +23,8 @@
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
-#' @param alpha A real number between 0 and 1. Controls the confidence
-#'     level of the interval estimates.
+#' @param p A real number between 0 and 1. Sets the probability level
+#'     of the quantiles.
 #' @param name \code{NULL} or a string. If \code{NULL}, quantile
 #'     automatically will be named by \code{add_quantile}
 #' @param yhatName A string. Name of the predictions vector.

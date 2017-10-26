@@ -19,7 +19,8 @@
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{glmerMod}.
+#' class \code{glmerMod}. Confidence intervals are approximate and
+#' determined via simulation.
 #'
 #' 
 #' @param tb A tibble or data frame of new data.

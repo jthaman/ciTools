@@ -19,7 +19,8 @@
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{glmerMod}. 
+#' class \code{glmerMod}. Prediction intervals are approximate and
+#' determined by simulation.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
