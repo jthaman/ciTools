@@ -44,7 +44,6 @@
 #'     quantiles automatically will be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}.
 #' @param yhatName A string. Name of the vector of predictions.
-#' @param type A string.
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
@@ -73,7 +72,7 @@
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred", type = "boot", 
+add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
                              nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -85,18 +84,19 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred", type = 
 
     if (fit$family$family == "binomial"){
         if(max(fit$prior.weights) == 1)
-        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
-          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
-          warning("The response variable is not continuous so Prediction Intervals are approximate")
+            stop("Prediction intervals for Bernoulli response variables aren't useful")
+        else {
+            warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+            warning("The response variable is not continuous so Prediction Intervals are approximate")
         }
     }
 
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
     
-    if (fit$family$family == "gaussian" & type == "parametric"){
+    if (fit$family$family == "gaussian"){
         quant_gaussian(tb, fit, p, name, yhatName)}
-    else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
+    else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
         sim_quantile_other(tb, fit, p, name, yhatName, nSims)
     else 
         stop("Unsupported family")

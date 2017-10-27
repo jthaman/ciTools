@@ -42,7 +42,6 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
@@ -70,7 +69,7 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 2000, type = "boot", ...){
+                       nSims = 2000,  ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -91,10 +90,10 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
         stop("Unsupported family")
 
-    if(fit$family$family == "gaussian" && type == "parametric") 
+    if(fit$family$family == "gaussian") 
         pi_gaussian(tb, fit, alpha, names, yhatName)
     else
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
@@ -133,7 +132,6 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)
-
 }
 
 get_sim_response <- function(tb, fit, nSims){
