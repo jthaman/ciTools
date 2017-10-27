@@ -90,7 +90,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         stop("Unsupported family")
 
     if(fit$family$family == "gaussian") 
