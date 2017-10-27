@@ -51,6 +51,7 @@
 #'     the probabilities will be named \code{name} in the returned
 #'     tibble
 #' @param yhatName A string. Name of the vector of predictions.
+#' @param type A string.
 #' @param comparison A character vector of length one. If
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
 #'     calculated. Any comparison is allowed in Poisson regression,
@@ -91,7 +92,7 @@
 #' add_probs(cars, fit2, q = 1, comparison = "=")
 #' 
 #' @export
-add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
+add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred", type = "boot",
                           comparison = "<", nSims = 2000, ...){
 
     if (is.null(name) & (comparison == "<"))
@@ -120,15 +121,13 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                   binomial regression where the response is the proportion of successes")
             sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
         }
-        
-    } else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma")){
-        sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
-    } else if (fit$family$family == "gaussian"){
+    } else if (fit$family$family == "gaussian" & type == "parametric"){
         probs_gaussian(tb, fit, q, name, yhatName, comparison)
+    } else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma", "gaussian")){
+        sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
     } else {
         stop("Unsupported family")
     }
-
 }
 
 probs_gaussian <- function(tb, fit, q, name, yhatName, comparison){

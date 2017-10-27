@@ -42,6 +42,7 @@
 #'     named \code{names[1]} and the upper prediction bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
+#' @param type A string.
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
@@ -69,7 +70,7 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 2000, ...){
+                       nSims = 2000, type = "boot", ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -93,10 +94,10 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         stop("Unsupported family")
 
-    if(fit$family$family == "gaussian")
+    if(fit$family$family == "gaussian" && type == "parametric") 
         pi_gaussian(tb, fit, alpha, names, yhatName)
     else
-    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
+        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
 pi_gaussian <- function(tb, fit, alpha, names, yhatName){
@@ -106,13 +107,13 @@ pi_gaussian <- function(tb, fit, alpha, names, yhatName){
     se_terms <- out$se.fit
     t_quant <- qt(p = alpha/2, df = fit$df.residual, lower.tail = FALSE)
     se_global <- sqrt(sigma_sq + se_terms^2)
-    lwr <- out$fit - t_quant * se_global
-    upr <- out$fit + t_quant * se_global
+    lwr <- inverselink(out$fit) - t_quant * se_global
+    upr <- inverselink(out$fit) + t_quant * se_global
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- inverselink(out$fit)
-    tb[[names[1]]] <- inverselink(lwr)
-    tb[[names[2]]] <- inverselink(upr)
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)
 }
 
@@ -171,8 +172,8 @@ get_sim_response <- function(tb, fit, nSims){
         if(response_distr == "gaussian"){
           yhat <- inverselink(modmat %*% sims@coef[i,])
           sim_response[,i] <- rnorm(n = nPreds, 
-                                     mean = yhat,
-                                     sd = overdisp)
+                                    mean = yhat,
+                                    sd = sqrt(overdisp))
         }
         
     }

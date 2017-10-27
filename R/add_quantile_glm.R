@@ -44,6 +44,7 @@
 #'     quantiles automatically will be named by \code{add_quantile},
 #'     otherwise, they will be named \code{name}.
 #' @param yhatName A string. Name of the vector of predictions.
+#' @param type A string.
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
@@ -72,7 +73,7 @@
 #' 
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred", type = "boot", 
                              nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -93,13 +94,12 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
     
-    if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian"))){
+    if (fit$family$family == "gaussian" & type == "parametric"){
+        quant_gaussian(tb, fit, p, name, yhatName)}
+    else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         sim_quantile_other(tb, fit, p, name, yhatName, nSims)
-    # } else if (fit$family$family == "gaussian"){
-    #     quant_gaussian(tb, fit, p, name, yhatName)
-    } else {
+    else 
         stop("Unsupported family")
-    }
 }
 
 quant_gaussian <- function(tb, fit, p, name, yhatName){
@@ -109,11 +109,11 @@ quant_gaussian <- function(tb, fit, p, name, yhatName){
     se_terms <- out$se.fit
     t_quant <- qt(p = p, df = fit$df.residual, lower.tail = TRUE)
     se_global <- sqrt(sigma_sq + se_terms^2)
-    quant <- out$fit + t_quant * se_global #THIS IS WRONG. NEED TO FIGURE OUT THE CORRECT EXPRESSION
+    quant <- inverselink(out$fit) + t_quant * se_global
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- inverselink(out$fit)
-    tb[[name]] <- inverselink(quant)
+    tb[[name]] <- quant
     tibble::as_data_frame(tb)
 }
 
