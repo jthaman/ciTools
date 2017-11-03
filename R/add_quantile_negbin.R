@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Quantiles for the Response of a Negative Binomial Model
+#' Quantiles for the Response of a Negative Binomial Regression
 #'
 #' This function is one of the methods of \code{add_quantile}.
 #' 
