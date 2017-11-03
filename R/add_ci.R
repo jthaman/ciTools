@@ -44,6 +44,7 @@
 #' @importFrom arm se.ranef
 #' @importFrom arm sim
 #' @importFrom MASS rnegbin
+#' @importFrom MASS mvrnorm
 #' @importFrom boot boot
 #' @importFrom boot boot.ci
 #' @importFrom utils packageVersion
