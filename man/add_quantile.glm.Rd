@@ -68,8 +68,8 @@ add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
 
 }
 \seealso{
-\code{\link{add_ci.lm}} for confidence intervals for
-    \code{lm} objects, \code{\link{add_pi.lm}} for prediction
-    intervals of \code{lm} objects, and \code{\link{add_probs.lm}}
-    for response probabilities of \code{lm} objects.
+\code{\link{add_ci.glm}} for confidence intervals for
+    \code{gglm} objects, \code{\link{add_pi.glm}} for prediction
+    intervals of \code{glm} objects, and \code{\link{add_probs.glm}}
+    for response probabilities of \code{glm} objects.
 }

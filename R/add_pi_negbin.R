@@ -102,7 +102,7 @@ sim_pi_negbin <- function(tb, fit, alpha, names, yhatName, nSims){
 }
 
 ## modification of arm::sim that will accept an negative binomial fit.
-get_negbin_sims <- function(fit, n.sims=nSims) {
+get_negbin_sims <- function(fit, nSims) {
     summ <- summary (fit, correlation=TRUE, dispersion = fit$dispersion)
     coef <- summ$coef[,1:2,drop=FALSE]
     dimnames(coef)[[2]] <- c("coef.est","coef.sd")
@@ -112,17 +112,17 @@ get_negbin_sims <- function(fit, n.sims=nSims) {
     n <- summ$df[1] + summ$df[2]
     k <- summ$df[1]
     V.beta <- corr.beta * array(sd.beta,c(k,k)) * t(array(sd.beta,c(k,k)))
-    beta <- array (NA, c(n.sims,k))
+    beta <- array (NA, c(nSims,k))
     dimnames(beta) <- list (NULL, dimnames(beta.hat)[[1]])
 
-    for (s in 1:n.sims){
+    for (s in 1:nSims){
         beta[s,] <- MASS::mvrnorm (1, beta.hat, V.beta)
     }
 
-    beta2 <- array (0, c(n.sims,length(coefficients(fit))))
+    beta2 <- array (0, c(nSims,length(coefficients(fit))))
     dimnames(beta2) <- list (NULL, names(coefficients(fit)))
     beta2[,dimnames(beta2)[[2]]%in%dimnames(beta)[[2]]] <- beta
-    sigma <- rep (sqrt(summ$dispersion), n.sims)
+    sigma <- rep (sqrt(summ$dispersion), nSims)
 
     ans <- new("sim",
                coef = beta2,
@@ -136,7 +136,7 @@ get_sim_response_nb <- function(tb, fit, nSims){
     modmat <- model.matrix(fit, data = tb)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
-    sims <- get_negbin_sims(fit, n.sims = nSims)
+    sims <- get_negbin_sims(fit, nSims)
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
 
     for (i in 1:nSims){
