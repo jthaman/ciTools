@@ -158,10 +158,17 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
                      fit = fit,
                      lvl = lvl)
 
-    raw_boot <- boot_obj$t
+    temp_mat <- matrix(0, ncol = 2, nrow = NROW(tb))
+    for (i in 1:NROW(tb)){
+        temp_mat[i,] <- boot.ci(boot_obj, type = "bca", conf = 1 - alpha, index = i)$bca[4:5]
+    }
+    lwr <- temp_mat[,1]
+    upr <- temp_mat[,2]
 
-    lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
-    upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
+    ## raw_boot <- boot_obj$t
+
+    ## lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
+    ## upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out

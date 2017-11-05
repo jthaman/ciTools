@@ -1,5 +1,5 @@
 #' ---
-#' title: Using ciTools with Generalized Linear Models
+#' title: Generalized Linear Models with `ciTools`
 #' author: John Haman
 #' date: November 2, 2017
 #' output:
@@ -9,8 +9,11 @@
 
 #+ echo=FALSE
 library(tidyverse)
+#+ echo=FALSE
 library(ciTools)
+#+ echo=FALSE
 library(MASS)
+#+ echo=FALSE
 library(arm)
 set.seed(20171102)
 
@@ -43,8 +46,7 @@ set.seed(20171102)
 #' which transforms the linear predictor: $\hat{y} = g^{-1}(X \beta)$.
 #'
 #' 4. A response distribution: $f(y|\mu)$ from the exponential family
-#' with mean $\mu = g^{-1} (X \beta)$ and a variance $\mathrm{Var}(y) =
-#' f(\mu)$.
+#' with mean $\mu = g^{-1} (X \beta)$.
 #' 
 #' Other components, such as over dispersion parameters and off-set
 #' terms are possible, but not common to all GLMs. The most common
@@ -78,10 +80,9 @@ set.seed(20171102)
 #' models is more complicated than fitting linear models. In **R**,
 #' `glm` is the starting point for handling GLM fits, and is the
 #' currently the only model fitting function that is supported by
-#' `ciTools`. We can use `glm` to fit Logistic, Poisson, Quasipoisson,
-#' Gamma and Guassian GLMs. All of these models are handled by
-#' `ciTools`.
-#'
+#' `ciTools`. We can use `ciTools` in tendem with `glm` to fit and
+#' analyze Logistic, Poisson, Quasipoisson, Gamma and Guassian models.
+#' 
 #' # Overview of `ciTools` methods for GLMs
 #'
 #' Unlike linear models, interval estimates pertaining to GLMs
@@ -101,22 +102,50 @@ set.seed(20171102)
 #' and transforms the intervals to the response level through the
 #' inverse link function $g^{-1}$. Confidence intervals on the linear
 #' predictor level are computed using a Normal distribution for
-#' Logistic and Poisson regressions and a $t$ distribution otherwise.
+#' Logistic and Poisson regressions and a $t$ distribution
+#' otherwise. The intervals are given by the following equations:
+#'
+#' $$
+#' \begin{equation}
+#' g^{-1}\left(x'\hat{\beta} \pm z_{1 - \alpha/2}
+#'   \sqrt{\hat{\sigma}^2x'(X'X)^{-1} x}\right)
+#' \end{equation}
+#' $$
+#' 
+#' for Binomial and Poisson GLMs or
+#' 
+#' $$
+#' \begin{equation}
+#'   \label{eq:glmci}
+#'   g^{-1}\left(x'\hat{\beta} \pm t_{1 - \alpha/2, n-p-1}
+#' \sqrt{\hat{\sigma}^2x'(X'X)^{-1} x}\right)
+#' \end{equation}
+#' $$
 #'
 #' The default method is parametric and is called with `add_ci(data,
 #' fit, ...)`. This is the method we generally recommend for
 #' constructing confidence intervals for model prediction. The
 #' bootstrap method is called with `add_ci(data, fit, type = "boot",
 #' ...)` and is included mostly for making comparisons against the
-#' parametric method. Note that there are multiple methods of
-#' bootstrap for regression models (resampling cases, resampling
-#' residuals, parametric, etc.). The bootstrap method employed by
-#' `ciTools` in `add_ci.glm()` resamples cases and iteratively refits
-#' the model to determine confidence intervals.
+#' parametric method. There are multiple methods of bootstrap for
+#' regression models (resampling cases, resampling residuals,
+#' parametric, etc.). The bootstrap method employed by `ciTools` in
+#' `add_ci.glm()` resamples cases and iteratively refits the model to
+#' determine confidence intervals. After collecting the bootstrap
+#' replicates, a bias-corrected bootstrap confidence interval is formed.
 #'
+#' There are several methods for computing bootstrap confidence
+#' interval, though we don't provide options to compute all of these
+#' type of intervals in `ciTools`. BCa intervals are slightly larger
+#' than parametric intervals, but are less biased than other types of
+#' bootstrapped intervals, including percentile based intervals. We
+#' may consider adding more types of bootstrap intervals to `ciTools`
+#' in the future.
+#'
+#' ### Logistic Regression Example
+#' 
 #' For comparison, we show an example of the confidence intervals for
 #' the probability estimates of a Logistic regression model.
-#'
 #' 
 x <- rnorm(100, mean = 5)
 y <- rbinom(n = 100, size = 1, prob = invlogit(-20 + 4*x))
@@ -125,18 +154,14 @@ fit <- glm(y ~ x, family = binomial)
 
 #' We use `ciTools` to compute the two type of confidence intervals,
 #' then we stack the dataframes together.
-df1 <- add_ci(df, fit, names = c("lwr", "upr")) %>%
+
+df1 <- add_ci(df, fit, names = c("lwr", "upr"), alpha = 0.1) %>%
     mutate(type = "parametric")
 
-df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), nSims = 500) %>%
+df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSims = 500) %>%
     mutate(type = "bootstrap")
 df <- bind_rows(df1, df2)
 
-#' This shows that there is a some difference between the parametric
-#' method and the bootstrap method. However, the intervals disagree
-#' the most where the estimated probability is close to $0$ or
-#' $1$. When the estimated probability is moderate, we find that the
-#' interval estimates essentially overlap.
 
 #+ fig.width = 10, fig.heither = 7, fig.align = "center"
 ggplot(df, aes(x = x, y = y)) +
@@ -145,6 +170,10 @@ ggplot(df, aes(x = x, y = y)) +
     geom_line(aes(x =x , y = pred), size = 2) +
     facet_grid(~type)
 
+#' Our two confidence interval methods mostly agree, although the
+#' bootstrap method produces interval estimates that have more
+#' variability.
+
 df3 <- filter(df, type == "parametric")
 
 df4 <- filter(df, type == "bootstrap") %>%
@@ -152,21 +181,20 @@ df4 <- filter(df, type == "bootstrap") %>%
     bind_cols(df3)
 
 #' Another perspective on the difference between these two interval
-#' calculation methods. Notice that although the bootstrap intervals
-#' are computed with an iterative method, the intervals contours are
-#' smooth.
-
+#' calculation methods. It's a fairly clear that the BCa intervals
+#' indeed exhibit little bias.
+#' 
 #+ fig.width = 9, fig.heither = 7, fig.align = "center"
 ggplot(df4, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
-    geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
+    geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
     geom_line(aes(x = x , y = pred), size = 2)
 #'
 #' If the sample increases, we will find that the two estimates
 #' increasingly agree and converge to $0$ in width. Note that we do
 #' not calculate prediction intervals for $y$ because the support of
-#' $y$ is exactly $\{0,1\}$.
+#' $y$ is exactly $\{0,1\}$. 
 #'
 #' ## Prediction Intervals
 #'
@@ -273,8 +301,8 @@ fit <- glm(y ~ x , family = poisson(link = "log"))
 #' non-continuous distributions.
 
 df_ints <- df %>% 
-    add_ci(fit, names = c("lcb", "ucb")) %>%
-    add_pi(fit, names = c("lpb", "upb")) %>%
+    add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
+    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) %>%
     print()
 
 #' As with other methods available in `ciTools` the requested
@@ -339,6 +367,20 @@ df %>%
 #' that classical parameterization in applications. The preferences
 #' stems from the fact that it allows for a real valued "$\theta$".
 #'
+#' Warning: As in Gelman and Hill's *Data Analysis using Regression
+#' and Multilevel/Hierarchical Model*, `ciTools` does not simulate the
+#' uncertainty in the over-dispersion parameter
+#' $\hat{\phi}$. According to our simulations, dropping this
+#' unceratinty from the parameter bootstrap has a negligible effect on
+#' the coverage probabilities. While the distribution of $\hat{\phi}$
+#' is asymptotically Normal, it is very likely that the finite sample
+#' estimator has a skewed distribution. Approximating this
+#' distribution for use in a parametric bootstrap is ongoing
+#' research. As it stands, the prediction intervals we form for
+#' over-dispersed models tend to be conservative.
+#'
+#' ### Example
+#' 
 #' Again, we generate fake data.
 #' 
 x <- runif(100, 0, 2)
@@ -351,8 +393,8 @@ fit <- glm(y ~ x, family = quasipoisson(link = "log"))
 summary(fit)$dispersion
 
 #' But `ciTools` can still construct appropriate intervals:
-df_ints <- add_ci(df, fit, names = c("lcb", "ucb")) %>%
-    add_pi(fit, names = c("lpb", "upb")) 
+df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
+    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) 
 
 #+ fig.width = 10, fig.heither = 7, fig.align="center"
 ggplot(df_ints, aes(x = x, y = y)) +
@@ -361,13 +403,6 @@ ggplot(df_ints, aes(x = x, y = y)) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.2)
 
-
-#' ## Other non-linear models
+#' ## Simulation Study
 #'
-#' Traditional negative binomial model fits are currently not
-#' compatible with `ciTools`. While these models are similar to
-#' Quasipoisson models, they require a different model fitting
-#' algorithm than the IWLS method implemented in `glm`. Robust *t*
-#' models can be fit with the `hett` package and are also not
-#' supported by `ciTools` at this time. These models are fairly common
-#' and we hope to support them in the future. 
+#' TODO
