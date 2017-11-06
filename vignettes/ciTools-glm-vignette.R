@@ -43,10 +43,11 @@ set.seed(20171102)
 #' 2. A linear predictor $X \beta$
 #' 
 #' 3. A monotonic and everywhere differentiable link function $g$,
-#' which transforms the linear predictor: $\hat{y} = g^{-1}(X \beta)$.
+#' which transforms the linear predictor: $\hat{y} = g^{-1}(X
+#' \hat{\beta})$.
 #'
 #' 4. A response distribution: $f(y|\mu)$ from the exponential family
-#' with mean $\mu = g^{-1} (X \beta)$.
+#' with expected value $\mu = g^{-1} (X \beta)$.
 #' 
 #' Other components, such as over dispersion parameters and off-set
 #' terms are possible, but not common to all GLMs. The most common
@@ -60,7 +61,7 @@ set.seed(20171102)
 #' \begin{split}
 #' & y|X  \sim \mathrm{Binomial}(1, p) \\
 #' & g(p) = \log \left( \frac{p}{1-p} \right) = X\beta \\
-#' & \mathrm{E}[y|X] = p = \frac{\exp(X \beta)}{ 1 + \exp(X \beta)}
+#' & \mathbb{E}[y|X] = p = \frac{\exp(X \beta)}{ 1 + \exp(X \beta)}
 #' \end{split}
 #' \end{equation}
 #' $$
@@ -71,7 +72,7 @@ set.seed(20171102)
 #' \begin{split}
 #' & y|X  \sim \mathrm{Poisson}(\lambda) \\
 #' & g(\lambda) = \log \left( \lambda \right) = X\beta \\
-#' & \mathrm{E}[y|X] = \lambda = \exp(X \beta)
+#' & \mathbb{E}[y|X] = \lambda = \exp(X \beta)
 #' \end{split}
 #' \end{equation}
 #' $$
@@ -182,7 +183,8 @@ df4 <- filter(df, type == "bootstrap") %>%
 
 #' Another perspective on the difference between these two interval
 #' calculation methods. It's a fairly clear that the BCa intervals
-#' indeed exhibit little bias.
+#' (red) indeed exhibit little bias, but are still not as tight as the
+#' parametric intervals (purple).
 #' 
 #+ fig.width = 9, fig.heither = 7, fig.align = "center"
 ggplot(df4, aes(x = x, y = y)) +
@@ -201,9 +203,9 @@ ggplot(df4, aes(x = x, y = y)) +
 #' Generally, parametric prediction intervals for GLMs are not
 #' available. The solution `ciTools` takes is to perform a parametric
 #' bootstrap on the model fit, then take quantiles on the bootstrapped
-#' data produced for each observation. The procedure is performed
-#' through the function `arm::sim`. The method of the parametric
-#' bootstrap is described by the following algorithm:
+#' data produced for each observation. The procedure is performed via
+#' `arm::sim`. The method of the parametric bootstrap is described by
+#' the following algorithm:
 #' 
 #' 1. Fit the GLM, and collect the fitted responses. Set the number of
 #' simulations, $M$.
@@ -270,9 +272,9 @@ ggplot(df4, aes(x = x, y = y)) +
 #' \end{equation}
 #' $$
 #'
-#' Where, as in the linear model, $\hat{\sigma}^2$ estimates the
+#' for Gaussian GLMs. As in the linear model, $\hat{\sigma}^2$ estimates the
 #' predictive uncertainty and $\hat{\sigma}^2 x(X'X)^{-1}x$ estimates
-#' the uncertainty in the regression coefficients. Note that $g^{-1}(X
+#' the inferential uncertainty in the fitted values. Note that $g^{-1}(X
 #' \hat{\beta})$ is a maximum likelihood estimate for the parameter
 #' $g^{-1}(X \beta)$, by the functional invariance of maximum
 #' likelihood estimation.
@@ -285,7 +287,7 @@ ggplot(df4, aes(x = x, y = y)) +
 #' we fit a model on fake data.
 #'
 #'
-#' We use rnorm to generate the a covariate, the randomness of $x$ has
+#' We use `rnorm` to generate a covariate, but the randomness of $x$ has
 #' no bearing on the model.
 #' 
 x <- rnorm(100, mean = 0)
@@ -296,8 +298,8 @@ fit <- glm(y ~ x , family = poisson(link = "log"))
 
 #' As seen previously, the commands in `ciTools` are "pipeable". Here,
 #' we compute confidence and prediction intervals for a model fit at
-#' the default level of $95\%$. The warning message only serves to
-#' remind the user the precise quantiles cannot be formed for
+#' the level of $90\%$. The warning message only serves to
+#' remind the user that precise quantiles cannot be formed for
 #' non-continuous distributions.
 
 df_ints <- df %>% 
@@ -340,38 +342,38 @@ df %>%
 #' over-dispersion. Recall that for the Poisson model, we require that
 #' the variance and mean agree, however this is practically a strict
 #' and unreasonable modeling assumption. A quasipoisson model is one
-#' remedy: it estimates a scale parameter as well and will provide a
-#' better fit. Under quasipoisson assumption
+#' remedy: it estimates an additional dispersion parameter and will
+#' provide a better fit. Under quasipoisson assumption
 #'
 #' $$
-#' E[y|X] = \mu = \exp (X \beta)
+#' \mathbb{E}[y|X] = \mu = \exp (X \beta)
 #' $$
 #'
 #' and
 #'
 #' $$
-#' Var[y|X] = \phi \mu
+#' \mathbb{V}\mathrm{ar}[y|X] = \phi \mu
 #' $$
 #'
 #' Quasi models are not full maximum likelihood models, however it is possible
 #' to embed a Quasipoisson in the Negative Binomial framework using
 #'
 #' $$
-#' QP(\mu, \theta) = \mathrm{NB}(\mu, \theta = \frac{\mu}{\phi - 1})
+#' \mathrm{QP}(\mu, \theta) = \mathrm{NegBin}(\mu, \theta = \frac{\mu}{\phi - 1})
 #' $$
 #'
-#' Where NB is the parameterization of the Negative Binomial
+#' Where NegBin is the parameterization of the Negative Binomial
 #' distribution used by `glm.nb` in the `MASS` library. This model for
 #' the negative binomial distribution, a continuous mixture of Poisson
 #' random variables with gamma distributed means, is preferred over
-#' that classical parameterization in applications. The preferences
-#' stems from the fact that it allows for a real valued "$\theta$".
+#' that classical parameterization in applications. The preference
+#' stems from the fact that it allows for non-integer valued "$\theta$".
 #'
 #' Warning: As in Gelman and Hill's *Data Analysis using Regression
 #' and Multilevel/Hierarchical Model*, `ciTools` does not simulate the
 #' uncertainty in the over-dispersion parameter
 #' $\hat{\phi}$. According to our simulations, dropping this
-#' unceratinty from the parameter bootstrap has a negligible effect on
+#' unceratinty from the parametric bootstrap has a negligible effect on
 #' the coverage probabilities. While the distribution of $\hat{\phi}$
 #' is asymptotically Normal, it is very likely that the finite sample
 #' estimator has a skewed distribution. Approximating this
@@ -384,8 +386,8 @@ df %>%
 #' Again, we generate fake data.
 #' 
 x <- runif(100, 0, 2)
-mu <- exp(2 + 2 * x)
-y <- rnegbin(n = 100, mu = mu, theta = mu/(6 - 1))
+mu <- exp(1 + x)
+y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1))
 
 #' The data is over-dispersed: 
 df <- data.frame(x = x, y = y)
