@@ -57,12 +57,14 @@ done either by providing the proportions as a column in the data
 matrix or by specifying a ratio of the number of successes to the
 number of attempts. An example here might be instructive.
 
-```{r echo = F}
+```{r message = F}
 set.seed(20171011)
-suppressWarnings(suppressMessages(library(tidyverse)))
-suppressWarnings(suppressMessages(library(broom)))
-suppressWarnings(suppressMessages(library(ciTools)))
+library(tidyverse)
+library(ciTools)
+library(broom)
+```
 
+```{r}
 tb <- tibble(
   x = runif(30, -1, 1),
   n = rbinom(30, 6, .8)

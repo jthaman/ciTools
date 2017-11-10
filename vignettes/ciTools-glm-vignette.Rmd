@@ -171,7 +171,7 @@ df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSim
 df <- bind_rows(df1, df2)
 
 
-```{r fig.heither = 7, fig.align = "center"}
+```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
@@ -197,7 +197,7 @@ calculation methods. It's a fairly clear that the BCa intervals
 parametric intervals (purple).
 
 
-```{r fig.heither = 7, fig.align = "center"}
+```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 ggplot(df4, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
@@ -329,7 +329,7 @@ As with other methods available in `ciTools` the requested
 statistics are computed, appended to the data frame, and returned to
 the user as a tibble.
 
-```{r fig.heither = 7, fig.align = "center"}
+```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 df_ints %>% 
     ggplot(aes(x = x, y = y)) +
     geom_point(size = 2) +
@@ -437,7 +437,7 @@ for the range of a new observation:
 df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
     add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) 
 
-```{r fig.heither = 7, fig.align="center"}
+```{r fig.width = 8, fig.heither = 5, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
@@ -464,18 +464,39 @@ interval was calculated.
 New observations were generated from the true model to determine if
 the empirical coverage was close to the nominal level. The mean
 interval width was also recorded, as were standard errors of the
-estimated coverage and mean interval width. Compared to a simulation
-study of confidence intervals, we do not except interval widths to
-shrink to $0$, due to the predictive error in the conditional response
-distribution.
+estimated coverage and mean interval width.
+
+In contrast to a study of confidence intervals, we do not except
+interval widths to shrink to $0$ as sample size tends to
+infinity. This due to the predictive error in the conditional response
+distribution, which is not a factor in the construction of confidence
+intervals.
+
+We take the same approach in the simulation study of each of the four
+models described below:
+
+1. Set a sequence of sample sizes e.g. $n = 20, 50, 100, ...$.
+2. For each sample size, set a model matrix
+3. Then loop ...
+   + Generate a response vector from the true model
+   + Fit a GLM to the simulate response $\boldsymbol{y}$ with the fixed model matrix
+   + Calculate a prediction interval for $y_{new}$ given $x_0 = $ the midpoint of the range of $x$.
+   + Store the width of this prediction interval.
+   + Generate a response $y_{new} | x_0$ from the true model and determine if the new response is in the PI.
+4. Repeat step 3. $M$ times.
 
 ### Poisson
 
-A simple Poisson model is fit with the log-link function. For each
-sample size, $100$ simulations were performed. The total running time
-of the simulation was about 7 minutes on an Intel i7 Broadwell
-laptop. Calculated coverage probabilities generally appear to be close
-to the nomial level. Average interval widths exhibit large variability.
+A simple Poisson model is fit with the log-link function.
+
+$$
+y \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
+$$
+
+For each sample size, $100$ simulations were performed. The total
+running time of the simulation was about 7 minutes on an Intel i7
+Broadwell laptop. Calculated coverage probabilities generally appear
+to be close to the nomial level.
 
 ```{r message=FALSE}
 pois <- read_csv("pois_pi_results.csv")
@@ -485,12 +506,15 @@ knitr::kable(pois)
 ### Negative Binomial
 
 A negative binomial model with log link function was fit with
-dispersion parameter $\theta = 5$. For each sample size, $250$ models
-were fit. The maximum sample size for this simulation was restricted
-to $200$. Estimated coverage probabilities are generally higher than
-the nominal level, but within simulation error according the standard
-errors. Interval widths appear widely variable and exhibit no pattern
-related to sample size.
+dispersion parameter $\theta = 4$.
+
+$$
+y \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
+$$
+
+For each sample size, $100$ models were fit. Estimated coverage
+probabilities are generally higher than the nominal level, but within
+simulation error according the standard errors.
 
 ```{r message=FALSE}
 neg_bin <- read_csv("negbin_pi_results.csv")
@@ -500,10 +524,15 @@ knitr::kable(neg_bin)
 ### Gamma
 
 A simple Gamma regression model with `"inverse"` link function was fit
-and simulated $100$ times. Gamma regression was not discussed in this
-vignette but is still supported by `ciTools`. Estimated coverage
-probabilities are generally close to the nomial level. Interval widths
-decrease with sample size.
+and simulated $100$ times.
+
+$$
+y \sim \Gamma(\mathrm{shape} = 5, \mathrm{rate} = \frac{5}{2 + 4x}) \qquad x \in (30, 70)
+$$
+
+Gamma regression was not discussed in this vignette but is still
+supported by `ciTools`. Estimated coverage probabilities are generally
+close to the nomial level. Interval widths decrease with sample size.
 
 ```{r message=FALSE}
 gam <- read_csv("gamma_pi_results.csv")
@@ -513,10 +542,16 @@ knitr::kable(gam)
 ### Gaussian with log link
 
 Gaussian prediction intervals may be determined parametrically by
-`ciTools`. Since a bootstrap is unnecessary, total running time for
-the simulate is just a fraction of a minute. Coverage probabilities are
-estimated within an standard error of $0.95$ and interval widths
-generally decrease according to the increased sample size.
+`ciTools`. The model we considered was 
+
+$$
+y \sim \mathcal{N}(\mathrm{mean} = \exp(1 + x), \mathrm{sd} = 1) \qquad x \in (0,1)
+$$
+
+Since a bootstrap is unnecessary, total running time for the simulate
+is just a fraction of a minute. Coverage probabilities are estimated
+within an standard error of $0.95$ and interval widths generally
+decrease according to the increased sample size.
 
 ```{r message=FALSE}
 norm_log <- read_csv("gaussian_pi_loglink_results.csv")
