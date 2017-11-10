@@ -7,13 +7,13 @@
 #'      toc: true
 #' ---
 
-#+ echo=FALSE
+#+ message=FALSE
 library(tidyverse)
-#+ echo=FALSE
+#+ message=FALSE
 library(ciTools)
-#+ echo=FALSE
+#+ message=FALSE
 library(MASS)
-#+ echo=FALSE
+#+ message=FALSE
 library(arm)
 set.seed(20171102)
 
@@ -104,7 +104,7 @@ set.seed(20171102)
 #' inverse link function $g^{-1}$. Confidence intervals on the linear
 #' predictor level are computed using a Normal distribution for
 #' Logistic and Poisson regressions and a $t$ distribution
-#' otherwise. The intervals are given by the following equations:
+#' otherwise. The intervals are given by the following expressions:
 #'
 #' $$
 #' \begin{equation}
@@ -381,11 +381,15 @@ df %>%
 #' research. As it stands, the prediction intervals we form for
 #' over-dispersed models tend to be conservative.
 #'
+#' Negative binomial regression is implemented as a separate method in
+#' `ciTools`, but is currently not in the master branch. 
+#'
 #' ### Example
 #' 
-#' Again, we generate fake data.
+#' Again, we generate fake data. The dispersion parameter is set to
+#' $5$ in the negative binomial model. 
 #' 
-x <- runif(100, 0, 2)
+x <- runif(n = 100, min = 0, max = 2)
 mu <- exp(1 + x)
 y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1))
 
@@ -394,8 +398,10 @@ df <- data.frame(x = x, y = y)
 fit <- glm(y ~ x, family = quasipoisson(link = "log"))
 summary(fit)$dispersion
 
-#' But `ciTools` can still construct appropriate intervals:
-df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
+#' But `ciTools` can still construct appropriate interval estimates
+#' for the range of a new observation:
+    
+df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
     add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) 
 
 #+ fig.width = 10, fig.heither = 7, fig.align="center"
@@ -407,4 +413,16 @@ ggplot(df_ints, aes(x = x, y = y)) +
 
 #' ## Simulation Study
 #'
-#' TODO
+#' A small simulation study was performed to examine the empirical
+#' coverage probilities of prediction intervals formed using the
+#' parametric bootstrap. We focus on these intervals as there is
+#' essentially no treatment in the literature regarding their
+#' performance, so users of `ciTools` should be more skeptical of
+#' these methods. 
+#' 
+pois <- read_csv("pois_pi_results.csv")
+knitr::kable(pois)
+neg_bin <- read_csv("negbin_pi_results.csv")
+knitr::kable(neg_bin)
+gam <- read_csv("gamma_pi_results.csv")
+inverse_norm <- read_csv("guassian_pi_inverse_results.csv")
