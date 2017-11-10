@@ -4,7 +4,7 @@ author: Matthew Avery
 date: August 17, 2017
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ Mixed models with `ciTools`}
+  %\VignetteIndexEntry{Mixed models with ciTools}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -16,7 +16,6 @@ library(lme4)
 set.seed(20170627)
 
 x_gen_mermod <- function(ng = 8, nw = 5){
-  
   n <- ng * nw
   x1 <- base::sample(letters[1:2], n, replace = T)
   x2 <- runif(n)
@@ -27,12 +26,10 @@ x_gen_mermod <- function(ng = 8, nw = 5){
 }
 
 mm_pipe <- function(tb, ...){
-  
   model.matrix(data = tb, ...)
 }
 
 get_validation_set <- function(tb, sigma, sigmaG, beta, includeRanef, groupIntercepts){
-  
   vm <- sample_n(tb, 5, replace = F)[rep(1:5, each = 100), ]
   vf <- bind_rows(vm, tb) %>%
     select(-group) %>%
@@ -41,29 +38,20 @@ get_validation_set <- function(tb, sigma, sigmaG, beta, includeRanef, groupInter
   vGroups <- if(!includeRanef) rnorm(500, 0, sigmaG) else groupIntercepts[as.numeric(vm$group)]
   vm[["y"]] <- vf %*% beta + vGroups + rnorm(500, mean = 0, sd = sigma)
   vm
-  
 }
 
 y_gen_mermod <- function(tb, sigma = 1, sigmaG = 1, delta = 1, includeRanef = FALSE, validationPoints = FALSE){
-  
   groupIntercepts <- rnorm(length(unique(tb$group)), 0, sigmaG)
-  
   tf <- tb %>%
-    select(-group) %>%
+    dplyr::select(-group) %>%
     mm_pipe(~.*.)
-  
   beta <- rep(delta, ncol(tf))
-  
   if(validationPoints)  {
     vm <- get_validation_set(tb, sigma, sigmaG, beta, includeRanef, groupIntercepts)
   }
-  
- 
   tb[["y"]] <- tf %*% beta + groupIntercepts[as.numeric(tb$group)] + rnorm(nrow(tb), mean = 0, sd = sigma)
   tb[["truth"]] <- tf %*% beta + groupIntercepts[as.numeric(tb$group)] * (includeRanef)
   if(validationPoints) return(list(tb = tb, vm = vm)) else return(tb) 
-    
-    
 }
 
 ```
