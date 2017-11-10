@@ -17,6 +17,7 @@ library(MASS)
 library(arm)
 set.seed(20171102)
 
+
 #' In this vignette we will discuss the current ability of `ciTools`
 #' to handle generalized linear models. Small simulations will be
 #' provided in addition to examples that show how to use `ciTools` to
@@ -381,8 +382,12 @@ df %>%
 #' research. As it stands, the prediction intervals we form for
 #' over-dispersed models tend to be conservative.
 #'
-#' Negative binomial regression is implemented as a separate method in
-#' `ciTools`, but is currently not in the master branch. 
+#' Negative binomial regression (via `glm.nb`) is implemented as a
+#' separate method in `ciTools`, and is an alternative to quasipoisson
+#' regression. For more information on the difference between these
+#' two models, we recommend Jay Ver Hoef and Peter Boveng's
+#' *Quasi-poisson vs. Negative Binomial Regression: How Should We
+#' Model Overdispersed Count Data?*
 #'
 #' ### Example
 #' 
@@ -391,7 +396,7 @@ df %>%
 #' 
 x <- runif(n = 100, min = 0, max = 2)
 mu <- exp(1 + x)
-y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1))
+y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1)) 
 
 #' The data is over-dispersed: 
 df <- data.frame(x = x, y = y)
@@ -411,6 +416,11 @@ ggplot(df_ints, aes(x = x, y = y)) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.2)
 
+#' The darker region represents the confidence intervals formed by
+#' `add_ci` and the lighter intervals are formed by `add_pi`. Again,
+#' intervals are "jagged" because the response the is not continuous
+#' and the bounds are formed through a simulation.
+
 #' ## Simulation Study
 #'
 #' A small simulation study was performed to examine the empirical
@@ -419,10 +429,31 @@ ggplot(df_ints, aes(x = x, y = y)) +
 #' essentially no treatment in the literature regarding their
 #' performance, so users of `ciTools` should be more skeptical of
 #' these methods. 
-#' 
+#'
+#' ### Poisson 
+
+#+ message=FALSE
 pois <- read_csv("pois_pi_results.csv")
+
 knitr::kable(pois)
+
+#' ### Negative Binomial
+
+#+ message=FALSE
 neg_bin <- read_csv("negbin_pi_results.csv")
+
 knitr::kable(neg_bin)
+
+#' ### Gamma with "inverse" link
+
+#+ message=FALSE
 gam <- read_csv("gamma_pi_results.csv")
-inverse_norm <- read_csv("guassian_pi_inverse_results.csv")
+
+knitr::kable(gam)
+
+#' ### Gaussian with log link
+
+#+ message=FALSE
+norm_log<- read_csv("gaussian_pi_loglink_results.csv")
+
+knitr::kable(norm_log)
