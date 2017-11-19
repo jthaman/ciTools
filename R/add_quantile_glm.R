@@ -19,15 +19,21 @@
 #'
 #' This function is one of the methods of
 #' \code{add_quantile}. Currently, you can only use this function to
-#' compute the quantiles of the response of Poisson, Quasipoisson, or
-#' Gamma regression models.  Quantile estimates for Bernoulli response
-#' variables (i.e., logistic regression) are not supported.
+#' compute the quantiles of the response of Poisson, Quasipoisson,
+#' Gamma, or Gaussian regression models.  Quantile estimates for
+#' Bernoulli response variables (i.e., logistic regression) are not
+#' supported.
 #' 
 #' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}. If
 #' a Quasipoisson regression model is fit, simulation using the
 #' Negative Binomial distribution is performed, see Gelman and Hill
 #' (2007).
+#'
+#' If \code{add_quantile.glm} is called on a Gaussian GLM with
+#' identity link function, the returned quantiles are identical to
+#' those of \code{add_quantile.lm}. If a different link function is
+#' used, the appropriate inverse transformation is applied.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
@@ -78,19 +84,37 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
 
     if (fit$family$family == "binomial"){
         if(max(fit$prior.weights) == 1)
-        stop("Prediction intervals for Bernoulli response variables aren't useful") else {
-          warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
-          warning("The response variable is not continuous so Prediction Intervals are approximate")
+            stop("Prediction intervals for Bernoulli response variables aren't useful")
+        else {
+            warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
+            warning("The response variable is not continuous so Prediction Intervals are approximate")
         }
     }
 
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
-
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+    
+    if (fit$family$family == "gaussian"){
+        quant_gaussian(tb, fit, p, name, yhatName)}
+    else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+        sim_quantile_other(tb, fit, p, name, yhatName, nSims)
+    else 
         stop("Unsupported family")
+}
 
-    sim_quantile_other(tb, fit, p, name, yhatName, nSims)
+quant_gaussian <- function(tb, fit, p, name, yhatName){
+    sigma_sq <- summary(fit)$dispersion
+    inverselink <- fit$family$linkinv
+    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    se_terms <- out$se.fit
+    t_quant <- qt(p = p, df = fit$df.residual, lower.tail = TRUE)
+    se_global <- sqrt(sigma_sq + se_terms^2)
+    quant <- inverselink(out$fit) + t_quant * se_global
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- inverselink(out$fit)
+    tb[[name]] <- quant
+    tibble::as_data_frame(tb)
 }
 
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){

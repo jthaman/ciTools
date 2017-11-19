@@ -89,7 +89,6 @@ add_probs.lm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         t_prob <- 1 - pt(q = t_quantile, df = residual_df)
     if (is.null(tb[[yhatName]]))
         tb[[yhatName]] <- fitted
-    if (is.null(tb[[name]]))
-        tb[[name]] <- t_prob
+    tb[[name]] <- t_prob
     tibble::as_data_frame(tb)
 }

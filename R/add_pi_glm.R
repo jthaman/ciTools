@@ -28,7 +28,9 @@
 #' response is count data, prediction intervals are only
 #' approximate. Simulation from the QuasiPoisson model is performed
 #' with the negative binomial distribution, see Gelman and Hill
-#' (2007).
+#' (2007). Prediction intervals for Gaussian GLMs are also supported,
+#' but these intervals are no different than the ones returned by
+#' \code{add_pi.lm} if an identity link is used.
 #' 
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -67,7 +69,7 @@
 
 
 add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
-                       nSims = 2000, ...){
+                       nSims = 2000,  ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -76,6 +78,7 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if ((names[1] %in% colnames(tb))) 
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     
+        
     if(fit$family$family == "binomial")
       if(max(fit$prior.weights) == 1)
           stop("Prediction intervals for Bernoulli response variables aren't useful")
@@ -87,32 +90,48 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
-    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
+    if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         stop("Unsupported family")
 
-    sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
+    if(fit$family$family == "gaussian") 
+        pi_gaussian(tb, fit, alpha, names, yhatName)
+    else
+        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
 }
 
+pi_gaussian <- function(tb, fit, alpha, names, yhatName){
+    sigma_sq <- summary(fit)$dispersion
+    inverselink <- fit$family$linkinv
+    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    se_terms <- out$se.fit
+    t_quant <- qt(p = alpha/2, df = fit$df.residual, lower.tail = FALSE)
+    se_global <- sqrt(sigma_sq + se_terms^2)
+    lwr <- inverselink(out$fit) - t_quant * se_global
+    upr <- inverselink(out$fit) + t_quant * se_global
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- inverselink(out$fit)
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
+}
 
 sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     out <- predict(fit, newdata = tb, type = "response")
-
     sim_response <- get_sim_response(tb, fit, nSims)
-
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
     
-
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)
-
 }
 
 get_sim_response <- function(tb, fit, nSims){
@@ -136,7 +155,7 @@ get_sim_response <- function(tb, fit, nSims){
             sim_response[,i] <- rnegbin(n = nPreds,
                                         mu = yhat,
                                         theta = a)
-            }
+        }
         if(response_distr == "Gamma"){
             sim_response[,i] <- rgamma(n = nPreds,
                                        shape = 1/overdisp,
@@ -148,6 +167,13 @@ get_sim_response <- function(tb, fit, nSims){
                                        size = fit$prior.weights,
                                        prob = yhat / fit$prior.weights)
         }
+        if(response_distr == "gaussian"){
+          yhat <- inverselink(modmat %*% sims@coef[i,])
+          sim_response[,i] <- rnorm(n = nPreds, 
+                                    mean = yhat,
+                                    sd = sqrt(overdisp))
+        }
+        
     }
     sim_response
 }
