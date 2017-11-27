@@ -11,11 +11,8 @@ vignette: >
 
 ```{r message=FALSE}
 library(tidyverse)
-```{r message=FALSE}
 library(ciTools)
-```{r message=FALSE}
 library(MASS)
-```{r message=FALSE}
 library(arm)
 set.seed(20171102)
 ```
@@ -25,8 +22,8 @@ to handle generalized linear models. Small simulations will be
 provided in addition to examples that show how to use `ciTools` to
 quantify uncertainty in a GLM. Primarily we focus on the
 Logistic and Poisson models, but `ciTools`'s method for handling GLMs
-is not limited to these models. Note that the *Logistic-Binomial*
-model is handled in a separate vignette. 
+is not limited to these models. Note that the *binomial Logistic*
+regression is handled in a separate vignette. 
 
 ## The Generalized Linear Model
 
@@ -37,9 +34,8 @@ allows users to perform inferences on data that are not strictly
 continuous. GLMs are the most common model type that allow for a
 non-linear relationship between the response variable $y$ and
 covariates $X$. Recall that linear regression directly predicts a
-continuous response from the linear predictor $X \beta$. A GLM
-extends this linear prediction scheme through the following
-components:
+continuous response from the linear predictor, $X \beta$. A GLM
+extends this linear prediction scheme. A GLM consists of:
 
 1. A response vector $y = (y_1, \ldots, y_n)$.
 
@@ -107,7 +103,9 @@ and transforms the intervals to the response level through the
 inverse link function $g^{-1}$. Confidence intervals on the linear
 predictor level are computed using a Normal distribution for
 Logistic and Poisson regressions and a $t$ distribution
-otherwise. The intervals are given by the following expressions:
+otherwise. (This is consistent with the default behavior for the 
+`predict.glm` function.) The intervals are given by the following 
+expressions:
 
 $$
 \begin{equation}
@@ -134,7 +132,8 @@ bootstrap method is called with `add_ci(data, fit, type = "boot",
 parametric method. There are multiple methods of bootstrap for
 regression models (resampling cases, resampling residuals,
 parametric, etc.). The bootstrap method employed by `ciTools` in
-`add_ci.glm()` resamples cases and iteratively refits the model to
+`add_ci.glm()` resamples cases and iteratively refits the model 
+(using the default behavior of `boot::boot`) to
 determine confidence intervals. After collecting the bootstrap
 replicates, a bias-corrected bootstrap confidence interval is formed.
 
@@ -170,7 +169,7 @@ df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSim
     mutate(type = "bootstrap")
 df <- bind_rows(df1, df2)
 
-
+```
 ```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
@@ -180,10 +179,9 @@ ggplot(df, aes(x = x, y = y)) +
 ```
 
 Our two confidence interval methods mostly agree, although the
-bootstrap method produces interval estimates that have more
-variability.
+bootstrap method produces slightly wider intervals.
 
-```{r }
+```{r echo = F}
 df3 <- filter(df, type == "parametric")
 
 df4 <- filter(df, type == "bootstrap") %>%
@@ -197,7 +195,7 @@ calculation methods. It's a fairly clear that the BCa intervals
 parametric intervals (purple).
 
 
-```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
+```{r fig.width = 8, fig.heither = 5, fig.align = "center", echo = F}
 ggplot(df4, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
@@ -208,8 +206,8 @@ ggplot(df4, aes(x = x, y = y)) +
 
 If the sample increases, we will find that the two estimates
 increasingly agree and converge to $0$ in width. Note that we do
-not calculate prediction intervals for $y$ because the support of
-$y$ is exactly $\{0,1\}$. 
+not calculate prediction intervals for $y$ when $y$ is Bernoulli distributed
+because the support of $y$ is exactly $\{0,1\}$. 
 
 ## Prediction Intervals
 
@@ -343,12 +341,12 @@ determine the intervals involves simulation, we find that `ciTools`
 will produce "jagged" bounds when all the intervals are plotted
 simultaneously. 
 
-We may also wish to compute response level probabilities and
+We may also wish to compute response-level probabilities and
 quantiles. `ciTools` can also handle these estimates with
-`add_probs()` and `add_quantile()` respectively. Since these
-statistics are formed on the predictive distribution constructed by
-`add_pi()`, we also estimate quantiles and probabilities using the
-parametric bootstrap.
+`add_probs()` and `add_quantile()` respectively. We use the same parametric 
+bootstrap approach for estimating quantiles and probabilities that we 
+employed for `add_pi()`. Once again, an error message reminds the user
+that their support is not continuous.
 
 
 ```{r }
@@ -389,9 +387,9 @@ distribution used by `glm.nb` in the `MASS` library. This model for
 the negative binomial distribution, a continuous mixture of Poisson
 random variables with gamma distributed means, is preferred over
 that classical parameterization in applications. The preference
-stems from the fact that it allows for non-integer valued "$\theta$".
+stems from the fact that it allows for non-integer-valued $\theta$.
 
-Warning: As in Gelman and Hill's *Data Analysis using Regression
+**Warning**: As in Gelman and Hill's *Data Analysis using Regression
 and Multilevel/Hierarchical Model*, `ciTools` does not simulate the
 uncertainty in the over-dispersion parameter
 $\hat{\phi}$. According to our simulations, dropping this
@@ -454,19 +452,20 @@ and the bounds are formed through a simulation.
 
 A small simulation study was performed to examine the empirical
 coverage probilities of prediction intervals formed using the
-parametric bootstrap. We focus on these intervals as there is
-essentially no treatment in the literature regarding their
-performance, so users of `ciTools` should be more skeptical of these
-methods. In each simulation, a simple $y = g^{-1}(mx + b)$ model is
+parametric bootstrap. We focus on these intervals because we could 
+not find results in the literature addressing their
+performance. Our simulation is not comprehensive, so users of 
+`ciTools` should exercise care when using  these methods. 
+In each simulation, a simple $y = g^{-1}(mx + b)$ model is
 fit on a variable number of observations and a $95\%$ prediction
-interval was calculated.
+interval is calculated.
 
 New observations were generated from the true model to determine if
 the empirical coverage was close to the nominal level. The mean
 interval width was also recorded, as were standard errors of the
 estimated coverage and mean interval width.
 
-In contrast to a study of confidence intervals, we do not except
+Note that in contrast to a study of confidence intervals, we do not except
 interval widths to shrink to $0$ as sample size tends to
 infinity. This due to the predictive error in the conditional response
 distribution, which is not a factor in the construction of confidence
@@ -479,11 +478,11 @@ models described below:
 2. For each sample size, set a model matrix
 3. Then loop ...
    + Generate a response vector from the true model
-   + Fit a GLM to the simulate response $\boldsymbol{y}$ with the fixed model matrix
-   + Calculate a prediction interval for $y_{new}$ given $x_0 = $ the midpoint of the range of $x$.
+   + Fit a GLM to the simulated response $\boldsymbol{y}$ with the fixed model matrix
+   + Calculate a prediction interval for $y_{new}$ given $x_0$, the midpoint of the range of $x$.
    + Store the width of this prediction interval.
    + Generate a response $y_{new} | x_0$ from the true model and determine if the new response is in the PI.
-4. Repeat step 3. $M$ times.
+4. Repeat Step 3 $M$ times.
 
 ### Poisson
 
