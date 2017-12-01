@@ -166,7 +166,6 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
     upr <- temp_mat[,2]
 
     ## raw_boot <- boot_obj$t
-
     ## lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
     ## upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
 

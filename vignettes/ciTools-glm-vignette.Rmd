@@ -23,7 +23,7 @@ set.seed(20171102)
 In this vignette we will discuss the current ability of `ciTools`
 to handle generalized linear models. Small simulations will be
 provided in addition to examples that show how to use `ciTools` to
-quantify uncertainty in a GLM. Primarily we focus on the
+quantify uncertainty in fitted values. Primarily we focus on the
 Logistic and Poisson models, but `ciTools`'s method for handling GLMs
 is not limited to these models. Note that the *Logistic-Binomial*
 model is handled in a separate vignette. 
@@ -32,7 +32,7 @@ model is handled in a separate vignette.
 
 Generalized linear models are an extension of linear models that
 seek to accomodate certain types of non-linear relationships. The
-manner in which the non-linear relationship is addressed also
+manner in which the non-linearity is addressed also
 allows users to perform inferences on data that are not strictly
 continuous. GLMs are the most common model type that allow for a
 non-linear relationship between the response variable $y$ and
@@ -41,22 +41,20 @@ continuous response from the linear predictor $X \beta$. A GLM
 extends this linear prediction scheme through the following
 components:
 
-1. A response vector $y = (y_1, \ldots, y_n)$.
+1. A linear predictor $X \beta$
 
-2. A linear predictor $X \beta$
-
-3. A monotonic and everywhere differentiable link function $g$,
+2. A monotonic and everywhere differentiable link function $g$,
 which transforms the linear predictor: $\hat{y} = g^{-1}(X
 \hat{\beta})$.
 
-4. A response distribution: $f(y|\mu)$ from the exponential family
+3. A response distribution: $f(y|\mu)$ from the exponential family
 with expected value $\mu = g^{-1} (X \beta)$.
 
-Other components, such as over dispersion parameters and off-set
-terms are possible, but not common to all GLMs. The most common
-GLMs in practice are the Logistic model (Bernoulli response with
-logit link) and the Poisson model with log-link. These are detailed
-below for convenience.
+Other components, such as over dispersion parameters and off-set terms
+are possible, but not common to all GLMs. The most common GLMs in
+practice are the Logistic model (Bernoulli response with logit link)
+and the Poisson model with log link function. These are detailed below
+for convenience.
 
 1. Logistic Regression:
 $$
@@ -89,13 +87,13 @@ Quasipoisson, Gamma, Guassian and certain other models.
 
 # Overview of `ciTools` methods for GLMs
 
-Unlike linear models, interval estimates pertaining to GLMs
-generally do not have clean parametric forms. Parametric interval
-estimates are available in certain cases, and where ever available,
-`ciTools` will choose to implement them by default. Below we detail
-precisely what `ciTools` is doing under the hood when one of the
-core functions (`add_ci`, `add_pi`, `add_probs`, `add_quantile`) is
-called on a GLM fit.
+Unlike linear models, interval estimates pertaining to GLMs generally
+do not have clean parametric forms. Parametric interval estimates are
+available in certain cases, and where ever available, `ciTools` will
+choose to implement them by default. Below we detail precisely what
+computations `ciTools` perfoms when one of the core functions
+(`add_ci`, `add_pi`, `add_probs`, `add_quantile`) is called on an
+object of class `glm`.
 
 ## Confidence Intervals
 
@@ -126,17 +124,18 @@ $$
 \end{equation}
 $$
 
-The default method is parametric and is called with `add_ci(data,
-fit, ...)`. This is the method we generally recommend for
-constructing confidence intervals for model prediction. The
-bootstrap method is called with `add_ci(data, fit, type = "boot",
-...)` and is included mostly for making comparisons against the
-parametric method. There are multiple methods of bootstrap for
-regression models (resampling cases, resampling residuals,
+for other generalized linear models. The default method is parametric
+and is called with `add_ci(data, fit, ...)`. This is the method we
+generally recommend for constructing confidence intervals for model
+prediction. The bootstrap method is called with `add_ci(data, fit,
+type = "boot", ...)` and is included mostly for making comparisons
+against the parametric method. There are multiple methods of bootstrap
+for regression models (resampling cases, resampling residuals,
 parametric, etc.). The bootstrap method employed by `ciTools` in
 `add_ci.glm()` resamples cases and iteratively refits the model to
 determine confidence intervals. After collecting the bootstrap
-replicates, a bias-corrected bootstrap confidence interval is formed.
+replicates, a bias-corrected and accelerated (BCa) bootstrap
+confidence interval is formed.
 
 There are several methods for computing bootstrap confidence
 interval, though we don't provide options to compute all of these
@@ -169,7 +168,7 @@ df1 <- add_ci(df, fit, names = c("lwr", "upr"), alpha = 0.1) %>%
 df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSims = 500) %>%
     mutate(type = "bootstrap")
 df <- bind_rows(df1, df2)
-
+```
 
 ```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
@@ -193,7 +192,7 @@ df4 <- filter(df, type == "bootstrap") %>%
 
 Another perspective on the difference between these two interval
 calculation methods. It's a fairly clear that the BCa intervals
-(red) indeed exhibit little bias, but are still not as tight as the
+(red) indeed exhibit little bias, but are not as tight as the
 parametric intervals (purple).
 
 
@@ -209,7 +208,7 @@ ggplot(df4, aes(x = x, y = y)) +
 If the sample increases, we will find that the two estimates
 increasingly agree and converge to $0$ in width. Note that we do
 not calculate prediction intervals for $y$ because the support of
-$y$ is exactly $\{0,1\}$. 
+$y$ is exactly $\{0,1\}$ in this Bernoulli-Logistic regression.
 
 ## Prediction Intervals
 
@@ -457,9 +456,9 @@ coverage probilities of prediction intervals formed using the
 parametric bootstrap. We focus on these intervals as there is
 essentially no treatment in the literature regarding their
 performance, so users of `ciTools` should be more skeptical of these
-methods. In each simulation, a simple $y = g^{-1}(mx + b)$ model is
-fit on a variable number of observations and a $95\%$ prediction
-interval was calculated.
+methods. In each simulation, a univariate GLM is fit on a variable
+number of observations and a $95\%$ prediction interval was
+calculated.
 
 New observations were generated from the true model to determine if
 the empirical coverage was close to the nominal level. The mean
