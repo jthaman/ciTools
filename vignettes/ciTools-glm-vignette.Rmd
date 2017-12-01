@@ -167,13 +167,8 @@ df1 <- add_ci(df, fit, names = c("lwr", "upr"), alpha = 0.1) %>%
 df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSims = 500) %>%
     mutate(type = "bootstrap")
 df <- bind_rows(df1, df2)
-<<<<<<< HEAD
 ```
 
-=======
-
-```
->>>>>>> 7459716fcdf9795383f728c00eebedef033eadb8
 ```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
@@ -209,14 +204,9 @@ ggplot(df4, aes(x = x, y = y)) +
 
 
 If the sample increases, we will find that the two estimates
-increasingly agree and converge to $0$ in width. Note that we do
-<<<<<<< HEAD
-not calculate prediction intervals for $y$ because the support of
-$y$ is exactly $\{0,1\}$ in this Bernoulli-Logistic regression.
-=======
-not calculate prediction intervals for $y$ when $y$ is Bernoulli distributed
-because the support of $y$ is exactly $\{0,1\}$. 
->>>>>>> 7459716fcdf9795383f728c00eebedef033eadb8
+increasingly agree and converge to $0$ in width. Note that we do not
+calculate prediction intervals for $y$ when $y$ is Bernoulli
+distributed because the support of $y$ is exactly $\{0,1\}$.
 
 ## Prediction Intervals
 
@@ -461,22 +451,12 @@ and the bounds are formed through a simulation.
 
 A small simulation study was performed to examine the empirical
 coverage probilities of prediction intervals formed using the
-<<<<<<< HEAD
-parametric bootstrap. We focus on these intervals as there is
-essentially no treatment in the literature regarding their
-performance, so users of `ciTools` should be more skeptical of these
-methods. In each simulation, a univariate GLM is fit on a variable
-number of observations and a $95\%$ prediction interval was
-calculated.
-=======
-parametric bootstrap. We focus on these intervals because we could 
-not find results in the literature addressing their
-performance. Our simulation is not comprehensive, so users of 
-`ciTools` should exercise care when using  these methods. 
-In each simulation, a simple $y = g^{-1}(mx + b)$ model is
-fit on a variable number of observations and a $95\%$ prediction
-interval is calculated.
->>>>>>> 7459716fcdf9795383f728c00eebedef033eadb8
+parametric bootstrap. We focus on these intervals because we could not
+find results in the literature addressing their performance. Our
+simulation is not comprehensive, so users of `ciTools` should exercise
+care when using these methods.  In each simulation, a simple $y =
+g^{-1}(mx + b)$ model is fit on a variable number of observations and
+a $95\%$ prediction
 
 New observations were generated from the true model to determine if
 the empirical coverage was close to the nominal level. The mean
