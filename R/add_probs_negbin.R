@@ -22,21 +22,19 @@
 #' simulation, using the same method as \code{add_pi.negbin}.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{negbin}. Predictions are made with
-#'     this object.
+#' @param fit An object of class \code{negbin}. Predictions are made
+#'     with this object.
 #' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
 #'     tibble
 #' @param yhatName A string. Name of the vector of predictions.
-#' @param comparison A character vector of length one. If
-#'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
-#'     calculated. Any comparison is allowed in Poisson regression,
-#'     but only certain comparisons may be made in Logistic
-#'     regression. See the Details section.
+#' @param comparison A character vector of length one. Permitted
+#'     arguments are \code{"="}, \code{"<"}, \code{"<="}, \code{">"}, or
+#'     \code{">="}. The default value is \code{"<"}.
 #' @param nSims A positive integer. Controls the number of simulated
-#'     draws to make if the model is Poisson.
+#'     draws.
 #' @param ... Additional arguments.
 #' 
 #' @return A tibble, \code{tb}, with predicted values and
@@ -49,8 +47,14 @@
 #'     \code{negbin} objects.
 #'
 #' @examples
+#' x1 <- rnorm(100, mean = 1)
+#' y <- MASS::rnegbin(n = 100, mu = exp(1 + x1), theta = 5)
+#' df <- data.frame(x1 = x1, y = y)
+#' fit <- MASS::glm.nb(y ~ x1, data = df)
+#' add_probs(df, fit, q = 50)
 #' 
 #' @export
+
 add_probs.negbin <- function(tb, fit, q, name = NULL, yhatName = "pred",
                              comparison = "<", nSims = 2000, ...){
 

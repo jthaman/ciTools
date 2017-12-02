@@ -30,7 +30,7 @@
 #' intervals are calculated. See \code{boot::boot.ci} for more details.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{glm}.
+#' @param fit An object of class \code{negbin}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
