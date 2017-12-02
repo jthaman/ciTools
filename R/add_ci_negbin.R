@@ -19,15 +19,17 @@
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{negbin}. The default link function is
-#' log-link. Confidence Intervals are determined by making an interval
-#' on the scale of the linear predictor, then applying the inverse
-#' link function from the model fit to transform the linear level
-#' confidence intervals to the response level. Alternatively,
-#' bootstrap confidence intervals may be formed. The bootstrap
-#' intervals are formed by first resampling cases from the data frame
-#' used to calculate \code{fit}, then bias corrected and accelerated
-#' intervals are calculated. See \code{boot::boot.ci} for more details.
+#' class \code{negbin}.
+#'
+#' The default link function is log-link. Confidence Intervals are
+#' determined by making an interval on the scale of the linear
+#' predictor, then applying the inverse link function from the model
+#' fit to transform the linear level confidence intervals to the
+#' response level. Alternatively, bootstrap confidence intervals may
+#' be formed. The bootstrap intervals are formed by first resampling
+#' cases from the data frame used to calculate \code{fit}, then bias
+#' corrected and accelerated intervals are calculated. See
+#' \code{boot::boot.ci} for more details.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{negbin}.
