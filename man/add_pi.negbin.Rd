@@ -54,8 +54,8 @@ Quantiles of the simulated responses are taken at the end to
 produce intervals of the desired level.
 }
 \examples{
-x1 <- rnorm(1000, mean = 1)
-y <- MASS::rnegbin(n = 1000, mu = exp(1 + x1), theta = 5)
+x1 <- rnorm(100, mean = 1)
+y <- MASS::rnegbin(n = 100, mu = exp(1 + x1), theta = 5)
 df <- data.frame(x1 = x1, y = y)
 fit <- MASS::glm.nb(y ~ x1, data = df)
 add_pi(df, fit, names = c("lpb", "upb"))

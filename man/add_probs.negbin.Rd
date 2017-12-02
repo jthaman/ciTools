@@ -10,8 +10,8 @@
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
 
-\item{fit}{An object of class \code{negbin}. Predictions are made with
-this object.}
+\item{fit}{An object of class \code{negbin}. Predictions are made
+with this object.}
 
 \item{q}{A double. A quantile of the response distribution.}
 
@@ -22,14 +22,12 @@ tibble}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
-\item{comparison}{A character vector of length one. If
-\code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
-calculated. Any comparison is allowed in Poisson regression,
-but only certain comparisons may be made in Logistic
-regression. See the Details section.}
+\item{comparison}{A character vector of length one. Permitted
+arguments are \code{"="}, \code{"<"}, \code{"<="}, \code{">"}, or
+\code{">="}. The default value is \code{"<"}.}
 
 \item{nSims}{A positive integer. Controls the number of simulated
-draws to make if the model is Poisson.}
+draws.}
 
 \item{...}{Additional arguments.}
 }
@@ -43,6 +41,11 @@ object of class \code{negbin}. Probabilities are determined through
 simulation, using the same method as \code{add_pi.negbin}.
 }
 \examples{
+x1 <- rnorm(100, mean = 1)
+y <- MASS::rnegbin(n = 100, mu = exp(1 + x1), theta = 5)
+df <- data.frame(x1 = x1, y = y)
+fit <- MASS::glm.nb(y ~ x1, data = df)
+add_probs(df, fit, q = 50)
 
 }
 \seealso{

@@ -34,7 +34,16 @@ A tibble, \code{tb}, with predicted values and level
 \description{
 This function is one of the methods of \code{add_quantile}.
 }
+\details{
+Quantiles of Negative Binomial linear models are determined by
+\code{add_quantile} through a simulation using \code{arm::sim}.
+}
 \examples{
+x1 <- rnorm(100, mean = 1)
+y <- MASS::rnegbin(n = 100, mu = exp(1 + x1), theta = 5)
+df <- data.frame(x1 = x1, y = y)
+fit <- MASS::glm.nb(y ~ x1, data = df)
+add_quantile(df, fit, p = 0.3)
 
 }
 \seealso{
