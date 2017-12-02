@@ -135,11 +135,11 @@ parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     tibble::as_data_frame(tb)
 }
 
-boot_fit <- function(tb, fit, lvl, indices){
-    temp_tb <- tb[indices,]
+boot_fit <- function(data, tb, fit, lvl, indices){
+    data_temp <- data[indices,]
     form <- fit$formula
     fam <- fit$family
-    temp_fit <- glm(form, data = temp_tb, family = fam)
+    temp_fit <- glm(form, data = data_temp, family = fam)
     predict(temp_fit, newdata = tb, type = lvl)
 }
 
@@ -152,16 +152,29 @@ boot_ci_glm <- function(tb, fit, alpha, names, yhatName, response, nSims){
     }
 
     out <- predict(fit, tb, type = lvl)
-    boot_obj <- boot(data = tb,
+
+    boot_obj <- boot(data = fit$model,
                      statistic = boot_fit,
                      R = nSims,
                      fit = fit,
-                     lvl = lvl)
+                     lvl = lvl,
+                     tb = tb)
 
-    raw_boot <- boot_obj$t
+    temp_mat <- matrix(0, ncol = 2, nrow = NROW(tb))
 
-    lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
-    upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
+    for (i in 1:NROW(tb)){
+        temp_mat[i,] <- boot.ci(boot_obj,
+                                type = "bca",
+                                conf = 1 - alpha,
+                                index = i)$bca[4:5]
+    }
+
+    lwr <- temp_mat[,1]
+    upr <- temp_mat[,2]
+
+    ## raw_boot <- boot_obj$t
+    ## lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
+    ## upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out

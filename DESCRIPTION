@@ -28,10 +28,12 @@ Imports:
     tibble,
     utils
 Suggests:
+    broom,
     knitr,
     rmarkdown,
     tidyverse
-VignetteBuilder: rmarkdown,
+VignetteBuilder:
+    rmarkdown,
     knitr
 URL: https://github.com/jthaman/ciTools
 BugReports: https://github.com/jthaman/ciTools/issues
