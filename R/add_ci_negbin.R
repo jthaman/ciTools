@@ -23,7 +23,11 @@
 #' log-link. Confidence Intervals are determined by making an interval
 #' on the scale of the linear predictor, then applying the inverse
 #' link function from the model fit to transform the linear level
-#' confidence intervals to the response level.
+#' confidence intervals to the response level. Alternatively,
+#' bootstrap confidence intervals may be formed. The bootstrap
+#' intervals are formed by first resampling cases from the data frame
+#' used to calculate \code{fit}, then bias corrected and accelerated
+#' intervals are calculated. See \code{boot::boot.ci} for more details.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -57,6 +61,12 @@
 #'     \code{negbin} objects.
 #'
 #' @examples
+#' x1 <- rnorm(300, mean = 1)
+#' y <- MASS::rnegbin(n = 300, mu = exp(5 + 0.5 * x1), theta = 2)
+#' df <- data.frame(x1 = x1, y = y)
+#' fit <- MASS::glm.nb(y ~ x1, data = df)
+#' df <- df[sample(100),]
+#' add_ci(df, fit, names = c("lcb", "ucb"))
 #'
 #' @export
 
@@ -112,10 +122,10 @@ parametric_ci_negbin <- function(tb, fit, alpha, names, yhatName, response){
 }
 
 
-boot_fit_nb<- function(tb, fit, lvl, indices){
-    temp_tb <- tb[indices,]
+boot_fit_nb<- function(data, tb, fit, lvl, indices){
+    data_temp <- data[indices,]
     form <- fit$call[2]
-    temp_fit <- glm.nb(form, data = temp_tb)
+    temp_fit <- glm.nb(form, data = data_temp)
     predict(temp_fit, newdata = tb, type = lvl)
 }
 
@@ -129,16 +139,26 @@ boot_ci_negbin <- function(tb, fit, alpha, names, yhatName, response, nSims){
     }
 
     out <- predict(fit, tb, type = lvl)
-    boot_obj <- boot(data = tb,
+
+    boot_obj <- boot(data = fit$model,
                      statistic = boot_fit_nb,
                      R = nSims,
                      fit = fit,
+                     tb = tb,
                      lvl = lvl)
 
-    raw_boot <- boot_obj$t
 
-    lwr <- apply(raw_boot, 2, FUN = quantile, probs = alpha / 2)
-    upr <- apply(raw_boot, 2, FUN = quantile, probs = 1 - alpha / 2)
+    temp_mat <- matrix(0, ncol = 2, nrow = NROW(tb))
+
+    for (i in 1:NROW(tb)){
+        temp_mat[i,] <- boot.ci(boot_obj,
+                                type = "bca",
+                                conf = 1 - alpha,
+                                index = i)$bca[4:5]
+    }
+
+    lwr <- temp_mat[,1]
+    upr <- temp_mat[,2]
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
