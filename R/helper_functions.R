@@ -46,12 +46,12 @@ get_prediction_se_mermod <- function(tb, fit){
 }
 
 make_formula <- function(fixedEffects, randomEffects, rvName = "y"){
-    
     fixedPart <- paste(fixedEffects, collapse = "+")
     randomPart <- paste("+ (1|", randomEffects, ")")
     formula(paste(c(rvName, " ~ ", fixedPart, randomPart), collapse = ""))
     
 }
+
 
 add_predictions2 <- function (data, model, var = "pred", ...) {
     data[[var]] <- stats::predict(model, data, ...)
