@@ -449,21 +449,20 @@ and the bounds are formed through a simulation.
 
 ## Simulation Study for Prediction Intervals
 
-A small simulation study was performed to examine the empirical
-coverage probilities of prediction intervals formed using the
-parametric bootstrap. We focus on these intervals because we could not
-find results in the literature addressing their performance. Our
-simulation is not comprehensive, so users of `ciTools` should exercise
-care when using these methods.  In each simulation, a simple $y =
-g^{-1}(mx + b)$ model is fit on a variable number of observations and
-a $95\%$ prediction
+A simulation study was performed to examine the empirical coverage
+probilities of prediction intervals formed using the parametric
+bootstrap. We focus on these intervals because we could not find
+results in the literature addressing their performance. Our simulation
+is not comprehensive, so users of `ciTools` should exercise care when
+using these methods.  In each simulation, a simple $y = g^{-1}(mx +
+b)$ model is fit on a variable number of observations.
 
 New observations were generated from the true model to determine if
 the empirical coverage was close to the nominal level. The mean
 interval width was also recorded, as were standard errors of the
 estimated coverage and mean interval width.
 
-Note that in contrast to a study of confidence intervals, we do not except
+Note that in contrast to a study of confidence intervals, we do not expect
 interval widths to shrink to $0$ as sample size tends to
 infinity. This due to the predictive error in the conditional response
 distribution, which is not a factor in the construction of confidence
@@ -477,51 +476,68 @@ models described below:
 3. Then loop ...
    + Generate a response vector from the true model
    + Fit a GLM to the simulated response $\boldsymbol{y}$ with the fixed model matrix
-   + Calculate a prediction interval for $y_{new}$ given $x_0$, the midpoint of the range of $x$.
+   + Calculate a prediction interval for $y_{new}$ given $x_0$, the midpoint of the range of $x$ using $2000$ bootstrap replicates.
    + Store the width of this prediction interval.
    + Generate a response $y_{new} | x_0$ from the true model and determine if the new response is in the PI.
 4. Repeat Step 3 $M$ times.
 
 ### Poisson
 
-A simple Poisson model is fit with the log-link function.
+A Poisson model is fit with the log-link function.
 
 $$
 y \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
 $$
 
-For each sample size, $100$ simulations were performed. The total
-running time of the simulation was about 7 minutes on an Intel i7
-Broadwell laptop. Calculated coverage probabilities generally appear
-to be close to the nomial level.
+For each sample size, $10,000$ simulations were performed. We find
+that observed coverage levels are generally in line with the expected
+level $95\%$. Interval widths generally decrease with sample size,
+however there is an increase from sample size $500$ to $1000$, which
+is within simulation error.
 
 ```{r message=FALSE}
-pois <- read_csv("pois_pi_results.csv")
+pois <- read_csv("pois_pi_results.csv") %>%
+    dplyr::select(-total_time) %>%
+    rename(nominal_level = level) %>%
+    dplyr::select(sample_size, everything())
 knitr::kable(pois)
 ```
 
 ### Negative Binomial
 
 A negative binomial model with log link function was fit with
-dispersion parameter $\theta = 4$.
+dispersion parameter $\theta = 4$. 
 
 $$
 y \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
 $$
 
-For each sample size, $100$ models were fit. Estimated coverage
-probabilities are generally higher than the nominal level, but within
-simulation error according the standard errors.
+For each sample size, $10,000$ models were fit. Estimated coverage
+probabilities are well below the nominal for small sample
+sizes. Statistical "folklore" recommends against fitting negative
+binomial models on a small sample, so our observations are in-line
+with this advice. Even though observed coverage probabilities closely
+agree with the nominal level, we find that interval width estimates
+tend to actually *increase slightly* with sample size, a trend we find
+concerning given the standard errors of the interval width
+estimates. Possible explanations of this trend could be our
+requirement that our prediction intervals are forced to lie in the
+positive integers, and that we do not simulate the distribution of the
+dispersion parameter. These results lead us to believe that more study
+is warranted on this type of interval estimate.
 
 ```{r message=FALSE}
-neg_bin <- read_csv("negbin_pi_results.csv")
+neg_bin <- read_csv("negbin_pi_results.csv") %>%
+    dplyr::select(-total_time) %>%
+    rename(nominal_level = level) %>%
+    dplyr::select(sample_size, everything())
 knitr::kable(neg_bin)
 ```
 
 ### Gamma
 
-A simple Gamma regression model with `"inverse"` link function was fit
-and simulated $100$ times.
+A Gamma regression model with `"inverse"` link function was fit
+and simulated $10,000$ times.
 
 $$
 y \sim \Gamma(\mathrm{shape} = 5, \mathrm{rate} = \frac{5}{2 + 4x}) \qquad x \in (30, 70)
@@ -529,12 +545,21 @@ $$
 
 Gamma regression was not discussed in this vignette but is still
 supported by `ciTools`. Estimated coverage probabilities are generally
-close to the nomial level. Interval widths decrease with sample size.
+close, though consistently slightly below the nomial level. Average
+interval widths tend to exhibit a high degree of variation. 
 
 ```{r message=FALSE}
-gam <- read_csv("gamma_pi_results.csv")
+gam <- read_csv("gamma_pi_results.csv") %>%
+    dplyr::select(-total_time) %>%
+    rename(nominal_level = level) %>%
+    dplyr::select(sample_size, everything())
 knitr::kable(gam)
 ```
+
+In practive, the (non-canonical) log-link function is more
+common due to its numerical stability. Since the choice of link
+function does not drastically alter our prediction interval procedure,
+`ciTools` can also handle these types of models.
 
 ### Gaussian with log link
 
@@ -545,12 +570,16 @@ $$
 y \sim \mathcal{N}(\mathrm{mean} = \exp(1 + x), \mathrm{sd} = 1) \qquad x \in (0,1)
 $$
 
-Since a bootstrap is unnecessary, total running time for the simulate
-is just a fraction of a minute. Coverage probabilities are estimated
-within an standard error of $0.95$ and interval widths generally
-decrease according to the increased sample size.
+Since a bootstrap is unnecessary, total running time for the
+simulation is much faster than for simulations involving other
+distributions. Coverage probabilities are estimated within a standard
+error or two of $0.95$ and interval widths generally decrease
+according to the increased sample size.
 
 ```{r message=FALSE}
-norm_log <- read_csv("gaussian_pi_loglink_results.csv")
+norm_log <- read_csv("gaussian_pi_loglink_results.csv") %>%
+    dplyr::select(-total_time) %>%
+    rename(nominal_level = level) %>%
+    dplyr::select(sample_size, everything())
 knitr::kable(norm_log)
 ```
