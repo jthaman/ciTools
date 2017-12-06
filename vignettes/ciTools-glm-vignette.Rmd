@@ -12,7 +12,7 @@ vignette: >
 ```{r message=FALSE}
 library(tidyverse)
 library(ciTools)
-library(MASS)
+library(MASS) 
 library(arm)
 set.seed(20171102)
 ```
@@ -24,7 +24,7 @@ quantify uncertainty in fitted values. Primarily we focus on the
 Logistic and Poisson models, but `ciTools`'s method for handling GLMs
 is not limited to these models.
 
-Note that the *binomial Logistic* regression is handled in a separate
+Note that the *binomial logistic* regression is handled in a separate
 vignette.
 
 ## The Generalized Linear Model
@@ -492,7 +492,7 @@ models described below:
 A Poisson model is fit with the log-link function.
 
 $$
-y \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
+y|x \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
 $$
 
 For each sample size, $10,000$ simulations were performed. We find
@@ -551,7 +551,7 @@ A negative binomial model with log link function was fit with
 dispersion parameter $\theta = 4$. 
 
 $$
-y \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
+y|x \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
 $$
 
 For each sample size, $10,000$ models were fit. Estimated coverage
@@ -619,7 +619,7 @@ A Gamma regression model with `"inverse"` link function was fit
 and simulated $10,000$ times.
 
 $$
-y \sim \Gamma(\mathrm{shape} = 5, \mathrm{rate} = \frac{5}{2 + 4x}) \qquad x \in (30, 70)
+y|x \sim \Gamma(\mathrm{shape} = 5, \mathrm{rate} = \frac{5}{2 + 4x}) \qquad x \in (30, 70)
 $$
 
 Gamma regression was not discussed in this vignette but is still
@@ -684,7 +684,7 @@ Gaussian prediction intervals may be determined parametrically by
 `ciTools`. The model we considered was 
 
 $$
-y \sim \mathcal{N}(\mathrm{mean} = \exp(1 + x), \mathrm{sd} = 1) \qquad x \in (0,1)
+y|x \sim \mathcal{N}(\mathrm{mean} = \exp(1 + x), \mathrm{sd} = 1) \qquad x \in (0,1)
 $$
 
 Since a bootstrap is unnecessary, total running time for the
