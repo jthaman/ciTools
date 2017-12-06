@@ -173,6 +173,7 @@ df <- bind_rows(df1, df2)
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
+    ggtitle("Logistic Regression", subtitle = "Model fit (black line) and confidence intervals (gray)") +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
     geom_line(aes(x =x , y = pred), size = 2) +
@@ -200,6 +201,7 @@ disagreement.
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center", echo = F}
 ggplot(df4, aes(x = x, y = y)) +
+    ggtitle("Logistic Regression") +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
     geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
@@ -307,7 +309,6 @@ no bearing on the model.
 ```{r }
 x <- rnorm(100, mean = 0)
 y <- rpois(n = 100, lambda = exp(1.5 + 0.5*x))
-
 df <- data.frame(x = x, y = y)
 fit <- glm(y ~ x , family = poisson(link = "log"))
 ```
@@ -333,6 +334,7 @@ the user as a tibble.
 df_ints %>% 
     ggplot(aes(x = x, y = y)) +
     geom_point(size = 2) +
+    ggtitle("Poisson Regression", subtitle = "Model fit (black line), with prediction intervals (gray), confidence intervals (dark gray)") +
     geom_line(aes(x = x, y = pred), size = 1.2) + 
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.2)
@@ -439,6 +441,7 @@ df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
+    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence  intervals (dark gray)") + 
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
@@ -552,7 +555,7 @@ y \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
 $$
 
 For each sample size, $10,000$ models were fit. Estimated coverage
-probabilities are well below the nominal for small sample
+probabilities lie below the nominal level for small sample
 sizes. Statistical "folklore" recommends against fitting negative
 binomial models on a small sample, so our observations are in-line
 with this advice. Even though observed coverage probabilities closely
