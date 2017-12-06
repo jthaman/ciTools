@@ -496,10 +496,11 @@ y|x \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
 $$
 
 For each sample size, $10,000$ simulations were performed. We find
-that observed coverage levels are generally in line with the expected
-level $95\%$. Interval widths generally decrease with sample size,
-however there is an increase from sample size $500$ to $1000$, which
-is within simulation error.
+that observed coverage levels are biased conservative by about
+$0.5\%$. This bias is likely a side effect of the type of quantile we
+calculate on the bootstrapped data. Interval widths generally decrease
+with sample size, however there is an increase from sample size $500$
+to $1000$, which is within simulation error.
 
 ```{r message=FALSE}
 pois <- read_csv("pois_pi_results.csv") %>%
@@ -624,8 +625,11 @@ $$
 
 Gamma regression was not discussed in this vignette but is still
 supported by `ciTools`. Estimated coverage probabilities are generally
-close, though consistently slightly below the nomial level. Average
-interval widths tend to exhibit a high degree of variation. 
+close, but consistently slightly below, the nomial level. In contrast
+to the results from the Poisson simulation, these coverage
+probabilities are within simulation error of the nominal
+level. Average interval widths tend to exhibit a high degree of
+variation.
 
 ```{r message=FALSE}
 gam <- read_csv("gamma_pi_results.csv") %>%
@@ -746,9 +750,9 @@ GLM. To date, we provide coverage for many common GLMs used by
 practitioners. For the models covered by `ciTools`, our simulations
 show that our confidence and prediction intervals are trustworthy.
 
-There is still work to be done on this portion of `ciTools`:
+There is still work to be done on this portion of `ciTools`. We would like to 
 
-1. We would like to include more parametric methods for prediction
+1. Include more parametric methods for prediction
 intervals.
 
 2. Add facilities to handle CIs and PIs when offset terms are present
@@ -759,3 +763,6 @@ binomial model.
 
 4. Produce a simulation study that compares parametric vs. bootstrap
 intervals for GLMs.
+
+5. Offer alternative prediction intervals e.g. the shortest intervals
+that contain $95\%$ of the simulated data.
