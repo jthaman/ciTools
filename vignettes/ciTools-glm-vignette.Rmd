@@ -736,3 +736,26 @@ ggplot(norm_log, aes(x=sample_size, y=int_width)) +
     geom_line(size = 1.5) +
     geom_point(size = 1.5)
 ```
+
+## Summary
+
+`ciTools` is a versatile **R** package that helps users quantify
+uncertainty about their generalized linear models. Creating interval
+estimates that are amenable to plotting is now as simple as fitting a
+GLM. To date, we provide coverage for many common GLMs used by
+practitioners. For the models covered by `ciTools`, our simulations
+show that our confidence and prediction intervals are trustworthy.
+
+There is still work to be done on this portion of `ciTools`:
+
+1. We would like to include more parametric methods for prediction
+intervals.
+
+2. Add facilities to handle CIs and PIs when offset terms are present
+in the model fit.
+
+3. Further study interval estimates pertaining to the negative
+binomial model.
+
+4. Produce a simulation study that compares parametric vs. bootstrap
+intervals for GLMs.
