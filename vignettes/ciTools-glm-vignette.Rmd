@@ -22,8 +22,10 @@ to handle generalized linear models. Small simulations will be
 provided in addition to examples that show how to use `ciTools` to
 quantify uncertainty in fitted values. Primarily we focus on the
 Logistic and Poisson models, but `ciTools`'s method for handling GLMs
-is not limited to these models. Note that the *binomial Logistic*
-regression is handled in a separate vignette. 
+is not limited to these models.
+
+Note that the *binomial Logistic* regression is handled in a separate
+vignette.
 
 ## The Generalized Linear Model
 
@@ -84,26 +86,26 @@ Quasipoisson, Gamma, Guassian and certain other models.
 # Overview of `ciTools` methods for GLMs
 
 Unlike linear models, interval estimates pertaining to GLMs generally
-do not have clean parametric forms. Parametric interval estimates are
-available in certain cases, and where ever available, `ciTools` will
-choose to implement them by default. Below we detail precisely what
-computations `ciTools` perfoms when one of the core functions
-(`add_ci`, `add_pi`, `add_probs`, `add_quantile`) is called on an
-object of class `glm`.
+do not have clean, parametric forms. This is problematic because from
+a computational point of view we would prefer a solution that is fast
+and relatively simple. Parametric interval estimates are available in
+certain cases, and wherever available, `ciTools` will choose to
+implement them by default. Below we detail precisely which computations
+`ciTools` perfoms when one of the core functions (`add_ci`, `add_pi`,
+`add_probs`, `add_quantile`) is called on an object of class `glm`.
 
 ## Confidence Intervals
 
 For any model fit by `glm`, `add_ci()` may compute confidence
 intervals for predictions using either a parametric method or a
-bootstrap. The parametric confidence interval method computes
-confidence intervals of the scale of the linear predictor $X \beta$
-and transforms the intervals to the response level through the
-inverse link function $g^{-1}$. Confidence intervals on the linear
-predictor level are computed using a Normal distribution for
-Logistic and Poisson regressions and a $t$ distribution
-otherwise. (This is consistent with the default behavior for the 
-`predict.glm` function.) The intervals are given by the following 
-expressions:
+bootstrap. The parametric method computes confidence intervals of the
+scale of the linear predictor $X \beta$ and transforms the intervals
+to the response level through the inverse link function
+$g^{-1}$. Confidence intervals on the linear predictor level are
+computed using a Normal distribution for Logistic and Poisson
+regressions or a $t$ distribution otherwise. (This is consistent with
+the default behavior for the `predict.glm` function.) The intervals
+are given by the following expressions:
 
 $$
 \begin{equation}
@@ -126,18 +128,18 @@ for other generalized linear models. The default method is parametric
 and is called with `add_ci(data, fit, ...)`. This is the method we
 generally recommend for constructing confidence intervals for model
 prediction. The bootstrap method is called with `add_ci(data, fit,
-type = "boot", ...)` and is included mostly for making comparisons
-against the parametric method. There are multiple methods of bootstrap
-for regression models (resampling cases, resampling residuals,
-parametric, etc.). The bootstrap method employed by `ciTools` in
-`add_ci.glm()` resamples cases and iteratively refits the model 
-(using the default behavior of `boot::boot`) to
-determine confidence intervals. After collecting the bootstrap
-replicates, a bias-corrected and accelerated (BCa) bootstrap
-confidence interval is formed.
+type = "boot", ...)` and was included originally for making
+comparisons against the parametric method. There are multiple methods
+of bootstrap for regression models (resampling cases, resampling
+residuals, parametric, etc.). The bootstrap method employed by
+`ciTools` in `add_ci.glm()` resamples cases and iteratively refits the
+model (using the default behavior of `boot::boot`) to determine
+confidence intervals. After collecting the bootstrap replicates, a
+bias-corrected and accelerated (BCa) bootstrap confidence interval is
+formed.
 
 There are several methods for computing bootstrap confidence
-interval, though we don't provide options to compute all of these
+intervals, though we don't provide options to compute all of these
 type of intervals in `ciTools`. BCa intervals are slightly larger
 than parametric intervals, but are less biased than other types of
 bootstrapped intervals, including percentile based intervals. We
@@ -169,7 +171,7 @@ df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSim
 df <- bind_rows(df1, df2)
 ```
 
-```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
+```{r fig.width = 6, fig.heither = 4, fig.align = "center"}
 ggplot(df, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
@@ -177,8 +179,8 @@ ggplot(df, aes(x = x, y = y)) +
     facet_grid(~type)
 ```
 
-Our two confidence interval methods mostly agree, although the
-bootstrap method produces slightly wider intervals.
+Our two confidence interval methods mostly agree, but the bootstrap
+method produces slightly wider intervals.
 
 ```{r echo = F}
 df3 <- filter(df, type == "parametric")
@@ -189,12 +191,14 @@ df4 <- filter(df, type == "bootstrap") %>%
 ```
 
 Another perspective on the difference between these two interval
-calculation methods. It's a fairly clear that the BCa intervals
-(red) indeed exhibit little bias, but are not as tight as the
-parametric intervals (purple).
+calculation methods. It's a fairly clear that the BCa intervals (red)
+indeed exhibit little bias, but are not as tight as the parametric
+intervals (purple). In practice, if the sample size is small or the
+model is false, these interval estimates may exhibit more
+disagreement.
 
 
-```{r fig.width = 8, fig.heither = 5, fig.align = "center", echo = F}
+```{r fig.width = 6, fig.heither = 4, fig.align = "center", echo = F}
 ggplot(df4, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
@@ -248,7 +252,7 @@ approximately nominal probability coverage. The unfortunate side
 effect of opting to construct prediction intervals through a
 parametric bootstrap is that the parameters of the predictive
 distributions need to hard coded for each model. At this point, the
-only models that we support with `add_pi()` are Guassian, Poisson,
+only GLMs that we support with `add_pi()` are Guassian, Poisson,
 Binomial, Gamma, and Quasipoisson (all of which need to be fit with
 `glm()`).
 
@@ -256,7 +260,7 @@ One exception to this scheme are GLMs with Gaussian errors. In this
 case we may parametrically calculate prediction intervals. Under
 Gaussian errors, `glm()` permits the use of the link functions
 "identity", "log", and "inverse". The corresponding models are given
-by the following:
+by the following expressions:
 
 $$
 \begin{equation}
@@ -296,7 +300,6 @@ count data, so we wish to present a complete example of quantifying
 uncertainty for this type of model with `ciTools`. For simplicity
 we fit a model on fake data.
 
-
 We use `rnorm` to generate a covariate, but the randomness of $x$ has
 no bearing on the model.
 
@@ -318,7 +321,7 @@ non-continuous distributions.
 ```{r }
 df_ints <- df %>% 
     add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
-    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) %>%
+    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
     print()
 ```
 
@@ -326,7 +329,7 @@ As with other methods available in `ciTools` the requested
 statistics are computed, appended to the data frame, and returned to
 the user as a tibble.
 
-```{r fig.width = 8, fig.heither = 5, fig.align = "center"}
+```{r fig.width = 6, fig.heither = 4, fig.align = "center"}
 df_ints %>% 
     ggplot(aes(x = x, y = y)) +
     geom_point(size = 2) +
@@ -432,9 +435,9 @@ for the range of a new observation:
 
 ```{r }
 df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
-    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 5000) 
+    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) 
 
-```{r fig.width = 8, fig.heither = 5, fig.align="center"}
+```{r fig.width = 6, fig.heither = 4, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
@@ -503,6 +506,42 @@ pois <- read_csv("pois_pi_results.csv") %>%
 knitr::kable(pois)
 ```
 
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(pois, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    ylim(0, 1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Poisson Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(pois, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Poisson Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(pois, aes(x=sample_size, y=int_width)) + 
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    xlab("Sample Size") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("Poisson Prediction Intervals", subtitle = "Interval Widths") +
+    geom_line(size = 1.5) +
+    geom_point(size = 1.5)
+```
+
 ### Negative Binomial
 
 A negative binomial model with log link function was fit with
@@ -534,6 +573,43 @@ neg_bin <- read_csv("negbin_pi_results.csv") %>%
 knitr::kable(neg_bin)
 ```
 
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    ylim(0, 1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(neg_bin, aes(x=sample_size, y=int_width)) + 
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
+    xlab("Sample Size") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Interval Widths") +
+    geom_line(size = 1.5) +
+    geom_point(size = 1.5)
+```
+
 ### Gamma
 
 A Gamma regression model with `"inverse"` link function was fit
@@ -554,6 +630,44 @@ gam <- read_csv("gamma_pi_results.csv") %>%
     rename(nominal_level = level) %>%
     dplyr::select(sample_size, everything())
 knitr::kable(gam)
+```
+
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(gam, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    ylim(0, 1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(gam, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(gam, aes(x=sample_size, y=int_width)) + 
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
+    scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
+    xlab("Sample Size") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Interval Widths") +
+    geom_line(size = 1.5) +
+    geom_point(size = 1.5)
 ```
 
 In practive, the (non-canonical) log-link function is more
@@ -582,4 +696,40 @@ norm_log <- read_csv("gaussian_pi_loglink_results.csv") %>%
     rename(nominal_level = level) %>%
     dplyr::select(sample_size, everything())
 knitr::kable(norm_log)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(norm_log, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    ylim(0, 1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(norm_log, aes(x=sample_size, y=cov_prob)) + 
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
+```
+
+```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
+ggplot(norm_log, aes(x=sample_size, y=int_width)) + 
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    xlab("Sample Size") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Interval Widths") +
+    geom_line(size = 1.5) +
+    geom_point(size = 1.5)
 ```
