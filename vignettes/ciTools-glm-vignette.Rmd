@@ -512,9 +512,9 @@ ggplot(pois, aes(x=sample_size, y=cov_prob)) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
     ylim(0, 1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Poisson Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    ggtitle("Poisson Regression -- P.I. Simulation", subtitle = "Coverage Probabilities on [0,1] scale") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -524,9 +524,9 @@ ggplot(pois, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Poisson Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    ggtitle("Poisson Regression -- P.I. Simulation", subtitle = "Coverage Probabilities (zoom in)") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -535,9 +535,9 @@ ggplot(pois, aes(x=sample_size, y=cov_prob)) +
 ggplot(pois, aes(x=sample_size, y=int_width)) + 
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Interval Widths +/- 2 SEs") +
-    ggtitle("Poisson Prediction Intervals", subtitle = "Interval Widths") +
+    ggtitle("Poisson Regression -- P.I. Simulation", subtitle = "Interval Widths") +
     geom_line(size = 1.5) +
     geom_point(size = 1.5)
 ```
@@ -579,9 +579,9 @@ ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
     ylim(0, 1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    ggtitle("Negative Binomial Regression -- P.I. Simulation", subtitle = "Coverage Probabilities on [0,1] scale") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -592,9 +592,9 @@ ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    ggtitle("Negative Binomial Regression -- P.I. Simulation", subtitle = "Coverage Probabilities (zoom in)") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -603,9 +603,9 @@ ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
 ggplot(neg_bin, aes(x=sample_size, y=int_width)) + 
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Interval Widths +/- 2 SEs") +
-    ggtitle("Negative Binomial Prediction Intervals", subtitle = "Interval Widths") +
+    ggtitle("Negative Binomial Regression -- P.I. Simulation", subtitle = "Interval Widths") +
     geom_line(size = 1.5) +
     geom_point(size = 1.5)
 ```
@@ -639,9 +639,9 @@ ggplot(gam, aes(x=sample_size, y=cov_prob)) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
     ylim(0, 1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    ggtitle("Gamma Regression -- P.I. Simulation", subtitle = "Coverage Probabilities on [0,1] scale") +
     scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -652,9 +652,9 @@ ggplot(gam, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    ggtitle("Gamma Regression -- P.I. Simulation", subtitle = "Coverage Probabilities (zoom in)") +
     scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -663,9 +663,9 @@ ggplot(gam, aes(x=sample_size, y=cov_prob)) +
 ggplot(gam, aes(x=sample_size, y=int_width)) + 
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Interval Widths +/- 2 SEs") +
-    ggtitle("Gamma Regression Prediction Intervals", subtitle = "Interval Widths") +
+    ggtitle("Gamma Regression -- P.I. Simulation", subtitle = "Interval Widths") +
     geom_line(size = 1.5) +
     geom_point(size = 1.5)
 ```
@@ -704,9 +704,9 @@ ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
     ylim(0, 1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Coverage Probabilities on [0,1] scale") +
+    ggtitle("Gaussian Regression -- P.I. Simulation", subtitle = "Coverage Probabilities on [0,1] scale") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -716,9 +716,9 @@ ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Coverage Probs +/- 2 SEs") +
-    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Coverage Probabilities (zoom in)") +
+    ggtitle("Gaussian Regression -- P.I. Simulation", subtitle = "Coverage Probabilities (zoom in)") +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     geom_hline(aes(yintercept = 0.95), colour="#BB0000", linetype="dashed", size = 1)
 ```
@@ -727,9 +727,9 @@ ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
 ggplot(norm_log, aes(x=sample_size, y=int_width)) + 
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
-    xlab("Sample Size") +
+    xlab("Sample Size (log scale)") +
     ylab("Interval Widths +/- 2 SEs") +
-    ggtitle("Gaussian Regression Prediction Intervals", subtitle = "Interval Widths") +
+    ggtitle("Gaussian Regression -- P.I. Simulation", subtitle = "Interval Widths") +
     geom_line(size = 1.5) +
     geom_point(size = 1.5)
 ```
