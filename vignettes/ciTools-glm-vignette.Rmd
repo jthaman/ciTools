@@ -779,7 +779,7 @@ that contain $95\%$ of the simulated data.
 
 ### Session
 
-```
+```{r}
 sessionInfo()
 ```
 
