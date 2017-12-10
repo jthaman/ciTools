@@ -30,7 +30,7 @@ vignette.
 ## The Generalized Linear Model
 
 Generalized linear models are an extension of linear models that
-seek to accomodate certain types of non-linear relationships. The
+seek to accommodate certain types of non-linear relationships. The
 manner in which the non-linearity is addressed also
 allows users to perform inferences on data that are not strictly
 continuous. GLMs are the most common model type that allow for a
@@ -39,7 +39,7 @@ covariates $X$. Recall that linear regression directly predicts a
 continuous response from the linear predictor, $X \beta$. A GLM
 extends this linear prediction scheme. A GLM consists of:
 
-1. A linear predictor $X \beta$
+1. A linear predictor $X \beta$.
 
 2. A monotonic and everywhere differentiable link function $g$,
 which transforms the linear predictor: $\hat{y} = g^{-1}(X
@@ -78,9 +78,9 @@ $$
 
 Due to the variety of options available, fitting generalized linear
 models is more complicated than fitting linear models. In **R**, `glm`
-is the starting point for handling GLM fits, and is the currently the
+is the starting point for handling GLM fits, and is currently the
 only GLM fitting function that is supported by `ciTools`. We can use
-`ciTools` in tendem with `glm` to fit and analyze Logistic, Poisson,
+`ciTools` in tandem with `glm` to fit and analyze Logistic, Poisson,
 Quasipoisson, Gamma, Guassian and certain other models.
 
 # Overview of `ciTools` methods for GLMs
@@ -91,14 +91,14 @@ a computational point of view we would prefer a solution that is fast
 and relatively simple. Parametric interval estimates are available in
 certain cases, and wherever available, `ciTools` will choose to
 implement them by default. Below we detail precisely which computations
-`ciTools` perfoms when one of the core functions (`add_ci`, `add_pi`,
+`ciTools` performs when one of the core functions (`add_ci`, `add_pi`,
 `add_probs`, `add_quantile`) is called on an object of class `glm`.
 
 ## Confidence Intervals
 
 For any model fit by `glm`, `add_ci()` may compute confidence
 intervals for predictions using either a parametric method or a
-bootstrap. The parametric method computes confidence intervals of the
+bootstrap. The parametric method computes confidence intervals on the
 scale of the linear predictor $X \beta$ and transforms the intervals
 to the response level through the inverse link function
 $g^{-1}$. Confidence intervals on the linear predictor level are
@@ -124,33 +124,35 @@ $$
 \end{equation}
 $$
 
-for other generalized linear models. The default method is parametric
-and is called with `add_ci(data, fit, ...)`. This is the method we
-generally recommend for constructing confidence intervals for model
-prediction. The bootstrap method is called with `add_ci(data, fit,
-type = "boot", ...)` and was included originally for making
-comparisons against the parametric method. There are multiple methods
-of bootstrap for regression models (resampling cases, resampling
-residuals, parametric, etc.). The bootstrap method employed by
-`ciTools` in `add_ci.glm()` resamples cases and iteratively refits the
-model (using the default behavior of `boot::boot`) to determine
-confidence intervals. After collecting the bootstrap replicates, a
-bias-corrected and accelerated (BCa) bootstrap confidence interval is
-formed.
+for other generalized linear models. In these expressions, we regard
+$X$ as the model matrix from the original fit, and $x$ as the "new
+data" matrix. The default method is parametric and is called with
+`add_ci(data, fit, ...)`. This is the method we generally recommend
+for constructing confidence intervals for model predictions.
 
-There are several methods for computing bootstrap confidence
-intervals, though we don't provide options to compute all of these
-type of intervals in `ciTools`. BCa intervals are slightly larger
-than parametric intervals, but are less biased than other types of
-bootstrapped intervals, including percentile based intervals. We
-may consider adding more types of bootstrap intervals to `ciTools`
-in the future.
+The bootstrap method is called with `add_ci(tb, fit, type = "boot",
+...)` and was included originally for making comparisons against the
+parametric method. There are multiple methods of bootstrap for
+regression models (resampling cases, resampling residuals, parametric,
+etc.). The bootstrap method employed by `ciTools` in `add_ci.glm()`
+resamples cases and iteratively refits the model (using the default
+behavior of `boot::boot`) to determine confidence intervals. After
+collecting the bootstrap replicates, a bias-corrected and accelerated
+(BCa) bootstrap confidence interval is formed for each point in the
+sample `tb`.
+
+Although there are several methods for computing bootstrap confidence
+intervals, we don't provide options to compute all of these
+types of intervals in `ciTools`. BCa intervals are slightly larger than
+parametric intervals, but are less biased than other types of
+bootstrapped intervals, including percentile based intervals. We may
+consider adding more types of bootstrap intervals to `ciTools` in the
+future.
 
 ### Logistic Regression Example
 
 For comparison, we show an example of the confidence intervals for
 the probability estimates of a Logistic regression model.
-
 
 ```{r }
 x <- rnorm(100, mean = 5)
@@ -159,7 +161,7 @@ df <- data.frame(x = x, y = y)
 fit <- glm(y ~ x, family = binomial)
 ```
 
-We use `ciTools` to compute the two type of confidence intervals,
+We use `ciTools` to compute the two types of confidence intervals,
 then we stack the dataframes together.
 
 ```{r }
@@ -181,7 +183,7 @@ ggplot(df, aes(x = x, y = y)) +
 ```
 
 Our two confidence interval methods mostly agree, but the bootstrap
-method produces slightly wider intervals.
+method produces slightly wider intervals. 
 
 ```{r echo = F}
 df3 <- filter(df, type == "parametric")
@@ -192,12 +194,12 @@ df4 <- filter(df, type == "bootstrap") %>%
 ```
 
 Another perspective on the difference between these two interval
-calculation methods. It's a fairly clear that the BCa intervals (red)
-indeed exhibit little bias, but are not as tight as the parametric
-intervals (purple). In practice, if the sample size is small or the
-model is false, these interval estimates may exhibit more
-disagreement.
-
+calculation methods is shown below. It's a fairly clear that the BCa
+intervals (red) indeed exhibit little bias, but are not as tight as
+the parametric intervals (purple). This is expected behavior because
+the bootstrap confidence intervals don't "know" about the model
+assumptions. In practice, if the sample size is small or the model is
+false, these interval estimates may exhibit more disagreement.
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center", echo = F}
 ggplot(df4, aes(x = x, y = y)) +
@@ -208,8 +210,7 @@ ggplot(df4, aes(x = x, y = y)) +
     geom_line(aes(x = x , y = pred), size = 2)
 ```
 
-
-If the sample increases, we will find that the two estimates
+If the sample size increases, we will find that the two estimates
 increasingly agree and converge to $0$ in width. Note that we do not
 calculate prediction intervals for $y$ when $y$ is Bernoulli
 distributed because the support of $y$ is exactly $\{0,1\}$.
@@ -223,8 +224,9 @@ data produced for each observation. The procedure is performed via
 `arm::sim`. The method of the parametric bootstrap is described by
 the following algorithm:
 
-1. Fit the GLM, and collect the fitted responses. Set the number of
-simulations, $M$.
+1. Fit the GLM, and collect the regression statistics $\hat{\beta}$
+and $\hat{\mathrm{Cov}}(\hat{\beta})$. Set the number of simulations,
+$M$.
 
 2. Simulate $M$ draws of the regression coefficients,
 $\hat{\beta}_{*}$, from $N(\hat{\beta},
@@ -232,37 +234,37 @@ $\hat{\beta}_{*}$, from $N(\hat{\beta},
 $\hat{\mathrm{Cov}}(\hat{\beta}) = \hat{\sigma}^2 (X'X)^{-1}$.
 
 3. Simulate $[y_{*}|x]$ from the response distribution with mean
-$g^{-1}(X \hat{\beta}_{*})$ and a variance determined by the
+$g^{-1}(x \hat{\beta}_{*})$ and a variance determined by the
 response distribution.
 
 4. Determine the $\alpha/2$ and $1-\alpha/2$ quantiles of the
 simulated response $[y_{*}|x]$ for each $x$.
 
-This parametric bootstrap method propagates the uncertainty in the
+The parametric bootstrap method propagates the uncertainty in the
 regression effects $\hat{\beta}$ into the simulated draws from the
 predictive distribution.
 
-Generally, there are many different ways to calculate the quantiles
-of an empirical distribution, but the approach that `ciTools` takes
-ensures that estimates quantiles lie in the support set of the
-response. The choice we make corresponds to the `type = 1` argument
-of `quantile()`.
+Generally, there are many different ways to calculate the quantiles of
+an empirical distribution, but the approach that `ciTools` takes
+ensures that estimated quantiles lie in the support set of the
+response. The choice we make corresponds to setting `type = 1` in
+`quantile()`.
 
-We have seen in our simulations that the parametric bootstrap
-provides (with some exception) interval estimates with
-approximately nominal probability coverage. The unfortunate side
-effect of opting to construct prediction intervals through a
-parametric bootstrap is that the parameters of the predictive
-distributions need to hard coded for each model. At this point, the
-only GLMs that we support with `add_pi()` are Guassian, Poisson,
-Binomial, Gamma, and Quasipoisson (all of which need to be fit with
-`glm()`).
+We have seen in our simulations that the parametric bootstrap provides
+interval estimates with approximately nominal probability
+coverage. The unfortunate side effect of opting to construct
+prediction intervals through a parametric bootstrap is that the
+parameters of the predictive distributions need to hard coded for each
+model. For this reason, `ciTools` does not have complete coverage of
+all models one could fit with `glm`.
 
 One exception to this scheme are GLMs with Gaussian errors. In this
 case we may parametrically calculate prediction intervals. Under
 Gaussian errors, `glm()` permits the use of the link functions
 "identity", "log", and "inverse". The corresponding models are given
 by the following expressions:
+
+
 
 $$
 \begin{equation}
@@ -294,6 +296,11 @@ the inferential uncertainty in the fitted values. Note that $g^{-1}(X
 \hat{\beta})$ is a maximum likelihood estimate for the parameter
 $g^{-1}(X \beta)$, by the functional invariance of maximum
 likelihood estimation.
+
+At this point, the only GLMs that we support with `add_pi()`
+are Guassian, Poisson, Binomial, Gamma, and Quasipoisson (all of which
+need to be fit with `glm()`). The models not supported by `add_pi.glm` are
+inverse Gaussian, Quasi, and Quasi-binomial.
 
 ## Poisson Example
 
@@ -343,7 +350,8 @@ df_ints %>%
 Since the response $y$ is count data, and the method we used to
 determine the intervals involves simulation, we find that `ciTools`
 will produce "jagged" bounds when all the intervals are plotted
-simultaneously. 
+simultaneously. Increasing the number of simulations using the `nSims`
+argument in `add_pi` can help reduce some of this unsightliness.
 
 We may also wish to compute response-level probabilities and
 quantiles. `ciTools` can also handle these estimates with
@@ -362,12 +370,12 @@ df %>%
 
 ### Extension to Quasipoisson
 
-A common problem with this model is the presence of
+A common problem with the Poisson model is the presence of
 over-dispersion. Recall that for the Poisson model, we require that
-the variance and mean agree, however this is practically a strict
-and unreasonable modeling assumption. A quasipoisson model is one
-remedy: it estimates an additional dispersion parameter and will
-provide a better fit. Under the quasipoisson assumption
+the variance and mean agree, however this is practically a strict and
+unreasonable modeling assumption. A quasipoisson model is one remedy:
+it estimates an additional dispersion parameter and will provide a
+better fit. Under the quasipoisson assumption
 
 $$
 \mathbb{E}[y|X] = \mu = \exp (X \beta)
@@ -397,7 +405,7 @@ stems from the fact that it allows for non-integer-valued $\theta$.
 and Multilevel/Hierarchical Model*, `ciTools` does not simulate the
 uncertainty in the over-dispersion parameter
 $\hat{\phi}$. According to our simulations, dropping this
-unceratinty from the parametric bootstrap has a negligible effect on
+uncertainty from the parametric bootstrap has a negligible effect on
 the coverage probabilities. While the distribution of $\hat{\phi}$
 is asymptotically Normal, it is very likely that the finite sample
 estimator has a skewed distribution. Approximating this
@@ -415,7 +423,7 @@ Model Overdispersed Count Data?*
 ### Example
 
 Again, we generate fake data. The dispersion parameter is set to
-$5$ in the negative binomial model. 
+$5$ in the quasipoisson model. 
 
 
 ```{r }
@@ -441,7 +449,7 @@ df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
-    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence  intervals (dark gray)") + 
+    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
@@ -456,7 +464,7 @@ and the bounds are formed through a simulation.
 ## Simulation Study for Prediction Intervals
 
 A simulation study was performed to examine the empirical coverage
-probilities of prediction intervals formed using the parametric
+probabilities of prediction intervals formed using the parametric
 bootstrap. We focus on these intervals because we could not find
 results in the literature addressing their performance. Our simulation
 is not comprehensive, so users of `ciTools` should exercise care when
@@ -470,7 +478,7 @@ estimated coverage and mean interval width.
 
 Note that in contrast to a study of confidence intervals, we do not expect
 interval widths to shrink to $0$ as sample size tends to
-infinity. This due to the predictive error in the conditional response
+infinity. This is due to the predictive error in the conditional response
 distribution, which is not a factor in the construction of confidence
 intervals.
 
@@ -625,11 +633,11 @@ $$
 
 Gamma regression was not discussed in this vignette but is still
 supported by `ciTools`. Estimated coverage probabilities are generally
-close, but consistently slightly below, the nomial level. In contrast
+close, but consistently slightly below, the nominal level. In contrast
 to the results from the Poisson simulation, these coverage
 probabilities are within simulation error of the nominal
 level. Average interval widths tend to exhibit a high degree of
-variation.
+variation. 
 
 ```{r message=FALSE}
 gam <- read_csv("gamma_pi_results.csv") %>%
@@ -677,7 +685,7 @@ ggplot(gam, aes(x=sample_size, y=int_width)) +
     geom_point(size = 1.5)
 ```
 
-In practive, the (non-canonical) log-link function is more
+In practice, the (non-canonical) log-link function is more
 common due to its numerical stability. Since the choice of link
 function does not drastically alter our prediction interval procedure,
 `ciTools` can also handle these types of models.
@@ -766,3 +774,12 @@ intervals for GLMs.
 
 5. Offer alternative prediction intervals e.g. the shortest intervals
 that contain $95\%$ of the simulated data.
+
+6. Include options beyond BCa for creating bootstrap confidence intervals.
+
+### Session
+
+```
+sessionInfo()
+```
+
