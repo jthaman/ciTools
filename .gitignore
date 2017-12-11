@@ -47,3 +47,4 @@ inst/doc
 ciTools.Rproj
 /R/TAGS
 /vignettes/.build.timestamp
+/vignettes/glm.rmd

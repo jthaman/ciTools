@@ -29,7 +29,7 @@ vignette.
 
 ## The Generalized Linear Model
 
-Generalized linear models are an extension of linear models that
+Generalized linear models are extensions of linear models that
 seek to accommodate certain types of non-linear relationships. The
 manner in which the non-linearity is addressed also
 allows users to perform inferences on data that are not strictly
@@ -80,8 +80,8 @@ Due to the variety of options available, fitting generalized linear
 models is more complicated than fitting linear models. In **R**, `glm`
 is the starting point for handling GLM fits, and is currently the
 only GLM fitting function that is supported by `ciTools`. We can use
-`ciTools` in tandem with `glm` to fit and analyze Logistic, Poisson,
-Quasipoisson, Gamma, Guassian and certain other models.
+`ciTools` in tandem with `glm` to fit and analyze logistic, Poisson,
+quasi-Poisson, gamma, Gaussian and certain other models.
 
 # Overview of `ciTools` methods for GLMs
 
@@ -194,7 +194,7 @@ df4 <- filter(df, type == "bootstrap") %>%
 ```
 
 Another perspective on the difference between these two interval
-calculation methods is shown below. It's a fairly clear that the BCa
+calculation methods is shown below. It's fairly clear that the BCa
 intervals (red) indeed exhibit little bias, but are not as tight as
 the parametric intervals (purple). This is expected behavior because
 the bootstrap confidence intervals don't "know" about the model
@@ -254,7 +254,7 @@ We have seen in our simulations that the parametric bootstrap provides
 interval estimates with approximately nominal probability
 coverage. The unfortunate side effect of opting to construct
 prediction intervals through a parametric bootstrap is that the
-parameters of the predictive distributions need to hard coded for each
+parameters of the predictive distributions need to hard-coded for each
 model. For this reason, `ciTools` does not have complete coverage of
 all models one could fit with `glm`.
 
@@ -298,9 +298,9 @@ $g^{-1}(X \beta)$, by the functional invariance of maximum
 likelihood estimation.
 
 At this point, the only GLMs that we support with `add_pi()`
-are Guassian, Poisson, Binomial, Gamma, and Quasipoisson (all of which
+are Gaussian, Poisson, Binomial, Gamma, and quasi-Poisson (all of which
 need to be fit with `glm()`). The models not supported by `add_pi.glm` are
-inverse Gaussian, Quasi, and Quasi-binomial.
+inverse Gaussian, quasi, and quasi-binomial.
 
 ## Poisson Example
 
@@ -368,14 +368,14 @@ df %>%
     print()
 ```
 
-### Extension to Quasipoisson
+### Extension to Quasi-Poisson
 
 A common problem with the Poisson model is the presence of
 over-dispersion. Recall that for the Poisson model, we require that
 the variance and mean agree, however this is practically a strict and
-unreasonable modeling assumption. A quasipoisson model is one remedy:
+unreasonable modeling assumption. A quasi-Poisson model is one remedy:
 it estimates an additional dispersion parameter and will provide a
-better fit. Under the quasipoisson assumption
+better fit. Under the quasi-Poisson assumption
 
 $$
 \mathbb{E}[y|X] = \mu = \exp (X \beta)
@@ -388,7 +388,7 @@ $$
 $$
 
 Quasi models are not full maximum likelihood models, however it is possible
-to embed a Quasipoisson in the Negative Binomial framework using
+to embed a quasi-Poisson in the negative binomial framework using
 
 $$
 \mathrm{QP}(\mu, \theta) = \mathrm{NegBin}(\mu, \theta = \frac{\mu}{\phi - 1})
@@ -414,7 +414,7 @@ research. As it stands, the prediction intervals we form for
 over-dispersed models tend to be conservative.
 
 Negative binomial regression (via `glm.nb`) is implemented as a
-separate method in `ciTools`, and is an alternative to quasipoisson
+separate method in `ciTools`, and is an alternative to quasi-Poisson
 regression. For more information on the difference between these
 two models, we recommend Jay Ver Hoef and Peter Boveng's
 *Quasi-poisson vs. Negative Binomial Regression: How Should We
@@ -423,7 +423,7 @@ Model Overdispersed Count Data?*
 ### Example
 
 Again, we generate fake data. The dispersion parameter is set to
-$5$ in the quasipoisson model. 
+$5$ in the quasi-Poisson model. 
 
 
 ```{r }
@@ -449,7 +449,7 @@ df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
-    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
+    ggtitle("Quasi-Poisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
@@ -458,7 +458,7 @@ ggplot(df_ints, aes(x = x, y = y)) +
 
 The darker region represents the confidence intervals formed by
 `add_ci` and the lighter intervals are formed by `add_pi`. Again,
-intervals are "jagged" because the response the is not continuous
+intervals are "jagged" because the response is not continuous
 and the bounds are formed through a simulation.
 
 ## Simulation Study for Prediction Intervals
@@ -497,7 +497,7 @@ models described below:
 
 ### Poisson
 
-A Poisson model is fit with the log-link function.
+A Poisson model is fit with the log link function.
 
 $$
 y|x \sim \mathrm{Poisson}(\lambda = \exp(1 + 2 x)), \quad x \in (1, 2)
@@ -633,7 +633,7 @@ $$
 
 Gamma regression was not discussed in this vignette but is still
 supported by `ciTools`. Estimated coverage probabilities are generally
-close, but consistently slightly below, the nominal level. In contrast
+close to, but consistently slightly below, the nominal level. In contrast
 to the results from the Poisson simulation, these coverage
 probabilities are within simulation error of the nominal
 level. Average interval widths tend to exhibit a high degree of
@@ -685,7 +685,7 @@ ggplot(gam, aes(x=sample_size, y=int_width)) +
     geom_point(size = 1.5)
 ```
 
-In practice, the (non-canonical) log-link function is more
+In practice, the (non-canonical) log link function is more
 common due to its numerical stability. Since the choice of link
 function does not drastically alter our prediction interval procedure,
 `ciTools` can also handle these types of models.
