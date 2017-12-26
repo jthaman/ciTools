@@ -49,7 +49,10 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{glm}. Confidence Intervals are determined by making an
 interval on the scale of the linear predictor, then applying the
 inverse link function from the model fit to transform the linear
-level confidence intervals to the response level.
+level confidence intervals to the response level. If the argument
+\code{type = "boot"} is used, then bias corrected and accelerated
+bootstrap confidence intervals are formed instead of parametric
+intervals.
 }
 \examples{
 # Poisson regression
