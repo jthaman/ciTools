@@ -104,15 +104,16 @@
 
 ** Scope of =ciTools= 
 
-| Model            | Confidence Intervals | Prediction Intervals | Response Probabilities | Response Quantiles |
-|------------------+----------------------+----------------------+------------------------+--------------------|
-| Linear           | [X]                  | [X]                  | [X]                    | [X]                |
-| Log-Linear       | [X]                  | [X]                  | [X]                    | [X]                |
-| GLM              | [X]                  | [X]                  | [X]                    | [X]                |
-| Linear Mixed     | [X]                  | [X]                  | [X]                    | [X]                |
-| Log-Linear Mixed | [TODO]               | [X]                  | [X]                    | [X]                |
-| Survival         | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
-| GLMM             | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
+| Model             | Confidence Intervals | Prediction Intervals | Response Probabilities | Response Quantiles |
+|-------------------+----------------------+----------------------+------------------------+--------------------|
+| Linear            | [X]                  | [X]                  | [X]                    | [X]                |
+| Log-Linear        | [X]                  | [X]                  | [X]                    | [X]                |
+| GLM               | [X]                  | [X]                  | [X]                    | [X]                |
+| Linear Mixed      | [X]                  | [X]                  | [X]                    | [X]                |
+| Negative Binomial | [X]                  | [X]                  | [X]                    | [X]                |
+| Log-Linear Mixed  | [TODO]               | [X]                  | [X]                    | [X]                |
+| Survival          | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
+| GLMM              | [TODO]               | [TODO]               | [TODO]                 | [TODO]             |
 
   [X] = Implemented
 ** Help us out?
