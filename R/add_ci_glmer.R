@@ -33,10 +33,10 @@
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
-#' @param type A string. Must be \code{"boot"},
-#'     If \code{type = "boot"}, then \code{add_ci} calls
-#'     \code{lme4::bootMer} to calculate the confidence
-#'     intervals. 
+#' @param response A logical. The default is \code{TRUE}. If
+#'     \code{TRUE}, the confidence intervals will be determined for
+#'     the expected response; if \code{FALSE}, confidence intervals
+#'     will be made on the scale of the linear predictor.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
@@ -54,15 +54,16 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' TODO
+#' 
 #'
 #' @examples
-#' TODO
+#' 
 #' 
 #' @export
 
 add_ci.glmerMod <- function(tb, fit, 
                             alpha = 0.05, names = NULL, yhatName = "pred",
+                            response = TRUE,
                             type = "boot", includeRanef = TRUE,
                             nSims = 200, ...){
 
@@ -78,24 +79,24 @@ add_ci.glmerMod <- function(tb, fit,
     }
 
     if (type == "boot")
-        bootstrap_ci_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_ci_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName, response)
     else
         stop("Incorrect type specified!")
 }
 
 ciTools_data <- new.env(parent = emptyenv())
 
-bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName, response) {
+
 
     ciTools_data$tb_temp <- tb 
 
     if (includeRanef) { 
         rform = NULL
-        my_pred <- my_pred_full
-        
+        my_pred <- my_pred_full_glmer
     } else {
         rform = NA
-        my_pred <- my_pred_fixed
+        my_pred <- my_pred_fixed_glmer
     }
         
     boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)

@@ -32,6 +32,12 @@
 #' @param type A string. Must be \code{"boot"}, If \code{type =
 #'     "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
 #'     calculate the probabilities.
+#' @param comparison A string. If \code{comparison = "<"}, then
+#'     \eqn{Pr(Y|x < q)} is calculated for each observation in
+#'     \code{tb}. Default is "<". Must be "<" or ">" for objects of
+#'     class \code{lm} or \code{lmerMod}. If \code{fit} is a
+#'     \code{glm}, then \code{comparison} also may be \code{"<="} ,
+#'     \code{">="} , or \code{"="}.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
@@ -49,15 +55,15 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' TODO
+#' 
 #'
 #' @examples
-#' TODO
+#' 
 #'
 #' @export
 
 add_probs.glmerMod <- function(tb, fit, 
-                               q, names = NULL, yhatName = "pred",
+                               q, name = NULL, yhatName = "pred", comparison,
                                type = "boot", includeRanef = TRUE,
                                nSims = 10000, ...){
 
@@ -83,19 +89,17 @@ add_probs.glmerMod <- function(tb, fit,
     }
 
     if (type == "boot")
-        bootstrap_probs_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_probs_glmermod(tb, fit, q, name, includeRanef, nSims, yhatName, comparison)
     else
         stop("Incorrect type specified!")
 }
 
-bootstrap_probs_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_probs_glmermod <- function(tb, fit, q, name, includeRanef, nSims, yhatName, comparison) {
 
     if (includeRanef) { 
         rform = NULL
-        my_pred <- my_pred_full
     } else {
         rform = NA
-        my_pred <- my_pred_fixed
     }
         
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)

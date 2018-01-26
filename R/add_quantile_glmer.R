@@ -49,10 +49,10 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' TODO
+#' 
 #'
 #' @examples
-#' TODO
+#' 
 #'
 #' @export
 
@@ -75,7 +75,7 @@ add_quantile.glmerMod <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
 
     if (type == "boot")
-        bootstrap_quant_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_quant_glmermod(tb, fit, p, name, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
@@ -84,10 +84,8 @@ bootstrap_quant_glmermod <- function(tb, fit, p, name, includeRanef, nSims, yhat
 
     if (includeRanef) { 
         rform = NULL
-        my_pred <- my_pred_full
     } else {
         rform = NA
-        my_pred <- my_pred_fixed
     }
     
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)

@@ -53,10 +53,10 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' TODO
+#' 
 #'
 #' @examples
-#' TODO
+#' 
 #'
 #' @export
 
