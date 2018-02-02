@@ -1,6 +1,8 @@
 #+STARTUP: noinlineimages
 * ciTools: An *R* Package for Quick Uncertainty Intervals
   [[file:lmer.png]]
+
+  [As seen at RStudio::conf2018!](https://github.com/matthewravery/ciTools/blob/master/RStudio-conf-slides.pdf)
 ** Overview
    =ciTools= is an *R* package that makes working with model uncertainty
    as easy as possible. It gives the user easy access to confidence or
