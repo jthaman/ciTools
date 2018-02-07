@@ -27,6 +27,7 @@ framed.sty
 a4wide.sty
 LICENSE
 lmer.png
+Rstudio-conf-slides.pdf
 figure/.*
 cache/.*
 README.org
