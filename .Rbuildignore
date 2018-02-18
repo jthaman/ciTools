@@ -10,6 +10,7 @@ Makefile
 build-pkg*
 clean
 .git
+^.*\.md
 .gitignore
 .Rproj.user
 ^.RData
