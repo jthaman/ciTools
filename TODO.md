@@ -1,0 +1,18 @@
+Short Term
+==========
+
+-   ~~Add more GLMs to add<sub>pi</sub>~~
+-   ~~Perform and sim study and compile a vignette for GLM intervals~~
+-   Convert this list to github issues
+-   incorporate method to handle offset terms (these are common in GLMs)
+-   Implement a parametric method for GLM prediction intervals.
+-   reorder columns of new data if they are not already in the right order
+-   Develop set of test functions (testthat plus test folder)
+
+Long Term
+=========
+
+-   Add survival models method that can handle censored data
+-   Add GLMMs method
+-   Zero-Inflated Poisson models
+
