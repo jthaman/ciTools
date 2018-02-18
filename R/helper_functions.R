@@ -17,30 +17,44 @@
 
 get_x_matrix_mermod <- function(tb, fit){
 
-    ##This function is necessary to avoid cases where the new data upon
-    ##which CIs are generated does not contain all levels for one or more
-    ##factors from the original data set. New and old data sets are
-    ##appended, the model matrix is generated, and the function returns
-    ##only the rows corresponding to the new data.
-    mm <- fit@frame
+    ## This function is necessary to avoid cases where the new data
+    ## upon which CIs are generated does not contain all levels for
+    ## one or more factors from the original data set. New and old
+    ## data sets are appended, the model matrix is generated, and the
+    ## function returns only the rows corresponding to the new data.
+
+    ## Check for rank deficieny and correct the model matrix if
+    ## necessary
+
+    if (is.null(attr(fit@pp$X, "msgRankdrop"))){
+        mm <- fit@frame
+        terms <- attributes(terms(fit))$term.labels
+    } else {
+        terms_all <- attributes(terms(fit))$term.labels
+        dropped <- attr(fit@pp$X, "col.dropped")
+        mm <- fit@frame[, -dropped]
+        dropped_terms <- names(dropped)
+        terms <- setdiff(terms_all, dropped_terms)
+    }
+
     rv <- names(mm)[1]
     mm[[rv]] <- as.numeric(mm[[rv]])
-    
+
     for(i in names(mm)){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
 
-    suppressWarnings(model.matrix(reformulate(attributes(terms(fit))$term.labels), 
+    suppressWarnings(model.matrix(reformulate(terms),
                                   dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
-}
+    }
 
 
 get_prediction_se_mermod <- function(tb, fit){
-    
+
     X <- get_x_matrix_mermod(tb, fit)
     vcovBetaHat <- vcov(fit) %>%
         as.matrix
-    X %*% vcovBetaHat %*% t(X) %>% 
+    X %*% vcovBetaHat %*% t(X) %>%
         diag %>%
             sqrt
 }
@@ -49,7 +63,7 @@ make_formula <- function(fixedEffects, randomEffects, rvName = "y"){
     fixedPart <- paste(fixedEffects, collapse = "+")
     randomPart <- paste("+ (1|", randomEffects, ")")
     formula(paste(c(rvName, " ~ ", fixedPart, randomPart), collapse = ""))
-    
+
 }
 
 
@@ -60,7 +74,7 @@ add_predictions2 <- function (data, model, var = "pred", ...) {
 
 
 get_resid_df_mermod <- function(fit){
-    nrow(model.matrix(fit)) - length(fixef(fit)) - 
+    nrow(model.matrix(fit)) - length(fixef(fit)) -
         (length(attributes(summary(fit)$varcor)$names) + 1)
 }
 
@@ -69,7 +83,7 @@ get_pi_mermod_var <- function(tb, fit, includeRanef){
     seG <- arm::se.ranef(fit)[[1]][1,]
     sigmaG <- as.data.frame(VarCorr(fit))$sdcor[1]
     se_residual <- sigma(fit)
-    
+
     if(includeRanef)
         return(sqrt(seFixed^2 + seG^2 + se_residual^2))
     else
