@@ -5,8 +5,8 @@
 \title{Confidence Intervals for Generalized Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{glmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE, nSims = 200,
-  ...)
+  yhatName = "pred", response = TRUE, type = "boot",
+  includeRanef = TRUE, nSims = 200, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -24,10 +24,14 @@ named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{type}{A string. Must be \code{"boot"},
-If \code{type = "boot"}, then \code{add_ci} calls
-\code{lme4::bootMer} to calculate the confidence
-intervals.}
+\item{response}{A logical. The default is \code{TRUE}. If
+\code{TRUE}, the confidence intervals will be determined for
+the expected response; if \code{FALSE}, confidence intervals
+will be made on the scale of the linear predictor.}
+
+\item{type}{A string. If \code{type == "boot"} then bootstrap
+intervals are formed. If \code{type == "parametric"} then
+parametric intervals are formed.}
 
 \item{includeRanef}{A logical. Default is \code{TRUE}. Set whether
 the predictions and intervals should be made conditional on the

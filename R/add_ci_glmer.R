@@ -22,7 +22,7 @@
 #' class \code{glmerMod}. Confidence intervals are approximate and
 #' determined via simulation.
 #'
-#' 
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -32,6 +32,9 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
+#' @param type A string. If \code{type == "boot"} then bootstrap
+#'     intervals are formed. If \code{type == "parametric"} then
+#'     parametric intervals are formed.
 #' @param yhatName A string. Name of the predictions vector.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
@@ -54,14 +57,14 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' 
+#'
 #'
 #' @examples
-#' 
-#' 
+#'
+#'
 #' @export
 
-add_ci.glmerMod <- function(tb, fit, 
+add_ci.glmerMod <- function(tb, fit,
                             alpha = 0.05, names = NULL, yhatName = "pred",
                             response = TRUE,
                             type = "boot", includeRanef = TRUE,
@@ -78,35 +81,91 @@ add_ci.glmerMod <- function(tb, fit,
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
 
-    if (type == "boot")
+    if (type == "boot") {
         bootstrap_ci_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName, response)
-    else
+    } else if (type == "parametric") {
+        parametric_ci_glmermod(tb, fit, alpha, names, includeRanef, yhatName, response)
+    } else {
         stop("Incorrect type specified!")
+    }
+}
+
+parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName, response){
+
+    if (length(fit@cnms[[1]]) != 1)
+        stop("parametric confidence intervals are currently only implemented for random intercept models.")
+
+    seFixed <- get_prediction_se_mermod(tb, fit)
+    ranef_name <- names(fit@cnms)[1] ## just one random effect for now
+    seRandom <- arm::se.ranef(fit)[[1]][,1]
+    seRandom_vec <- rep(NA, length(tb[[ranef_name]]))
+
+    seRandom_df <- tibble(
+        group = names(seRandom),
+        seRandom = seRandom
+    )
+
+    names(seRandom_df)[names(seRandom_df) == 'group'] <- ranef_name
+    seRandom_vec <- dplyr::left_join(tb, seRandom_df, by = ranef_name)[["seRandom"]]
+
+    rdf <- get_resid_df_mermod(fit)
+
+    if (fit@resp$family$family %in% c("binomial", "poisson")){
+        crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
+    } else {
+        crit_val <- qt(p = 1 - alpha/2, df = rdf)
+    }
+
+    inverselink <- fit@resp$family$linkinv
+
+    if(includeRanef) {
+        re.form <- NULL
+        seGlobal <- sqrt(seFixed^2 + seRandom_vec^2)
+    } else {
+        re.form <-  NA
+        seGlobal <- seFixed
+    }
+
+    out <- predict(fit, tb, re.form = re.form)
+
+    pred <- inverselink(out)
+    upr <- inverselink(out + crit_val * seGlobal)
+    lwr <- inverselink(out - crit_val * seGlobal)
+
+    if(fit@resp$family$link %in% c("inverse", "1/mu^2")){
+        upr1 <- lwr
+        lwr <- upr
+        upr <- upr1
+    }
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- pred
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
 }
 
 ciTools_data <- new.env(parent = emptyenv())
 
 bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName, response) {
 
+    ciTools_data$tb_temp <- tb
 
-    ciTools_data$tb_temp <- tb 
-
-    if (includeRanef) { 
+    if (includeRanef) {
         rform = NULL
         my_pred <- my_pred_full_glmer
     } else {
         rform = NA
         my_pred <- my_pred_fixed_glmer
     }
-        
+
     boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
-    ci_out <- boot_quants(boot_obj, alpha) 
+    ci_out <- boot_quants(boot_obj, alpha)
 
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
     as_data_frame(tb)
-    
-}
 
+}
