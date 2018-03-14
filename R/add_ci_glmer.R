@@ -22,9 +22,18 @@
 #' class \code{glmerMod}. Confidence intervals are approximate and
 #' determined via simulation.
 #'
+#' There are two methods one can use to calculate confidence intervals
+#' for GLMM fits: bootstrap or parametric. The default and recommended
+#' method is bootstrap. The bootstrap method can handle many types of
+#' models and we find it to be generally reliable and robust as it is
+#' built on the \code{bootMer} function from \code{lme4}. An
+#' experimental parametric method is included that mimics the
+#' functionality of \code{add_cl.lmer}'s deafult method. We caution
+#' against using this method because presently it only works for GLMMs
+#' that have a single random intercept term.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{lmerMod}.
+#' @param fit An object of class \code{glmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
 #' @param names \code{NULL} or character vector of length two. If
@@ -35,7 +44,9 @@
 #' @param type A string. If \code{type == "boot"} then bootstrap
 #'     intervals are formed. If \code{type == "parametric"} then
 #'     parametric intervals are formed.
-#' @param yhatName A string. Name of the predictions vector.
+#' @param yhatName \code{NULL} or a string. Name of the predictions
+#'     vector. If \code{NULL}, the predictions will be named
+#'     \code{pred}.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
 #'     the expected response; if \code{FALSE}, confidence intervals
@@ -57,10 +68,16 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#'
+#' http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 #'
 #' @examples
+#' ## random intercept example
+#' tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+#'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
+#' fit <- glmer(y~x+(1|f),data=tb,family=poisson)
 #'
+#' tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
+#' tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCBB", "UCBB"), type = "boot")
 #'
 #' @export
 
@@ -68,7 +85,7 @@ add_ci.glmerMod <- function(tb, fit,
                             alpha = 0.05, names = NULL, yhatName = "pred",
                             response = TRUE,
                             type = "boot", includeRanef = TRUE,
-                            nSims = 200, ...){
+                            nSims = 250, ...){
 
     if (!is.null(fit@optinfo$conv$lme4$code))
         warning ("Coverage probabilities may be inaccurate if the model failed to converge")
@@ -128,9 +145,15 @@ parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName
 
     out <- predict(fit, tb, re.form = re.form)
 
-    pred <- inverselink(out)
-    upr <- inverselink(out + crit_val * seGlobal)
-    lwr <- inverselink(out - crit_val * seGlobal)
+    pred <- out
+    upr <- out + crit_val * seGlobal
+    lwr <- out - crit_val * seGlobal
+
+    if (response == TRUE){
+        pred <- inverselink(pred)
+        upr <- inverselink(upr)
+        lwr <- inverselink(lwr)
+    }
 
     if(fit@resp$family$link %in% c("inverse", "1/mu^2")){
         upr1 <- lwr
@@ -138,8 +161,7 @@ parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName
         upr <- upr1
     }
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
+    tb[[yhatName]] <- pred
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)
@@ -162,8 +184,7 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
     boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
     ci_out <- boot_quants(boot_obj, alpha)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- ci_out$fit
+    tb[[yhatName]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
     as_data_frame(tb)
