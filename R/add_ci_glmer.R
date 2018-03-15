@@ -74,10 +74,11 @@
 #' ## random intercept example
 #' tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
 #'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
-#' fit <- glmer(y~x+(1|f),data=tb,family=poisson)
+#' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 #'
 #' tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
-#' tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCBB", "UCBB"), type = "boot")
+#' \dontrun{add_ci(tb, fit, includeRanef = TRUE,
+#'                 names = c("LCBB", "UCBB"), type = "boot", nSims = 100)}
 #'
 #' @export
 
@@ -117,9 +118,9 @@ parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName
     seRandom <- arm::se.ranef(fit)[[1]][,1]
     seRandom_vec <- rep(NA, length(tb[[ranef_name]]))
 
-    seRandom_df <- tibble(
-        group = names(seRandom),
-        seRandom = seRandom
+    seRandom_df <- tibble::tibble(
+                               group = names(seRandom),
+                               seRandom = seRandom
     )
 
     names(seRandom_df)[names(seRandom_df) == 'group'] <- ranef_name
@@ -187,6 +188,5 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
     tb[[yhatName]] <- ci_out$fit
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
-    as_data_frame(tb)
-
+    tibble::as_data_frame(tb)
 }

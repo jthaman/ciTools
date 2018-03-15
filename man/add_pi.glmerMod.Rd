@@ -11,7 +11,7 @@
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
 
-\item{fit}{An object of class \code{lmerMod}.}
+\item{fit}{An object of class \code{glmerMod}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
@@ -22,12 +22,12 @@ level of the interval estimates.}
 named \code{names[1]} and the upper prediction bound will be
 named \code{names[2]}.}
 
-\item{yhatName}{A string. Name of the predictions vector.}
+\item{yhatName}{\code{NULL} or a string. The name of the
+predictions vector.}
 
-\item{type}{A string. Must be \code{"boot"},
-If \code{type = "boot"}, then \code{add_ci} calls
-\code{lme4::bootMer} to calculate the confidence
-intervals.}
+\item{type}{A string. Must be \code{"boot"}, If \code{type =
+"boot"}, then \code{add_ci} calls \code{lme4::bootMer} to
+calculate the confidence intervals.}
 
 \item{includeRanef}{A logical. Default is \code{TRUE}. Set whether
 the predictions and intervals should be made conditional on the
@@ -47,13 +47,15 @@ A tibble, \code{tb}, with predicted values, upper and lower
 This function is one of the methods for \code{add_pi}, and is
 called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{glmerMod}. Prediction intervals are approximate and
-determined by simulation.
+determined by simulation through the \code{simulate} function
+distributed with \code{lme4}.
 }
 \examples{
+tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+                 f=factor(sample(1:10,size=1000,replace=TRUE)))
+fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
-
-}
-\references{
+add_pi(tb, fit, includeRanef = TRUE, names = c("LPB", "UPB"), nSims = 500)
 
 }
 \seealso{

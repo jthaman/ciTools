@@ -6,12 +6,12 @@
 \usage{
 \method{add_ci}{glmerMod}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "pred", response = TRUE, type = "boot",
-  includeRanef = TRUE, nSims = 200, ...)
+  includeRanef = TRUE, nSims = 250, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
 
-\item{fit}{An object of class \code{lmerMod}.}
+\item{fit}{An object of class \code{glmerMod}.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
@@ -22,7 +22,9 @@ level of the interval estimates.}
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
-\item{yhatName}{A string. Name of the predictions vector.}
+\item{yhatName}{\code{NULL} or a string. Name of the predictions
+vector. If \code{NULL}, the predictions will be named
+\code{pred}.}
 
 \item{response}{A logical. The default is \code{TRUE}. If
 \code{TRUE}, the confidence intervals will be determined for
@@ -53,12 +55,30 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{glmerMod}. Confidence intervals are approximate and
 determined via simulation.
 }
+\details{
+There are two methods one can use to calculate confidence intervals
+for GLMM fits: bootstrap or parametric. The default and recommended
+method is bootstrap. The bootstrap method can handle many types of
+models and we find it to be generally reliable and robust as it is
+built on the \code{bootMer} function from \code{lme4}. An
+experimental parametric method is included that mimics the
+functionality of \code{add_cl.lmer}'s deafult method. We caution
+against using this method because presently it only works for GLMMs
+that have a single random intercept term.
+}
 \examples{
+## random intercept example
+tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+                 f=factor(sample(1:10,size=1000,replace=TRUE)))
+fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
+tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
+\dontrun{add_ci(tb, fit, includeRanef = TRUE,
+                names = c("LCBB", "UCBB"), type = "boot", nSims = 100)}
 
 }
 \references{
-
+http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 }
 \seealso{
 \code{\link{add_pi.glmerMod}} for prediction intervals

@@ -19,15 +19,15 @@
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{glmerMod}. 
+#' class \code{glmerMod}.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{lmerMod}.
+#' @param fit An object of class \code{glmerMod}.
 #' @param p A real number between 0 and 1. Sets the probability level
 #'     of the quantiles.
 #' @param name \code{NULL} or a string. If \code{NULL}, quantile
 #'     automatically will be named by \code{add_quantile}
-#' @param yhatName A string. Name of the predictions vector.
+#' @param yhatName \code{NULL} or a string. Name of the predictions vector.
 #' @param type A string. Must be \code{"boot"}, If \code{type =
 #'     "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
 #'     calculate the confidence intervals. This method may be time
@@ -38,25 +38,27 @@
 #'     random effects. If \code{FALSE}, random effects will not be
 #'     included.
 #' @param nSims A positive integer.  Controls the number of bootstrap
-#'     replicates. 
+#'     replicates.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values and quantiles attached.
-#' 
+#'
 #' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
 #'     of \code{glmerMod} objects, \code{\link{add_probs.glmerMod}} for
 #'     conditional probabilities of \code{glmerMod} objects, and
 #'     \code{\link{add_ci.glmerMod}} for confidence intervals of
 #'     \code{glmerMod} objects.
 #'
-#' @references
-#' 
-#'
 #' @examples
-#' 
+#' tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+#'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
+#' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
+#'
+#' add_quantile(tb, fit, p = 0.7, includeRanef = TRUE, nSims = 500)
+#'
 #'
 #' @export
 
-add_quantile.glmerMod <- function(tb, fit, 
+add_quantile.glmerMod <- function(tb, fit,
                                   p, name = NULL, yhatName = "pred",
                                   type = "boot", includeRanef = TRUE,
                                   nSims = 10000, ...){
@@ -71,7 +73,7 @@ add_quantile.glmerMod <- function(tb, fit,
         stop ("p should be in (0,1)")
     if (is.null(name))
         name <- paste("quantile", p, sep="")
-    if ((name %in% colnames(tb))) 
+    if ((name %in% colnames(tb)))
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
 
     if (type == "boot")
@@ -82,12 +84,12 @@ add_quantile.glmerMod <- function(tb, fit,
 
 bootstrap_quant_glmermod <- function(tb, fit, p, name, includeRanef, nSims, yhatName) {
 
-    if (includeRanef) { 
+    if (includeRanef) {
         rform = NULL
     } else {
         rform = NA
     }
-    
+
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
     gg <- as.matrix(gg)
     quant_out <- apply(gg, 1, FUN = quantile, probs = p)
@@ -99,4 +101,3 @@ bootstrap_quant_glmermod <- function(tb, fit, p, name, includeRanef, nSims, yhat
 
     tibble::as_data_frame(tb)
 }
-

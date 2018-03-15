@@ -23,12 +23,13 @@
 #' determined via a simulation.
 #'
 #' @param tb A tibble or data frame of new data.
-#' @param fit An object of class \code{lmerMod}.
+#' @param fit An object of class \code{glmerMod}.
 #' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or character vector of length one. If
 #'     \code{NULL}, response probabilities automatically will be named
 #'     by \code{add_probs},
-#' @param yhatName A string. Name of the predictions vector.
+#' @param yhatName \code{NULL} or a string. Name of the predictions
+#'     vector.
 #' @param type A string. Must be \code{"boot"}, If \code{type =
 #'     "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
 #'     calculate the probabilities.
@@ -36,8 +37,8 @@
 #'     \eqn{Pr(Y|x < q)} is calculated for each observation in
 #'     \code{tb}. Default is "<". Must be "<" or ">" for objects of
 #'     class \code{lm} or \code{lmerMod}. If \code{fit} is a
-#'     \code{glm}, then \code{comparison} also may be \code{"<="} ,
-#'     \code{">="} , or \code{"="}.
+#'     \code{glm} or \code{glmerMod}, then \code{comparison} also may
+#'     be \code{"<="} , \code{">="} , or \code{"="}.
 #' @param includeRanef A logical. Default is \code{TRUE}. Set whether
 #'     the predictions and intervals should be made conditional on the
 #'     random effects. If \code{FALSE}, random effects will not be
@@ -54,15 +55,16 @@
 #'     \code{\link{add_quantile.glmerMod}} for response quantiles of
 #'     \code{glmerMod} objects.
 #'
-#' @references
-#' 
-#'
 #' @examples
-#' 
+#' tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+#'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
+#' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
+#'
+#' add_probs(tb, fit, q = 3, comparison = "<=", includeRanef = TRUE, nSims = 500)
 #'
 #' @export
 
-add_probs.glmerMod <- function(tb, fit, 
+add_probs.glmerMod <- function(tb, fit,
                                q, name = NULL, yhatName = "pred", comparison,
                                type = "boot", includeRanef = TRUE,
                                nSims = 10000, ...){
@@ -96,12 +98,12 @@ add_probs.glmerMod <- function(tb, fit,
 
 bootstrap_probs_glmermod <- function(tb, fit, q, name, includeRanef, nSims, yhatName, comparison) {
 
-    if (includeRanef) { 
+    if (includeRanef) {
         rform = NULL
     } else {
         rform = NA
     }
-        
+
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
     gg <- as.matrix(gg)
     probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
@@ -112,4 +114,3 @@ bootstrap_probs_glmermod <- function(tb, fit, q, name, includeRanef, nSims, yhat
     tb[[name]] <- probs
     tibble::as_data_frame(tb)
 }
-

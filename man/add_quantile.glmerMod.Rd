@@ -10,7 +10,7 @@
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
 
-\item{fit}{An object of class \code{lmerMod}.}
+\item{fit}{An object of class \code{glmerMod}.}
 
 \item{p}{A real number between 0 and 1. Sets the probability level
 of the quantiles.}
@@ -18,7 +18,7 @@ of the quantiles.}
 \item{name}{\code{NULL} or a string. If \code{NULL}, quantile
 automatically will be named by \code{add_quantile}}
 
-\item{yhatName}{A string. Name of the predictions vector.}
+\item{yhatName}{\code{NULL} or a string. Name of the predictions vector.}
 
 \item{type}{A string. Must be \code{"boot"}, If \code{type =
 "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
@@ -45,10 +45,12 @@ called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{glmerMod}.
 }
 \examples{
+tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+                 f=factor(sample(1:10,size=1000,replace=TRUE)))
+fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
+add_quantile(tb, fit, p = 0.7, includeRanef = TRUE, nSims = 500)
 
-}
-\references{
 
 }
 \seealso{

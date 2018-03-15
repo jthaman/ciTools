@@ -10,7 +10,7 @@
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
 
-\item{fit}{An object of class \code{lmerMod}.}
+\item{fit}{An object of class \code{glmerMod}.}
 
 \item{q}{A double. A quantile of the response distribution.}
 
@@ -18,14 +18,15 @@
 \code{NULL}, response probabilities automatically will be named
 by \code{add_probs},}
 
-\item{yhatName}{A string. Name of the predictions vector.}
+\item{yhatName}{\code{NULL} or a string. Name of the predictions
+vector.}
 
 \item{comparison}{A string. If \code{comparison = "<"}, then
 \eqn{Pr(Y|x < q)} is calculated for each observation in
 \code{tb}. Default is "<". Must be "<" or ">" for objects of
 class \code{lm} or \code{lmerMod}. If \code{fit} is a
-\code{glm}, then \code{comparison} also may be \code{"<="} ,
-\code{">="} , or \code{"="}.}
+\code{glm} or \code{glmerMod}, then \code{comparison} also may
+be \code{"<="} , \code{">="} , or \code{"="}.}
 
 \item{type}{A string. Must be \code{"boot"}, If \code{type =
 "boot"}, then \code{add_ci} calls \code{lme4::simulate} to
@@ -52,10 +53,11 @@ of class \code{glmerMod}. Probabilities are approximate and
 determined via a simulation.
 }
 \examples{
+tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
+                 f=factor(sample(1:10,size=1000,replace=TRUE)))
+fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
-
-}
-\references{
+add_probs(tb, fit, q = 3, comparison = "<=", includeRanef = TRUE, nSims = 500)
 
 }
 \seealso{
