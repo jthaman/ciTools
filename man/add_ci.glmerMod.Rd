@@ -52,8 +52,7 @@ A tibble, \code{tb}, with predicted values, upper and lower
 \description{
 This function is one of the methods for \code{add_ci}, and is
 called automatically when \code{add_ci} is used on a \code{fit} of
-class \code{glmerMod}. Confidence intervals are approximate and
-determined via simulation.
+class \code{glmerMod}.
 }
 \details{
 There are two methods one can use to calculate confidence intervals
@@ -64,12 +63,15 @@ built on the \code{bootMer} function from \code{lme4}. An
 experimental parametric method is included that mimics the
 functionality of \code{add_ci.lmer}'s default method. We caution
 against using this method because presently it only works for GLMMs
-that have a single random intercept term.
+that have a single random intercept term, and tends to provide
+intervals that are wider than the intervals supplied by the
+bootstrap method. A simulation study on this discrepancy is
+pending.
 }
 \examples{
 ## random intercept example
-tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
-                 f=factor(sample(1:10,size=1000,replace=TRUE)))
+tb <- data.frame(y=rpois(100,lambda=3),x=runif(100),
+                 f=factor(sample(1:10,size=100,replace=TRUE)))
 fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
 add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
@@ -78,7 +80,7 @@ add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric
 
 }
 \references{
-http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 }
 \seealso{
 \code{\link{add_pi.glmerMod}} for prediction intervals

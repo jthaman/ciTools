@@ -103,13 +103,22 @@ my_pred_fixed <- function(fit) {
     predict(fit, newdata = ciTools_data$tb_temp, re.form = NA)
 }
 
-my_pred_full_glmer <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = lvl)
+my_pred_full_glmer_response <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "response")
 }
 
-my_pred_fixed_glmer <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = lvl)
+my_pred_fixed_glmer_response <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "response")
 }
+
+my_pred_full_glmer_linear <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "link")
+}
+
+my_pred_fixed_glmer_linear <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "link")
+}
+
 boot_quants <- function(merBoot, alpha) {
     return(
         data.frame(fit = apply(merBoot$t, 2, quantile, probs = 0.5),

@@ -19,8 +19,7 @@
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{glmerMod}. Confidence intervals are approximate and
-#' determined via simulation.
+#' class \code{glmerMod}.
 #'
 #' There are two methods one can use to calculate confidence intervals
 #' for GLMM fits: bootstrap or parametric. The default and recommended
@@ -30,7 +29,10 @@
 #' experimental parametric method is included that mimics the
 #' functionality of \code{add_ci.lmer}'s default method. We caution
 #' against using this method because presently it only works for GLMMs
-#' that have a single random intercept term.
+#' that have a single random intercept term, and tends to provide
+#' intervals that are wider than the intervals supplied by the
+#' bootstrap method. A simulation study on this discrepancy is
+#' pending.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glmerMod}.
@@ -68,12 +70,12 @@
 #'     \code{glmerMod} objects.
 #'
 #' @references
-#' http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+#' For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 #'
 #' @examples
 #' ## random intercept example
-#' tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
-#'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
+#' tb <- data.frame(y=rpois(100,lambda=3),x=runif(100),
+#'                  f=factor(sample(1:10,size=100,replace=TRUE)))
 #' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 #'
 #' add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
@@ -175,21 +177,26 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
     ciTools_data$tb_temp <- tb
 
     if (includeRanef) {
-        rform = NULL
-        my_pred <- my_pred_full_glmer
+        rform <- NULL
+        if (response) {
+            my_pred <- my_pred_full_glmer_response
+            lvl <- "response"
+        } else {
+            my_pred <- my_pred_full_glmer_linear
+            lvl <- "link"
+        }
     } else {
-        rform = NA
-        my_pred <- my_pred_fixed_glmer
+        rform <- NA
+        if (response) {
+            my_pred <- my_pred_fixed_glmer_response
+            lvl <- "response"
+        } else {
+            my_pred <- my_pred_fixed_glmer_linear
+            lvl <- "link"
+        }
     }
 
-    if (response){
-        lvl <- "response"
-    }
-    else{
-        lvl <- "link"
-    }
-
-    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform, type = lvl)
+    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
     ci_out <- boot_quants(boot_obj, alpha)
 
     tb[[yhatName]] <- predict(fit, tb, re.form = rform, type = lvl)
