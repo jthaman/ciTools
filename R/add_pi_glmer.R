@@ -71,7 +71,7 @@ add_pi.glmerMod <- function(tb, fit,
         warning ("Coverage probabilities may be inaccurate if the model failed to converge")
 
     if(fit@resp$family$family == "binomial")
-        stop("Prediction Intervals are not useful if the response is Bernoulli")
+        warning("Prediction Intervals are not useful if the response is Bernoulli")
 
     if (is.null(names)){
         names[1] <- paste("LPB", alpha/2, sep = "")
@@ -91,10 +91,8 @@ bootstrap_pi_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
 
     if (includeRanef) {
         rform = NULL
-        my_pred <- my_pred_full
     } else {
         rform = NA
-        my_pred <- my_pred_fixed
     }
 
     gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
