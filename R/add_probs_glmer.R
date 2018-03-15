@@ -65,7 +65,7 @@
 #' @export
 
 add_probs.glmerMod <- function(tb, fit,
-                               q, name = NULL, yhatName = "pred", comparison,
+                               q, name = NULL, yhatName = "pred", comparison = "<",
                                type = "boot", includeRanef = TRUE,
                                nSims = 10000, ...){
 
@@ -87,7 +87,7 @@ add_probs.glmerMod <- function(tb, fit,
         name <- paste("prob_equal_to", q, sep="")
 
     if ((name %in% colnames(tb))) {
-        warning ("These PIs may have already been appended to your dataframe. Overwriting.")
+        warning ("These probabilitiess may have already been appended to your dataframe. Overwriting.")
     }
 
     if (type == "boot")

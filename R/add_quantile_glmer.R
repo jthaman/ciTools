@@ -75,7 +75,6 @@ add_quantile.glmerMod <- function(tb, fit,
         name <- paste("quantile", p, sep="")
     if ((name %in% colnames(tb)))
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
-
     if (type == "boot")
         bootstrap_quant_glmermod(tb, fit, p, name, includeRanef, nSims, yhatName)
     else
