@@ -62,7 +62,7 @@ method is bootstrap. The bootstrap method can handle many types of
 models and we find it to be generally reliable and robust as it is
 built on the \code{bootMer} function from \code{lme4}. An
 experimental parametric method is included that mimics the
-functionality of \code{add_cl.lmer}'s deafult method. We caution
+functionality of \code{add_ci.lmer}'s default method. We caution
 against using this method because presently it only works for GLMMs
 that have a single random intercept term.
 }

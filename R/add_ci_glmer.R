@@ -189,7 +189,7 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
         lvl <- "link"
     }
 
-    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform, lvl = lvl)
+    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform, type = lvl)
     ci_out <- boot_quants(boot_obj, alpha)
 
     tb[[yhatName]] <- predict(fit, tb, re.form = rform, type = lvl)
