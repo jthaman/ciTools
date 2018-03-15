@@ -28,7 +28,7 @@
 #' models and we find it to be generally reliable and robust as it is
 #' built on the \code{bootMer} function from \code{lme4}. An
 #' experimental parametric method is included that mimics the
-#' functionality of \code{add_cl.lmer}'s deafult method. We caution
+#' functionality of \code{add_ci.lmer}'s default method. We caution
 #' against using this method because presently it only works for GLMMs
 #' that have a single random intercept term.
 #'
@@ -76,9 +76,9 @@
 #'                  f=factor(sample(1:10,size=1000,replace=TRUE)))
 #' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 #'
-#' tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
+#' add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
 #' \dontrun{add_ci(tb, fit, includeRanef = TRUE,
-#'                 names = c("LCBB", "UCBB"), type = "boot", nSims = 100)}
+#'                 names = c("LCBB", "UCBB"), type = "boot")}
 #'
 #' @export
 
@@ -182,10 +182,17 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
         my_pred <- my_pred_fixed_glmer
     }
 
-    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
+    if (response){
+        lvl <- "response"
+    }
+    else{
+        lvl <- "link"
+    }
+
+    boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform, lvl = lvl)
     ci_out <- boot_quants(boot_obj, alpha)
 
-    tb[[yhatName]] <- ci_out$fit
+    tb[[yhatName]] <- predict(fit, tb, re.form = rform, type = lvl)
     tb[[names[1]]] <- ci_out$lwr
     tb[[names[2]]] <- ci_out$upr
     tibble::as_data_frame(tb)

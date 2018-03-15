@@ -104,11 +104,11 @@ my_pred_fixed <- function(fit) {
 }
 
 my_pred_full_glmer <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "response")
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = lvl)
 }
 
 my_pred_fixed_glmer <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "response")
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = lvl)
 }
 boot_quants <- function(merBoot, alpha) {
     return(

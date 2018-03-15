@@ -72,9 +72,9 @@ tb <- data.frame(y=rpois(1000,lambda=3),x=runif(1000),
                  f=factor(sample(1:10,size=1000,replace=TRUE)))
 fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
 
-tb <- add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
+add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
 \dontrun{add_ci(tb, fit, includeRanef = TRUE,
-                names = c("LCBB", "UCBB"), type = "boot", nSims = 100)}
+                names = c("LCBB", "UCBB"), type = "boot")}
 
 }
 \references{
