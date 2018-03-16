@@ -73,14 +73,14 @@
 #' For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 #'
 #' @examples
-#' ## random intercept example
-#' tb <- data.frame(y=rpois(100,lambda=3),x=runif(100),
-#'                  f=factor(sample(1:10,size=100,replace=TRUE)))
-#' fit <- lme4::glmer(y~x+(1|f),data=tb,family=poisson)
+#' n <- 300
+#' x <- runif(n)
+#' f <- factor(sample(1:5, size = n, replace = TRUE))
+#' y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
+#' tb <- tibble::tibble(x = x, f = f, y = y)
+#' fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
 #'
-#' add_ci(tb, fit, includeRanef = TRUE, names = c("LCB", "UCB"), type = "parametric")
-#' \dontrun{add_ci(tb, fit, includeRanef = TRUE,
-#'                 names = c("LCBB", "UCBB"), type = "boot")}
+#' \dontrun{add_ci(tb, fit, names = c("lcb", "ucb"), nSims = 300)}
 #'
 #' @export
 
