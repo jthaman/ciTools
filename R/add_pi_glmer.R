@@ -81,6 +81,9 @@ add_pi.glmerMod <- function(tb, fit,
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
+    if(fit@resp$family$family %in% c("poisson", "quasipoisson", "binomial"))
+        warning("The response is not continuous, so Prediction Intervals are approximate")
+
     if (type == "boot")
         bootstrap_pi_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
     else

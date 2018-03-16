@@ -65,10 +65,10 @@ add_quantile.glmerMod <- function(tb, fit,
 
     if (!is.null(fit@optinfo$conv$lme4$code))
         warning ("Coverage probabilities may be inaccurate if the model failed to converge")
-
     if(fit@resp$family$family == "binomial")
-        stop("Quantiles are not useful if the response is Bernoulli")
-
+        warning("Quantiles are not useful if the response is Bernoulli")
+    if(fit@resp$family$family %in% c("poisson", "quasipoisson", "binomial"))
+        warning("The response is not continuous, so regression quantiles are approximate")
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
