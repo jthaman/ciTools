@@ -25,13 +25,14 @@ get_x_matrix_mermod <- function(tb, fit){
     mm <- fit@frame
     rv <- names(mm)[1]
     mm[[rv]] <- as.numeric(mm[[rv]])
-
     for(i in names(mm)){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
-
-    suppressWarnings(model.matrix(reformulate(attributes(terms(fit))$term.labels),
-                                  dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
+    suppressWarnings(mat <- model.matrix(reformulate(attributes(terms(fit))$term.labels),
+                                         dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
+    if (dim(tb)[1] == 1)
+        mat <- t(as.matrix(mat))
+    mat
 }
 
 
