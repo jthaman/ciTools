@@ -63,7 +63,6 @@
 #'     \code{lmerMod} objects.
 #'
 #' @examples
-#' # Define the data set
 #' dat <- lme4::sleepstudy
 #' # Fit a linear mixed model (random intercept model)
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
