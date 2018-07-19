@@ -17,14 +17,29 @@
 
 get_x_matrix_mermod <- function(tb, fit){
 
-    ##This function is necessary to avoid cases where the new data upon
-    ##which CIs are generated does not contain all levels for one or more
-    ##factors from the original data set. New and old data sets are
-    ##appended, the model matrix is generated, and the function returns
-    ##only the rows corresponding to the new data.
-    mm <- fit@frame
+    ## This function is necessary to avoid cases where the new data
+    ## upon which CIs are generated does not contain all levels for
+    ## one or more factors from the original data set. New and old
+    ## data sets are appended, the model matrix is generated, and the
+    ## function returns only the rows corresponding to the new data.
+
+    ## Check for rank deficieny and correct the model matrix if
+    ## necessary
+
+    if (is.null(attr(fit@pp$X, "msgRankdrop"))){
+        mm <- fit@frame
+        terms <- attributes(terms(fit))$term.labels
+    } else {
+        terms_all <- attributes(terms(fit))$term.labels
+        dropped <- attr(fit@pp$X, "col.dropped")
+        mm <- fit@frame[, -dropped]
+        dropped_terms <- names(dropped)
+        terms <- setdiff(terms_all, dropped_terms)
+    }
+
     rv <- names(mm)[1]
     mm[[rv]] <- as.numeric(mm[[rv]])
+
     for(i in names(mm)){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
@@ -34,6 +49,7 @@ get_x_matrix_mermod <- function(tb, fit){
         mat <- t(as.matrix(mat))
     mat
 }
+
 
 
 get_prediction_se_mermod <- function(tb, fit){
