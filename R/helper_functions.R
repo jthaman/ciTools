@@ -43,10 +43,13 @@ get_x_matrix_mermod <- function(tb, fit){
     for(i in names(mm)){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
+    suppressWarnings(mat <- model.matrix(reformulate(attributes(terms(fit))$term.labels),
+                                         dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
+    if (dim(tb)[1] == 1)
+        mat <- t(as.matrix(mat))
+    mat
+}
 
-    suppressWarnings(model.matrix(reformulate(terms),
-                                  dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
-    }
 
 
 get_prediction_se_mermod <- function(tb, fit){
@@ -115,6 +118,22 @@ my_pred_full <- function(fit) {
 
 my_pred_fixed <- function(fit) {
     predict(fit, newdata = ciTools_data$tb_temp, re.form = NA)
+}
+
+my_pred_full_glmer_response <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "response")
+}
+
+my_pred_fixed_glmer_response <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "response")
+}
+
+my_pred_full_glmer_linear <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "link")
+}
+
+my_pred_fixed_glmer_linear <- function(fit, lvl) {
+    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "link")
 }
 
 boot_quants <- function(merBoot, alpha) {

@@ -29,7 +29,7 @@
 #' e.g. \code{fit = lmer(y ~ x + (1|group))}. If your model of
 #' interest is random slope and random intercept, use the parametric
 #' bootstrap method (\code{type = "boot"}).
-#' 
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lm}. Predictions are made with
 #'     this object.
@@ -54,7 +54,7 @@
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted values and level-p
 #'     quantiles attached.
-#' 
+#'
 #' @seealso \code{\link{add_ci.lmerMod}} for confidence intervals
 #'     for \code{lmerMod} objects, \code{\link{add_pi.lmerMod}} for
 #'     prediction intervals of \code{lmerMod} objects, and
@@ -78,13 +78,13 @@
 #'
 #' @export
 
-add_quantile.lmerMod <- function(tb, fit, 
+add_quantile.lmerMod <- function(tb, fit,
                                  p, name = NULL,
                                  yhatName = "pred", includeRanef = TRUE,
                                  type = "boot",
-                                 nSims = 200, log_response = FALSE, ...) {
+                                 nSims = 10000, log_response = FALSE, ...) {
 
-    if (p <= 0 || p >= 1)
+  if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name)){
         name <- paste("quantile", p, sep = "")
@@ -101,10 +101,10 @@ add_quantile.lmerMod <- function(tb, fit,
 }
 
 parametric_quantile_lmermod <- function(tb, fit, p, name, includeRanef, log_response, yhatName){
-    
+
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
-    
+
     if(includeRanef)
         re.form <- NULL
     else
@@ -125,9 +125,9 @@ parametric_quantile_lmermod <- function(tb, fit, p, name, includeRanef, log_resp
 
 boot_quantile_lmermod <- function(tb, fit, p, name, includeRanef, nSims, log_response, yhatName) {
 
-    if (includeRanef) 
+    if (includeRanef)
         reform = NULL
-    else 
+    else
         reform = NA
 
     gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)

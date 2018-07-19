@@ -63,29 +63,29 @@
 #' # Fit a (random intercept) linear mixed model
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 #' # Add 50% prediction intervals to the original data using the default
-#' # method. 
+#' # method.
 #' add_pi(dat, fit, alpha = 0.5)
-#' 
+#'
 #' # Add 50% prediction intervals to the original data using the
 #' # parametric bootstrap method. Form prediction intervals at the population
 #' # level (unconditional on the random effects).
 #' add_pi(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE)
-#' 
+#'
 #' @export
 
-add_pi.lmerMod <- function(tb, fit, 
+add_pi.lmerMod <- function(tb, fit,
                            alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "parametric", includeRanef = TRUE,
-                           log_response = FALSE, nSims = 200, ...) {
-    if (is.null(names)){
-        names[1] <- paste("LPB", alpha/2, sep = "")
-        names[2] <- paste("UPB", 1 - alpha/2, sep = "")
-    }
-    if ((names[1] %in% colnames(tb))) {
-        warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-    }
+                           log_response = FALSE, nSims = 10000, ...) {
+  if (is.null(names)){
+    names[1] <- paste("LPB", alpha/2, sep = "")
+    names[2] <- paste("UPB", 1 - alpha/2, sep = "")
+  }
+  if ((names[1] %in% colnames(tb))) {
+    warning ("These PIs may have already been appended to your dataframe. Overwriting.")
+  }
 
-    if(type == "parametric")
+  if(type == "parametric")
         parametric_pi_lmermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
     else if(type == "boot")
         boot_pi_lmermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
@@ -96,10 +96,10 @@ add_pi.lmerMod <- function(tb, fit,
 
 
 parametric_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
-    
+
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
-    
+
     if(includeRanef)
         re.form <- NULL
     else
@@ -122,9 +122,9 @@ parametric_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, log_respo
 
 boot_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
-    if (includeRanef) 
+    if (includeRanef)
         reform = NULL
-    else 
+    else
         reform = NA
 
     gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
@@ -146,4 +146,3 @@ boot_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_resp
     }
     tibble::as_data_frame(tb)
 }
-
