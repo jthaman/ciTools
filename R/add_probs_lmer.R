@@ -19,7 +19,7 @@
 #'
 #' This function is one of the methods of \code{add_probs}, and is
 #' called automatically when \code{add_probs} is used on a \code{fit}
-#' of class \code{lmerMod}. 
+#' of class \code{lmerMod}.
 #'
 #' It is recommended that one perform a parametric bootstrap to
 #' determine these probabilities. To do so, use the option \code{type
@@ -51,7 +51,7 @@
 #'     a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
 #'     \epsilon}.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predictions and probabilities
 #'     attached.
 #'
@@ -72,19 +72,19 @@
 #' add_probs(dat, fit, q = 300)
 #'
 #' # What is the probability that a new reaction time will be greater
-#' # than 300? (ignoring the random effects). 
+#' # than 300? (ignoring the random effects).
 #' add_probs(dat, fit, q = 300, includeRanef = FALSE, comparison = ">")
-#' 
+#'
 #' @export
 
 
-add_probs.lmerMod <- function(tb, fit, 
+add_probs.lmerMod <- function(tb, fit,
                               q, name = NULL, yhatName = "pred",
                               comparison = "<", type = "parametric",
                               includeRanef = TRUE,
-                              nSims = 200, log_response = FALSE, ...) {
-  
-    if (is.null(name) && comparison == "<")
+                              nSims = 10000, log_response = FALSE, ...) {
+
+  if (is.null(name) && comparison == "<")
         name <- paste("prob_less_than", q, sep="")
     if (is.null(name) && comparison == ">")
         name <- paste("prob_greater_than", q, sep="")
@@ -96,20 +96,20 @@ add_probs.lmerMod <- function(tb, fit,
         warning ("These Probabilities may have already been appended to your dataframe. Overwriting.")
     }
 
-    if (type == "parametric") 
+    if (type == "parametric")
         parametric_probs_lmermod(tb, fit, q, name, includeRanef, comparison, yhatName)
     else if (type == "boot")
         boot_probs_lmermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
-    else  
+    else
         stop("Incorrect type specified!")
-    
+
 }
 
 parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, yhatName){
-    
+
     rdf <- get_resid_df_mermod(fit)
     seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
-    
+
     if(includeRanef)
         re.form <- NULL
     else
@@ -118,7 +118,7 @@ parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison,
     out <- predict(fit, tb, re.form = re.form)
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
-    
+
     t_quantile <- (q - out) / seGlobal
 
     if (comparison == "<")
@@ -133,9 +133,9 @@ parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison,
 
 boot_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, nSims, yhatName){
 
-    if (includeRanef) 
+    if (includeRanef)
         reform = NULL
-    else 
+    else
         reform = NA
 
     gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)

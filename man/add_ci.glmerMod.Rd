@@ -27,13 +27,14 @@ vector. If \code{NULL}, the predictions will be named
 \code{pred}.}
 
 \item{response}{A logical. The default is \code{TRUE}. If
-\code{TRUE}, the confidence intervals will be determined for
-the expected response; if \code{FALSE}, confidence intervals
-will be made on the scale of the linear predictor.}
+\code{TRUE}, the confidence intervals will be determined for the
+expected response; if \code{FALSE}, confidence intervals will be
+made on the scale of the linear predictor.}
 
 \item{type}{A string. If \code{type == "boot"} then bootstrap
 intervals are formed. If \code{type == "parametric"} then
-parametric intervals are formed.}
+parametric intervals are formed. Currently only bootstrap
+intervals are supported.}
 
 \item{includeRanef}{A logical. Default is \code{TRUE}. Set whether
 the predictions and intervals should be made conditional on the
@@ -47,7 +48,7 @@ replicates if \code{type = "boot"}.}
 }
 \value{
 A tibble, \code{tb}, with predicted values, upper and lower
-    confidence bounds attached.
+  confidence bounds attached.
 }
 \description{
 This function is one of the methods for \code{add_ci}, and is

@@ -89,10 +89,13 @@ add_ci.glmerMod <- function(tb, fit,
                             alpha = 0.05, names = NULL, yhatName = "pred",
                             response = TRUE,
                             type = "boot", includeRanef = TRUE,
-                            nSims = 250, ...){
+                            nSims = 500, ...){
 
   if (!is.null(fit@optinfo$conv$lme4$code))
     warning ("Coverage probabilities may be inaccurate if the model failed to converge")
+
+  if(!is.null(attr(fit@pp$X, "msgRankdrop")))
+    warning("Model matrix is rank deficient!")
 
   if (is.null(names)){
     names[1] <- paste("LCB", alpha/2, sep = "")
