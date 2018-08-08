@@ -5,8 +5,8 @@
 \title{Confidence Intervals for Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "parametric", includeRanef = TRUE,
-  nSims = 200, ...)
+  yhatName = "pred", type = "boot", includeRanef = TRUE, nSims = 500,
+  ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -61,7 +61,6 @@ recommended method when working with any linear mixed models more
 complicated than the random intercept model.
 }
 \examples{
-# Define the data set
 dat <- lme4::sleepstudy
 # Fit a linear mixed model (random intercept model)
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)

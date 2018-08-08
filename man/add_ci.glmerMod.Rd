@@ -6,7 +6,7 @@
 \usage{
 \method{add_ci}{glmerMod}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "pred", response = TRUE, type = "boot",
-  includeRanef = TRUE, nSims = 250, ...)
+  includeRanef = TRUE, nSims = 500, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

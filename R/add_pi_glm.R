@@ -31,7 +31,7 @@
 #' (2007). Prediction intervals for Gaussian GLMs are also supported,
 #' but these intervals are no different than the ones returned by
 #' \code{add_pi.lm} if an identity link is used.
-#' 
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -45,7 +45,7 @@
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
@@ -64,21 +64,21 @@
 #' add_pi(cars, fit, alpha = 0.5)
 #' # Try custom names for the prediction bounds (may be useful for plotting)
 #' add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
-#' 
+#'
 #' @export
 
 
-add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
+add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                        nSims = 2000,  ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) 
+    if ((names[1] %in% colnames(tb)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-    
-        
+
+
     if(fit$family$family == "binomial")
       if(max(fit$prior.weights) == 1)
           stop("Prediction intervals for Bernoulli response variables aren't useful")
@@ -86,14 +86,14 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
           warning("Treating weights as indicating the number of trials for a binomial regression where the response is the proportion of successes")
           warning("The response variable is not continuous so Prediction Intervals are approximate")
         }
-    
+
     if(fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
     if(!(fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial", "gaussian")))
         stop("Unsupported family")
 
-    if(fit$family$family == "gaussian") 
+    if(fit$family$family == "gaussian")
         pi_gaussian(tb, fit, alpha, names, yhatName)
     else
         sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
@@ -121,7 +121,7 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
     sim_response <- get_sim_response(tb, fit, nSims)
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-    
+
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
@@ -162,18 +162,18 @@ get_sim_response <- function(tb, fit, nSims){
                                        rate = 1/(yhat *overdisp))
         }
         if(response_distr == "binomial"){
-            yhat <- inverselink(modmat %*% sims@coef[i,]) * fit$prior.weights 
-            sim_response[,i] <- rbinom(n = nPreds, 
+            yhat <- inverselink(modmat %*% sims@coef[i,]) * fit$prior.weights
+            sim_response[,i] <- rbinom(n = nPreds,
                                        size = fit$prior.weights,
                                        prob = yhat / fit$prior.weights)
         }
         if(response_distr == "gaussian"){
           yhat <- inverselink(modmat %*% sims@coef[i,])
-          sim_response[,i] <- rnorm(n = nPreds, 
+          sim_response[,i] <- rnorm(n = nPreds,
                                     mean = yhat,
                                     sd = sqrt(overdisp))
         }
-        
+
     }
     sim_response
 }

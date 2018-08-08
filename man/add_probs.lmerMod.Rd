@@ -6,7 +6,7 @@
 \usage{
 \method{add_probs}{lmerMod}(tb, fit, q, name = NULL, yhatName = "pred",
   comparison = "<", type = "parametric", includeRanef = TRUE,
-  nSims = 200, log_response = FALSE, ...)
+  nSims = 10000, log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -71,7 +71,7 @@ fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 add_probs(dat, fit, q = 300)
 
 # What is the probability that a new reaction time will be greater
-# than 300? (ignoring the random effects). 
+# than 300? (ignoring the random effects).
 add_probs(dat, fit, q = 300, includeRanef = FALSE, comparison = ">")
 
 }
