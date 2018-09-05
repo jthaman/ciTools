@@ -19,7 +19,7 @@
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{negbin}. 
+#' class \code{negbin}.
 #'
 #' Prediction intervals for negative binomial fits are formed through
 #' a two part simulation scheme:
@@ -49,7 +49,7 @@
 #' @param nSims A positive integer. Determines the number of
 #'     simulations to run.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
@@ -65,20 +65,20 @@
 #' df <- data.frame(x1 = x1, y = y)
 #' fit <- MASS::glm.nb(y ~ x1, data = df)
 #' add_pi(df, fit, names = c("lpb", "upb"))
-#' 
+#'
 #' @export
 
 
-add_pi.negbin <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", 
+add_pi.negbin <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                           nSims = 2000, ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) 
+    if ((names[1] %in% colnames(tb)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
-    
+
     sim_pi_negbin(tb, fit, alpha, names, yhatName, nSims)
 }
 
@@ -90,7 +90,7 @@ sim_pi_negbin <- function(tb, fit, alpha, names, yhatName, nSims){
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-    
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- out
     tb[[names[1]]] <- lwr
@@ -101,7 +101,7 @@ sim_pi_negbin <- function(tb, fit, alpha, names, yhatName, nSims){
 
 ## modification of arm::sim that will accept an negative binomial fit.
 get_negbin_sims <- function(fit, nSims) {
-    summ <- summary (fit, correlation=TRUE, dispersion = fit$dispersion)
+    summ <- summary(fit, correlation=TRUE, dispersion = fit$dispersion)
     coef <- summ$coef[,1:2,drop=FALSE]
     dimnames(coef)[[2]] <- c("coef.est","coef.sd")
     beta.hat <- coef[,1,drop=FALSE]
@@ -110,8 +110,8 @@ get_negbin_sims <- function(fit, nSims) {
     n <- summ$df[1] + summ$df[2]
     k <- summ$df[1]
     V.beta <- corr.beta * array(sd.beta,c(k,k)) * t(array(sd.beta,c(k,k)))
-    beta <- array (NA, c(nSims,k))
-    dimnames(beta) <- list (NULL, dimnames(beta.hat)[[1]])
+    beta <- array(NA, c(nSims,k))
+    dimnames(beta) <- list(NULL, dimnames(beta.hat)[[1]])
 
     for (s in 1:nSims){
         beta[s,] <- MASS::mvrnorm (1, beta.hat, V.beta)
@@ -119,8 +119,8 @@ get_negbin_sims <- function(fit, nSims) {
 
     beta2 <- array (0, c(nSims,length(coefficients(fit))))
     dimnames(beta2) <- list (NULL, names(coefficients(fit)))
-    beta2[,dimnames(beta2)[[2]]%in%dimnames(beta)[[2]]] <- beta
-    sigma <- rep (sqrt(summ$dispersion), nSims)
+    beta2[,dimnames(beta2)[[2]] %in% dimnames(beta)[[2]]] <- beta
+    sigma <- rep(sqrt(summ$dispersion), nSims)
 
     ans <- new("sim",
                coef = beta2,

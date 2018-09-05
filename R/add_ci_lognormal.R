@@ -30,7 +30,7 @@ create_cov_mat <- function(sigma_mle, tb, fit){
     n <- NROW(X)
     sigma_var_mle <- sigma_mle^2 /(2 * n)
     beta <- fit$coefficients
-    beta_cov_mat <- sigma_mle^2 * solve(t(X) %*% X) 
+    beta_cov_mat <- sigma_mle^2 * solve(t(X) %*% X)
     k <- length(beta)
     V <- matrix(0, nrow = k + 1, ncol = k + 1 )
     V[1:k,1:k] <- beta_cov_mat
@@ -54,7 +54,6 @@ get_Xpred_list <- function(tb, fit, p, sigma_mle){
 
 get_se_pred <- function(pred, Xpred, V, p){
     se_pred <- rep(0, length(pred))
-    ## this would be worth rewriting
     for(i in 1:length(pred)){
         derivative_vector <- c(cbind(Xpred[i,] * pred[i]), cbind(qnorm(p) * pred[i]))
         se_pred[i] <- sqrt(t(derivative_vector) %*% V %*% derivative_vector)
@@ -78,12 +77,12 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
     pred <- pred_list$pred
     Xpred <- pred_list$Xpred
     Xbeta <- pred_list$Xbeta
-    z_quantile <- qnorm(1 - alpha/2) 
+    z_quantile <- qnorm(1 - alpha/2)
     se_pred <- get_se_pred(pred, Xpred, V, p)
 
     lwr <- exp(Xbeta + qnorm(p) * sigma_mle - z_quantile * se_pred / pred)
     upr <- exp(Xbeta + qnorm(p) * sigma_mle + z_quantile * se_pred / pred)
-    
+
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- pred
     tb[[names[1]]] <- lwr
@@ -91,5 +90,3 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
 
     tibble::as_data_frame(tb)
 }
-
-

@@ -81,7 +81,8 @@ fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
 
 }
 \references{
-For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+For general information about GLMMs
+    http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 }
 \seealso{
 \code{\link{add_pi.glmerMod}} for prediction intervals

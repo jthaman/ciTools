@@ -51,7 +51,7 @@
 #' @param ... Additional arguments
 #' @return A tibble, \code{tb}, with predicted values and
 #'     level-\emph{p} quantiles attached.
-#' 
+#'
 #' @examples
 #'
 #' # Fit a linear model
@@ -77,10 +77,9 @@
 #' @seealso \code{\link{add_ci}} for confidence intervals,
 #'     \code{\link{add_probs}} for response level probabilities, and
 #'     \code{\link{add_pi}} for prediction intervals
-#' 
+#'
 #' @export
 
-add_quantile <- function(tb, fit, p, name = NULL, yhatName = "pred", ...){
-  UseMethod("add_quantile", fit)
+add_quantile <- function(tb, fit, p = 0.5, name = NULL, yhatName = "pred", ...){
+    UseMethod("add_quantile", fit)
 }
-

@@ -4,7 +4,7 @@
 \alias{add_quantile}
 \title{Add Regression Quantiles to Data Frames}
 \usage{
-add_quantile(tb, fit, p, name = NULL, yhatName = "pred", ...)
+add_quantile(tb, fit, p = 0.5, name = NULL, yhatName = "pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

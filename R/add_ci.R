@@ -60,8 +60,8 @@
 #' @param names NULL or character vector of length two. If
 #'     \code{NULL}, confidence bounds automatically will be named by
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
-#'     named \code{ciNames[1]} and the upper confidence bound will be
-#'     named \code{ciNames[2]}.
+#'     named \code{names[1]} and the upper confidence bound will be
+#'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of the predictions
 #'     made for each observation in tb
 #' @param ... Additional arguments.
