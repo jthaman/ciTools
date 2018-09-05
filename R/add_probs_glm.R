@@ -41,7 +41,7 @@
 #' \code{<=} are identical (likewise for \code{>} and \code{>=}). If
 #' the comparison \code{=} is used in the Gaussian GLM, an informative
 #' error is returned.
-#' 
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
@@ -59,10 +59,10 @@
 #' @param nSims A positive integer. Controls the number of simulated
 #'     draws to make if the model is Poisson.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predicted values and
 #'     probabilities attached.
-#' 
+#'
 #' @seealso \code{\link{add_ci.glm}} for confidence intervals for
 #'     \code{glm} objects, \code{\link{add_pi.glm}} for prediction
 #'     intervals of \code{glm} objects, and
@@ -89,7 +89,7 @@
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' add_probs(cars, fit2, q = 0, comparison = "=")
 #' add_probs(cars, fit2, q = 1, comparison = "=")
-#' 
+#'
 #' @export
 add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
                           comparison = "<", nSims = 2000, ...){
@@ -114,9 +114,9 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
         if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
             warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
             probs_logistic(tb, fit, q, name, yhatName, comparison)
-            
+
         } else {
-            warning("Treating weights as indicating the number of trials for a 
+            warning("Treating weights as indicating the number of trials for a
                   binomial regression where the response is the proportion of successes")
             sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
         }
@@ -164,10 +164,10 @@ probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
 sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
 
     out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb, fit, nSims)
+    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
-    
+
     if(fit$family$family == "binomial"){
         out <- out * fit$prior.weights
         warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
@@ -178,5 +178,3 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
     tibble::as_data_frame(tb)
 
 }
-
-

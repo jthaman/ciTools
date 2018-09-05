@@ -5,7 +5,7 @@
 \title{Confidence Intervals for the Survivor Function of Parametric Survival Models}
 \usage{
 \method{add_probs}{survreg}(tb, fit, q, confint = TRUE, alpha = 0.05,
-  name = NULL, yhatName = "pred", method = "parametric",
+  name = NULL, yhatName = "median_pred", method = "parametric",
   comparison = "<", nSims = 2000, ...)
 }
 \arguments{

@@ -76,7 +76,7 @@ sim_surv_coefs <- function(tb, fit, nSims){
 
 ## TODO
 ## only work with log-linear models
-get_sim_response <- function(tb, fit, params){
+get_sim_response_surv <- function(tb, fit, params){
     nSims <- dim(params)[1]
     nPreds <- NROW(tb)
     modmat <- model.matrix(fit, data = tb)
@@ -101,7 +101,7 @@ sim_pi_survreg <- function(tb, fit, alpha, names, yhatName, nSims, bootData){
                              fit = fit,
                              nSims = nSims)
 
-    sim_response <- get_sim_response(tb, fit, params)
+    sim_response <- get_sim_response_surv(tb, fit, params)
 
     if(bootData)
         sim_response

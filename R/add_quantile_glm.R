@@ -23,7 +23,7 @@
 #' Gamma, or Gaussian regression models.  Quantile estimates for
 #' Bernoulli response variables (i.e., logistic regression) are not
 #' supported.
-#' 
+#'
 #' Quantiles of generalized linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}. If
 #' a Quasipoisson regression model is fit, simulation using the
@@ -69,7 +69,7 @@
 #' # quantiles a custom name.
 #' add_quantile(cars, fit, p = 0.5, name = "my_quantile", nSims = 300)
 #'
-#' 
+#'
 #' @export
 
 add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
@@ -93,12 +93,12 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
 
     if (fit$family$family %in% c("poisson", "qausipoisson"))
         warning("The response is not continuous, so estimated quantiles are only approximate")
-    
+
     if (fit$family$family == "gaussian"){
         quant_gaussian(tb, fit, p, name, yhatName)}
     else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
         sim_quantile_other(tb, fit, p, name, yhatName, nSims)
-    else 
+    else
         stop("Unsupported family")
 }
 
@@ -120,7 +120,7 @@ quant_gaussian <- function(tb, fit, p, name, yhatName){
 sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
 
     out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb, fit, nSims)
+    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
     if(fit$family$family == "binomial"){

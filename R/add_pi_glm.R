@@ -116,24 +116,6 @@ pi_gaussian <- function(tb, fit, alpha, names, yhatName){
     tibble::as_data_frame(tb)
 }
 
-sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb, fit, nSims)
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
-    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-
-    if(fit$family$family == "binomial"){
-      out <- out * fit$prior.weights
-      warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
-    }
-
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
-}
-
 get_sim_response <- function(tb, fit, nSims){
 
     nPreds <- NROW(tb)
@@ -142,7 +124,7 @@ get_sim_response <- function(tb, fit, nSims){
     inverselink <- fit$family$linkinv
     overdisp <- summary(fit)$dispersion
     sims <- arm::sim(fit, n.sims = nSims)
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+    sim_response <- matrix(NA, ncol = nSims, nrow = nPreds)
 
     for (i in 1:nSims){
         yhat <- inverselink(modmat %*% sims@coef[i,])
@@ -168,12 +150,30 @@ get_sim_response <- function(tb, fit, nSims){
                                        prob = yhat / fit$prior.weights)
         }
         if(response_distr == "gaussian"){
-          yhat <- inverselink(modmat %*% sims@coef[i,])
-          sim_response[,i] <- rnorm(n = nPreds,
-                                    mean = yhat,
-                                    sd = sqrt(overdisp))
+            yhat <- inverselink(modmat %*% sims@coef[i,])
+            sim_response[,i] <- rnorm(n = nPreds,
+                                      mean = yhat,
+                                      sd = sqrt(overdisp))
         }
 
     }
     sim_response
+}
+
+sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
+    out <- predict(fit, newdata = tb, type = "response")
+    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
+    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
+
+    if(fit$family$family == "binomial"){
+      out <- out * fit$prior.weights
+      warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+    }
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
 }
