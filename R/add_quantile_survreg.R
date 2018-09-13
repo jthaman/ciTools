@@ -51,7 +51,7 @@
 #' @export
 
 add_quantile.survreg <- function(tb, fit, p = 0.5,
-                                 yhatName = "pred", confint = TRUE,
+                                 yhatName = "median_pred", confint = TRUE,
                                  alpha = 0.1, name = NULL,
                                  method = "parametric", nSims = 2000,
                                  ...){
