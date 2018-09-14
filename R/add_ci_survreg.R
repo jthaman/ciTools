@@ -101,7 +101,7 @@ parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
     else if (distr == "loglogistic")
         pred <- exp(mat %*% beta) * gamma(1 + scale) * gamma(1 - scale)
     else if (distr == "lognormal")
-        pred <- exp(mat %*% beta + (scale^2) / 2)
+        pred <- exp(c(mat %*% beta) + (scale^2) / 2)
 
     crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
     cov_mat <- vcov(fit)
@@ -116,7 +116,7 @@ parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
         if (distr == "weibull"){
             d_g_beta <- c(exp(mat[i,] %*% beta)) * mat[i,] * gamma(1 + scale)
             d_g_delta <- exp(mat[i,] %*% beta) *
-                digamma(1 + scale) * gamma (1 + scale)* scale
+                digamma(1 + scale) * gamma (1 + scale) * scale
         }
         if (distr == "exponential"){
             d_g_beta <- c(exp(mat[i,] %*% beta)) * mat[i,]
@@ -127,11 +127,11 @@ parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
                 gamma(1 + scale) * gamma(1 - scale)
             d_g_delta <- c(exp(mat[i,] %*% beta)) *
                 (gamma(1 + scale) * digamma(1 - scale) * gamma(1 - scale) * (-scale) +
-                 gamma(1 - scale) * digamma(1 + scale) + gamma(1 + scale) * scale)
+                 gamma(1 - scale) * digamma(1 + scale) * gamma(1 + scale) * scale)
         }
         if (distr == "lognormal"){
-            d_g_beta <- c(exp(mat[i,] %*% beta) + (scale^2) / 2) * mat[i,]
-            d_g_delta <- c(exp(mat[i,] %*% beta) + (scale^2) / 2) * (scale^2)
+            d_g_beta <- exp(c(mat[i,] %*% beta) + (scale^2) / 2) * mat[i,]
+            d_g_delta <- exp(c(mat[i,] %*% beta) + (scale^2) / 2) * (scale^2)
         }
         d_g_vec <- c(d_g_beta, d_g_delta)
         seYhat[i] <- sqrt(t(d_g_vec) %*% cov_mat %*% d_g_vec)
