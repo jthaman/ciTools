@@ -29,6 +29,8 @@
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
 #'     the estimated probabilities will be calculated and appended to
 #'     \code{tb}.
+#' @param alpha A number. Control the confidence level of the
+#'     confidence intervals if \code{confint = TRUE}.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
@@ -57,13 +59,14 @@
 #'
 #' @export
 
-# TODO name or yhatname? How to deal with all these conflicts??
 
-add_probs.survreg <- function(tb, fit, q, confint = TRUE,
-                              alpha = 0.05,
+add_probs.survreg <- function(tb, fit, q,
                               name = NULL, yhatName = "median_pred",
+                              comparison = "<",
                               method = "parametric",
-                              comparison = "<", nSims = 2000, ...){
+                              confint = TRUE,
+                              alpha = 0.05,
+                              nSims = 2000, ...){
 
     if (is.null(name) & (comparison == "<" || comparison == ">=")){
 
@@ -101,13 +104,13 @@ survreg_calc_probs <- function(tb, fit, q, comparison){
     fn_list <- survival::survreg.distributions[[dist]][["density"]]
     cdf <- function(x) fn_list(x)[,1]
 
-    pred <- survival:::predict.survreg(fit, tb, type = "linear")
+    pred <- predict(fit, tb, type = "linear")
     scale <- fit$scale
     zeta <- (log(q) - pred) / scale
 
     if (comparison == "<" || comparison == "<=")
         F <- cdf(zeta)
-    else if (comparison == ">" || comparisn == ">=")
+    else if (comparison == ">" || comparison == ">=")
         F <- 1 - cdf(zeta)
     else
         stop("invalid comparison")
@@ -137,6 +140,10 @@ parametric_ci_survreg_prob <- function(tb, fit, q, confint,
         scale <- fit$scale
         crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
         cov_mat <- vcov(fit)
+
+        if (fit$dist == "exponential")
+            cov_mat <- cbind(rbind(cov_mat, 0), 0)
+
         d_g <- rep(NA, dim(mat)[1])
         seF <- rep(NA, dim(mat)[1])
 
@@ -153,7 +160,7 @@ parametric_ci_survreg_prob <- function(tb, fit, q, confint,
     }
 
     if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- survival:::predict.survreg(fit, tb, type = "quantile" , p = 0.5)
+        tb[[yhatName]] <- predict(fit, tb, type = "quantile" , p = 0.5)
 
     tb[[name[1]]] <- as.numeric(F)
 
@@ -168,7 +175,7 @@ parametric_ci_survreg_prob <- function(tb, fit, q, confint,
 boot_ci_survreg_prob <- function(tb, fit, q, confint,
                                  alpha, name, yhatName,
                                  comparison, nSims){
-    pred <- survival:::predict.survreg(fit, tb, type = "quantile", p = 0.5)
+    pred <- predict(fit, tb, type = "quantile", p = 0.5)
 
     collect <- survreg_calc_probs(tb = tb, fit = fit, q = q,
                                   comparison = comparison)

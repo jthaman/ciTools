@@ -30,6 +30,8 @@
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
 #'     the quantiles are also appended to \code{tb}.
+#' @param alpha A number. Controls the confidence level of the
+#'     confidence intervals if \code{confint = TRUE}.
 #' @param method A string. One of either \code{"parametric"} or
 #'     \code{"boot"}.
 #' @param nSims A positive integer. Set the number of simulated draws
@@ -44,16 +46,19 @@
 #'     \code{\link{add_probs.survreg}} for response probabilities of
 #'     \code{survreg} objects.
 #'
-#' @examples TODO
+#' @examples
 #'
-#' @references TODO
+#' @references
 #'
 #' @export
 
 add_quantile.survreg <- function(tb, fit, p = 0.5,
-                                 yhatName = "median_pred", confint = TRUE,
-                                 alpha = 0.1, name = NULL,
-                                 method = "parametric", nSims = 2000,
+                                 name = NULL,
+                                 yhatName = "median_pred",
+                                 confint = TRUE,
+                                 alpha = 0.1,
+                                 method = "parametric",
+                                 nSims = 2000,
                                  ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -79,8 +84,8 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
 boot_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
                                      alpha, name, nSims){
     nPred <- dim(tb)[1]
-    out <- survival:::predict.survreg(fit, tb, se.fit = TRUE,
-                                      type = "quantile", p = p)
+    out <- predict(fit, tb, se.fit = TRUE,
+                   type = "quantile", p = p)
     pred <- out$fit
 
     if (confint){
@@ -89,8 +94,8 @@ boot_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
             temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
             boot_fit <- survival::survreg(formula(fit$terms), data = temp,
                                           dist = fit$dist)
-            boot_pred <- survival:::predict.survreg(boot_fit, tb,
-                                                    type = "quantile", p = p)
+            boot_pred <- predict(boot_fit, tb,
+                                 type = "quantile", p = p)
             boot_mat[i,] <- boot_pred
         }
         lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
@@ -107,7 +112,7 @@ boot_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
     tibble::as_data_frame(tb)
 }
 
-## this assumes log link function
+#TODO : how to handle weights?
 parametric_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
                                            alpha, name){
     out <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = p)

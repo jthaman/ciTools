@@ -4,9 +4,9 @@
 \alias{add_quantile.survreg}
 \title{Confidence Intervals for a Quantile of a Parametric Survival Model}
 \usage{
-\method{add_quantile}{survreg}(tb, fit, p = 0.5, yhatName = "pred",
-  confint = TRUE, alpha = 0.1, name = NULL, method = "parametric",
-  nSims = 2000, ...)
+\method{add_quantile}{survreg}(tb, fit, p = 0.5, name = NULL,
+  yhatName = "median_pred", confint = TRUE, alpha = 0.1,
+  method = "parametric", nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -17,14 +17,17 @@ with this object.}
 \item{p}{A real number between 0 and 1. Sets the probability level
 of the quantiles.}
 
+\item{name}{\code{NULL} or a string. If \code{NULL}, quantiles
+automatically will be named by \code{add_quantile}, otherwise,
+they will be named \code{name}.}
+
 \item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{confint}{A logical. If \code{TRUE}, confidence intervals for
 the quantiles are also appended to \code{tb}.}
 
-\item{name}{\code{NULL} or a string. If \code{NULL}, quantiles
-automatically will be named by \code{add_quantile}, otherwise,
-they will be named \code{name}.}
+\item{alpha}{A number. Controls the confidence level of the
+confidence intervals if \code{confint = TRUE}.}
 
 \item{method}{A string. One of either \code{"parametric"} or
 \code{"boot"}.}
@@ -42,11 +45,10 @@ A tibble, \code{tb}, with predicted values and level
 This function is one of the methods of \code{add_quantile}.
 }
 \examples{
-TODO
 
 }
 \references{
-TODO
+
 }
 \seealso{
 \code{\link{add_ci.survreg}} for confidence intervals for

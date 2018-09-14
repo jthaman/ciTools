@@ -4,9 +4,9 @@
 \alias{add_probs.survreg}
 \title{Confidence Intervals for the Survivor Function of Parametric Survival Models}
 \usage{
-\method{add_probs}{survreg}(tb, fit, q, confint = TRUE, alpha = 0.05,
-  name = NULL, yhatName = "median_pred", method = "parametric",
-  comparison = "<", nSims = 2000, ...)
+\method{add_probs}{survreg}(tb, fit, q, name = NULL,
+  yhatName = "median_pred", comparison = "<", method = "parametric",
+  confint = TRUE, alpha = 0.05, nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -17,10 +17,6 @@ with this object.}
 \item{q}{A double. A quantile of the response distribution. In
 survival applications this is the time of event.}
 
-\item{confint}{A logical. If \code{TRUE}, confidence intervals for
-the estimated probabilities will be calculated and appended to
-\code{tb}.}
-
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
 automatically will be named by \code{add_probs()}, otherwise,
 the probabilities will be named \code{name} in the returned
@@ -28,13 +24,20 @@ tibble}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
-\item{method}{A string. One of either \code{"parametric"} or
-\code{"bootstrap"}.}
-
 \item{comparison}{A character vector of length one. If
 \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
 calculated. If \code{comparison = ">"}, the survivor function
 at time \code{q} is calculated.}
+
+\item{method}{A string. One of either \code{"parametric"} or
+\code{"bootstrap"}.}
+
+\item{confint}{A logical. If \code{TRUE}, confidence intervals for
+the estimated probabilities will be calculated and appended to
+\code{tb}.}
+
+\item{alpha}{A number. Control the confidence level of the
+confidence intervals if \code{confint = TRUE}.}
 
 \item{nSims}{Number of simulations used for bootstrap confidence
 intervals.}

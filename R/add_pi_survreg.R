@@ -38,7 +38,7 @@
 #'     replicates.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A tibble, \code{tb}, with predicted medians, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
@@ -53,7 +53,7 @@
 
 add_pi.survreg <- function(tb, fit, alpha = 0.05,
                            names = NULL, yhatName = "median_pred",
-                           nSims = 2000,
+                           nSims = 10000,
                            method = "naive",
                            ...){
 
@@ -64,7 +64,8 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
     if ((names[1] %in% colnames(tb)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     if (method == "calibrated")
-        sim_pi_survreg_calibrated(tb, fit, alpha, names, yhatName, nSims)
+        stop("not yet implemented")
+    ## sim_pi_survreg_calibrated(tb, fit, alpha, names, yhatName, nSims)
     else if (method == "naive")
         pi_survreg_naive(tb, fit, alpha, names, yhatName)
     else if (method == "boot")
@@ -74,12 +75,97 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
 }
 
 pi_survreg_naive <- function(tb, fit, alpha, names, yhatName){
-    pred <- survival:::predict.survreg(fit, tb, p = 0.5, type = "quantile")
-    lwr <- survival:::predict.survreg(fit, tb, p = alpha / 2, type = "quantile")
-    upr <- survival:::predict.survreg(fit, tb, p = 1 - alpha / 2, type = "quantile")
+    med <- predict(fit, tb, p = 0.5, type = "quantile")
+    lwr <- predict(fit, tb, p = alpha / 2, type = "quantile")
+    upr <- predict(fit, tb, p = 1 - alpha / 2, type = "quantile")
 
     if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
+        tb[[yhatName]] <- med
+
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
+}
+
+## TODO: add argument to return the sim_response matrix for further study?
+
+qsev <- function(p) {
+    p=ifelse(p>=.99999999999999,.99999999999999,p)
+    p=ifelse(p<=1-.99999999999999,1-.99999999999999,p)
+    log(-log(1-p))
+}
+
+rsev <- function(n) {
+    qsev(runif(n))
+}
+
+
+psev <- function(z) {
+    1-exp(-exp(z))
+}
+
+dsev <- function(z) {
+    exp(z-exp(z))
+}
+
+sim_surv_coefs <- function(tb, fit, nSims){
+    vcov.hat <- vcov(fit)
+
+    if (fit$dist == "exponential")
+        cov_mat <- cbind(rbind(cov_mat, 0), 0)
+
+    beta.logsigma.hat <- c(coef(fit), fit$scale)
+    params <- matrix(NA,
+                     nrow = nSims,
+                     ncol = length(beta.logsigma.hat))
+
+    params <- MASS::mvrnorm(nSims, beta.logsigma.hat, vcov.hat)
+    params
+}
+
+## only works with log-linear models
+get_sim_response_surv_boot <- function(tb, fit, params){
+    nSims <- dim(params)[1]
+    nPreds <- NROW(tb)
+    modmat <- model.matrix(fit, data = tb)
+    distr <- fit$dist
+    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+
+    for (i in 1:nSims){
+        linear_pred <- modmat %*% params[i,1:dim(params)[2] - 1]
+        scale <- fit$scale
+
+        if (distr == "lognormal"){
+            sim_response[,i] <- exp(linear_pred + scale * rnorm(n = nPreds))
+        }
+        if (distr == "weibull"){
+            sim_response[,i] <- exp(linear_pred + scale * rsev(n = nPreds))
+        }
+        if (distr == "exponential"){
+            sim_response[,i] <- exp(linear_pred + rsev(n = nPreds))
+        }
+        if (distr == "loglogistic"){
+            sim_response[,i] <- exp(linear_pred + scale * rlogis(n = nPreds))
+        }
+    }
+    sim_response
+}
+
+sim_pi_survreg_boot <- function(tb, fit, alpha, names, yhatName, nSims){
+
+    out <- predict(fit, newdata = tb, type = "response")
+
+    params <- sim_surv_coefs(tb = tb,
+                             fit = fit,
+                             nSims = nSims)
+
+    sim_response <- get_sim_response_surv_boot(tb, fit, params)
+
+    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
+    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
+
+    if(is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- out
 
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr
@@ -127,68 +213,3 @@ pi_survreg_naive <- function(tb, fit, alpha, names, yhatName){
 ## }
 
 ### boot method ###
-## TODO: add argument to return the sim_response matrix for further study?
-
-sim_surv_coefs <- function(tb, fit, nSims){
-    vcov.hat <- vcov(fit)
-
-    if (fit$dist == "exponential")
-        cov_mat <- cbind(rbind(cov_mat, 0), 0)
-
-    beta.logsigma.hat <- c(coef(fit), fit$scale)
-    params <- matrix(NA,
-                     nrow = nSims,
-                     ncol = length(beta.logsigma.hat))
-
-    params <- MASS::mvrnorm(nSims, beta.logsigma.hat, vcov.hat)
-    params
-}
-
-## only works with log-linear models
-get_sim_response_surv_boot <- function(tb, fit, params){
-    nSims <- dim(params)[1]
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit, data = tb)
-    dist <- fit$dist
-    sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
-
-    for (i in 1:nSims){
-        linear_pred <- modmat %*% params[i,1:dim(params)[2] - 1]
-        scale <- fit$scale
-
-        if (dist == "lognormal"){
-            sim_response[,i] <- exp(linear_pred + scale * rnorm(n = nPreds))
-        }
-        if (dist == "weibull"){
-            sim_response[,i] <- exp(linear_pred + scale * rsev(n = nPreds))
-        }
-        if (dist == "exponential"){
-            sim_response[,i] <- exp(linear_pred + rsev(n = nPreds))
-        }
-        if (dist == "loglogistic"){
-            sim_response[,i] <- exp(linear_pred + scale * rlogis(n = nPreds))
-        }
-    }
-    sim_response
-}
-
-sim_pi_survreg_boot <- function(tb, fit, alpha, names, yhatName, nSims){
-
-    out <- predict(fit, newdata = tb, type = "response")
-
-    params <- sim_surv_coefs(tb = tb,
-                             fit = fit,
-                             nSims = nSims)
-
-    sim_response <- get_sim_response_surv_boot(tb, fit, params)
-
-    lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
-    upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
-
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
-}

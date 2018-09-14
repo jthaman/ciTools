@@ -132,8 +132,8 @@ Scope of `ciTools`
 | Neg. Binomial    | \[X\]                | \[X\]                | \[X\]                  | \[X\]              |
 | Linear Mixed     | \[X\]                | \[X\]                | \[X\]                  | \[X\]              |
 | Log-Linear Mixed | \[TODO\]             | \[X\]                | \[X\]                  | \[X\]              |
-| Survival         | \[TODO\]             | \[TODO\]             | \[TODO\]               | \[TODO\]           |
-| GLMM             | \[TODO\]             | \[TODO\]             | \[TODO\]               | \[TODO\]           |
+| Survival (AFT model)         | \[X\]                | \[X\]                | \[X\]                  | \[X\]           |
+| GLMM             | \[X\]             | \[X\]             | \[X\]               | \[X\]           |
 
 \[X\] = Implemented
 

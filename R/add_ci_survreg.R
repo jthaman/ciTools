@@ -43,16 +43,16 @@
 #'     \code{\link{add_probs.survreg}} for response probabilities of
 #'     \code{survreg} objects.
 #'
-#' @examples TODO
+#' @examples
 #'
-#' @references TODO
+#' @references
 #'
 #' @export
 
-add_ci.survreg <- function(tb, fit, p = 0.5,
+add_ci.survreg <- function(tb, fit,
+                           alpha = 0.1,
                            names = NULL,
                            yhatName = "mean_pred",
-                           alpha = 0.1,
                            method = "parametric", nSims = 2000,
                            ...){
 
@@ -67,19 +67,29 @@ add_ci.survreg <- function(tb, fit, p = 0.5,
 
 
     if(method == "boot")
-        boot_ci_survreg_expectation(tb, fit, yhatName,
-                                    confint, alpha, names, nSims)
+        stop("not yet implemented")
+    ## boot_ci_survreg_expectation(tb, fit, yhatName,
+    ##                             confint, alpha, names, nSims)
     else if(method == "parametric")
-        parametric_ci_survreg_expectation(tb, fit, yhatName,
-                                          alpha, names)
+        parametric_ci_survreg_expectation(tb, fit, alpha,
+                                          names, yhatName)
     else
         stop("method must be either 'boot' or 'parametric'")
 }
 
-## TODO checks for missing values and convergence
 parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
                                               alpha, names){
     distr <- fit$dist
+
+    if (distr == "loggaussian")
+        distr <- "lognormal"
+
+    if (!(distr %in% c("loglogistic", "lognormal", "exponential", "weibull")))
+        stop("Unsupported distribution")
+
+    if (distr == "loglogistic" && (scale >= 1))
+        stop("Expected value is undefined for loglogistic distribution with scale >= 1")
+
     form <- formula(fit)
     m <- model.frame(form, tb)
     mat <- model.matrix(form, m)
@@ -91,9 +101,6 @@ parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
     beta <- coef(fit)
     scale <- fit$scale
 
-    if (distr == "loglogistic" && (scale >= 1))
-        stop("Expected value is undefined for loglogistic distribution with scale >= 1")
-
     if (distr == "weibull")
         pred <- exp(mat %*% beta) * gamma(1 + scale)
     else if (distr == "exponential")
@@ -101,12 +108,12 @@ parametric_ci_survreg_expectation <- function(tb, fit, yhatName,
     else if (distr == "loglogistic")
         pred <- exp(mat %*% beta) * gamma(1 + scale) * gamma(1 - scale)
     else if (distr == "lognormal")
-        pred <- exp(c(mat %*% beta) + (scale^2) / 2)
+        pred <- exp(mat %*% beta + (scale^2) / 2)
 
     crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
     cov_mat <- vcov(fit)
 
-    if (fit$dist == "exponential")
+    if (distr == "exponential")
         cov_mat <- cbind(rbind(cov_mat, 0), 0)
 
     d_g <- rep(NA, nPred)

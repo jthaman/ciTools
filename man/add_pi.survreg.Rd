@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Survival Models}
 \usage{
 \method{add_pi}{survreg}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", nSims = 2000, bootData = FALSE, ...)
+  yhatName = "median_pred", nSims = 10000, method = "naive", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -23,15 +23,17 @@ named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the predictions vector.}
 
-\item{nSims}{A positive integer. Determines the number of}
+\item{nSims}{A positive integer. Determines the number of bootstrap
+replicates.}
 
-\item{bootData}{A logical. If \code{TRUE} a matrix is bootstrap
-replicates is returned.  simulations to run.}
+\item{method}{A string. Determines the method used to calculate
+prediction intevals. Must be one of either \code{"naive"} or
+\code{"boot"}.}
 
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A tibble, \code{tb}, with predicted medians, upper and lower
     prediction bounds attached.
 }
 \description{
