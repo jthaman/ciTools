@@ -72,17 +72,17 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
     }
 
     if(method == "boot")
-        boot_ci_survreg_quantile(tb, fit, p, yhatName,
-                                 confint, alpha, name, nSims)
+        boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
+                                 confint, alpha, nSims)
     else if(method == "parametric")
-        parametric_ci_survreg_quantile(tb, fit, p, yhatName,
-                                       confint, alpha, name)
+        parametric_ci_survreg_quantile(tb, fit, p, name, yhatName,
+                                       confint, alpha)
     else
         stop("method must be either 'boot' or 'parametric'")
 }
 
-boot_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
-                                     alpha, name, nSims){
+boot_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
+                                     confint, alpha, nSims){
     nPred <- dim(tb)[1]
     out <- predict(fit, tb, se.fit = TRUE,
                    type = "quantile", p = p)
@@ -113,8 +113,8 @@ boot_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
 }
 
 #TODO : how to handle weights?
-parametric_ci_survreg_quantile <- function(tb, fit, p, yhatName, confint,
-                                           alpha, name){
+parametric_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
+                                           confint, alpha){
     out <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = p)
 
     if (confint){

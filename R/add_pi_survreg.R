@@ -52,7 +52,8 @@
 #' @export
 
 add_pi.survreg <- function(tb, fit, alpha = 0.05,
-                           names = NULL, yhatName = "median_pred",
+                           names = NULL,
+                           yhatName = "median_pred",
                            nSims = 10000,
                            method = "naive",
                            ...){
@@ -87,7 +88,6 @@ pi_survreg_naive <- function(tb, fit, alpha, names, yhatName){
     tibble::as_data_frame(tb)
 }
 
-## TODO: add argument to return the sim_response matrix for further study?
 
 qsev <- function(p) {
     p=ifelse(p>=.99999999999999,.99999999999999,p)

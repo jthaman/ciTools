@@ -84,12 +84,12 @@ add_probs.survreg <- function(tb, fit, q,
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
 
     if (method == "parametric") {
-        parametric_ci_survreg_prob(tb, fit, q, confint, alpha,
-                                   name, yhatName, comparison)
+        parametric_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
+                                   confint, alpha)
     }
     else if (method == "boot") {
-        boot_ci_survreg_prob(tb, fit, q, confint, alpha, name,
-                             yhatName, comparison, nSims)
+        boot_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
+                             confint, alpha, nSims)
     }
     else
         stop("method must be either boot or parametric")
