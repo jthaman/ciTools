@@ -2,7 +2,8 @@
 % Please edit documentation in R/add_quantile_survreg.R
 \name{add_quantile.survreg}
 \alias{add_quantile.survreg}
-\title{Confidence Intervals for a Quantile of a Parametric Survival Model}
+\title{Confidence Intervals for Survival Time Quantiles of a Parametric
+Survival Model}
 \usage{
 \method{add_quantile}{survreg}(tb, fit, p = 0.5, name = NULL,
   yhatName = "median_pred", confint = TRUE, alpha = 0.1,
@@ -38,11 +39,16 @@ to use.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level
-    \emph{p} quantiles attached.
+A tibble, \code{tb}, with predicted medians, level \emph{p}
+    quantiles attached and confidence intervals attached.
 }
 \description{
-This function is one of the methods of \code{add_quantile}.
+This function is one of the methods of \code{add_quantile} and is
+automatically called when an object of class \code{survreg} is
+passed to \code{add_quantile}.
+}
+\details{
+Details here.
 }
 \examples{
 

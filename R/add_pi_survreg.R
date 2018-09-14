@@ -62,8 +62,18 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
+
     if ((names[1] %in% colnames(tb)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
+
+    if (!(fit$dist %in%
+          c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
+        stop("Unsupported distribution")
+
+    if (!is.null(fit$weights))
+        if (var(fit$weights) != 0)
+            stop("weighted regression is unsupported.")
+
     if (method == "calibrated")
         stop("not yet implemented")
     ## sim_pi_survreg_calibrated(tb, fit, alpha, names, yhatName, nSims)
@@ -135,7 +145,7 @@ get_sim_response_surv_boot <- function(tb, fit, params){
         linear_pred <- modmat %*% params[i,1:dim(params)[2] - 1]
         scale <- fit$scale
 
-        if (distr == "lognormal"){
+        if ((distr == "lognormal") || (distr == "loggaussian")){
             sim_response[,i] <- exp(linear_pred + scale * rnorm(n = nPreds))
         }
         if (distr == "weibull"){

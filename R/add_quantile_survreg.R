@@ -15,9 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for a Quantile of a Parametric Survival Model
+#' Confidence Intervals for Survival Time Quantiles of a Parametric
+#' Survival Model
 #'
-#' This function is one of the methods of \code{add_quantile}.
+#' This function is one of the methods of \code{add_quantile} and is
+#' automatically called when an object of class \code{survreg} is
+#' passed to \code{add_quantile}.
+#'
+#' Details here.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{survreg}. Predictions are made
@@ -37,8 +42,8 @@
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and level
-#'     \emph{p} quantiles attached.
+#' @return A tibble, \code{tb}, with predicted medians, level \emph{p}
+#'     quantiles attached and confidence intervals attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
 #'     \code{survreg} objects, \code{\link{add_pi.survreg}} for
@@ -70,6 +75,14 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
     if ((name[1] %in% colnames(tb))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
+
+    if (!(fit$dist %in%
+          c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
+        stop("Unsupported distribution")
+
+    if (!is.null(fit$weights))
+        if (var(fit$weights) != 0)
+            stop("weighted regression is unsupported.")
 
     if(method == "boot")
         boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
@@ -113,9 +126,11 @@ boot_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
 }
 
 #TODO : how to handle weights?
+#TODO : Test left and interval censored  data
 parametric_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
                                            confint, alpha){
     out <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = p)
+
 
     if (confint){
         crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)

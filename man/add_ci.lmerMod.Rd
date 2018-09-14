@@ -61,6 +61,7 @@ recommended method when working with any linear mixed models more
 complicated than the random intercept model.
 }
 \examples{
+\dontrun{
 dat <- lme4::sleepstudy
 # Fit a linear mixed model (random intercept model)
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
@@ -69,7 +70,7 @@ fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 add_ci(dat, fit, alpha = 0.5)
 # Try the parametric bootstrap method, and make prediction at the population level
 add_ci(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE, nSims = 100)
-
+}
 }
 \seealso{
 \code{\link{add_pi.lmerMod}} for prediction intervals

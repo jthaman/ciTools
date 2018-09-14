@@ -119,6 +119,14 @@ add_ci.survreg <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
+    if (!(fit$dist %in%
+          c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
+        stop("Unsupported distribution")
+
+    if (!is.null(fit$weights))
+        if (var(fit$weights) != 0)
+            stop("weighted regression is unsupported.")
+
     if(method == "boot")
         stop("not yet implemented")
     ## boot_ci_survreg_expectation(tb, fit, yhatName,
@@ -137,12 +145,6 @@ parametric_ci_survreg_expectation <- function(tb, fit,
                                               names,
                                               yhatName){
     distr <- fit$dist
-
-    if (distr == "loggaussian")
-        distr <- "lognormal"
-
-    if (!(distr %in% c("loglogistic", "lognormal", "exponential", "weibull")))
-        stop("Unsupported distribution")
 
     if (distr == "loglogistic" && (scale >= 1))
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
@@ -164,7 +166,7 @@ parametric_ci_survreg_expectation <- function(tb, fit,
         pred <- exp(mat %*% beta)
     else if (distr == "loglogistic")
         pred <- exp(mat %*% beta) * gamma(1 + scale) * gamma(1 - scale)
-    else if (distr == "lognormal")
+    else if ((distr == "lognormal") || (distr == "loggaussian"))
         pred <- exp(mat %*% beta + (scale^2) / 2)
 
     crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)

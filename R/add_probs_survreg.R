@@ -83,6 +83,14 @@ add_probs.survreg <- function(tb, fit, q,
     if ((name[1] %in% colnames(tb)))
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
 
+    if (!is.null(fit$weights))
+        if (var(fit$weights) != 0)
+            stop("weighted regression is unsupported.")
+
+    if (!(fit$dist %in%
+          c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
+        stop("Unsupported distribution")
+
     if (method == "parametric") {
         parametric_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
                                    confint, alpha)
