@@ -31,7 +31,16 @@
 #' bootstrap resampling procedure. Generally, both of the these
 #' methods perform well under mild to moderate right censoring.
 #'
-#' TODO: finish coding bootstrap method.
+#' \code{add_ci.survreg} will compute confidence intervals for the
+#' following mean point estimates:
+#'
+#' Exponential: \eqn{E[Y|X] = \exp{X\beta}}
+#'
+#' Weibull: \eqn{E[Y|X] = \exp{X\beta}\Gamma(1 + \sigma)}
+#'
+#' Lognormal: \eqn{E[Y|X] = \exp{X\beta + \frac{\sigma^2}{2}}}
+#'
+#' Loglogistic: \eqn{E[Y|X] = \exp{X\beta}\Gamma(1 + \sigma)(1 - \sigma)}
 #'
 #' Traditionally, survival time predictions are made with the median
 #' survival time. For forming confidence intervals for the median
@@ -128,9 +137,12 @@ add_ci.survreg <- function(tb, fit,
             stop("weighted regression is unsupported.")
 
     if(method == "boot")
-        stop("not yet implemented")
-    ## boot_ci_survreg_expectation(tb, fit, yhatName,
-    ##                             confint, alpha, names, nSims)
+        boot_ci_survreg_expectation(tb, fit,
+                                    alpha,
+                                    names,
+                                    yhatName,
+                                    confint,
+                                    nSims)
     else if(method == "parametric")
         parametric_ci_survreg_expectation(tb, fit,
                                           alpha,
@@ -138,6 +150,21 @@ add_ci.survreg <- function(tb, fit,
                                           yhatName)
     else
         stop("method must be either 'boot' or 'parametric'")
+}
+
+
+calc_surv_mean <- function(mat, distr, beta, scale){
+
+    if (distr == "weibull")
+        pred <- exp(mat %*% beta) * gamma(1 + scale)
+    else if (distr == "exponential")
+        pred <- exp(mat %*% beta)
+    else if (distr == "loglogistic")
+        pred <- exp(mat %*% beta) * gamma(1 + scale) * gamma(1 - scale)
+    else if ((distr == "lognormal") || (distr == "loggaussian"))
+        pred <- exp(mat %*% beta + (scale^2) / 2)
+
+    pred
 }
 
 parametric_ci_survreg_expectation <- function(tb, fit,
@@ -160,14 +187,8 @@ parametric_ci_survreg_expectation <- function(tb, fit,
     beta <- coef(fit)
     scale <- fit$scale
 
-    if (distr == "weibull")
-        pred <- exp(mat %*% beta) * gamma(1 + scale)
-    else if (distr == "exponential")
-        pred <- exp(mat %*% beta)
-    else if (distr == "loglogistic")
-        pred <- exp(mat %*% beta) * gamma(1 + scale) * gamma(1 - scale)
-    else if ((distr == "lognormal") || (distr == "loggaussian"))
-        pred <- exp(mat %*% beta + (scale^2) / 2)
+    pred <- calc_surv_mean(mat = mat, distr = distr,
+                           beta = beta, scale = scale)
 
     crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
     cov_mat <- vcov(fit)
@@ -214,4 +235,72 @@ parametric_ci_survreg_expectation <- function(tb, fit,
     tb[[names[2]]] <- as.numeric(upr)
 
     tibble::as_data_frame(tb)
+}
+
+
+surv_boot_mean <- function(tb, fit){
+    distr <- fit$dist
+
+    if (distr == "loglogistic" && (scale >= 1)){
+        pred <- NA
+        return(pred)
+    }
+
+    form <- formula(fit)
+    m <- model.frame(form, tb)
+    mat <- model.matrix(form, m)
+    nPred <- dim(tb)[1]
+    beta <- coef(fit)
+    scale <- fit$scale
+
+    pred <- calc_surv_mean(mat = mat, distr = distr,
+                           beta = beta, scale = scale)
+    pred
+}
+
+boot_ci_survreg_expectation <- function(tb, fit,
+                                        alpha,
+                                        names,
+                                        yhatName,
+                                        confint,
+                                        nSims){
+
+    distr <- fit$dist
+
+    if (distr == "loglogistic" && (scale >= 1))
+        stop("Expected value is undefined for loglogistic distribution with scale >= 1")
+
+    form <- formula(fit)
+    m <- model.frame(form, tb)
+    mat <- model.matrix(form, m)
+
+    if(any(is.na(mat)))
+        stop("Check tb for missingness")
+
+    nPred <- dim(tb)[1]
+    beta <- coef(fit)
+    scale <- fit$scale
+
+    pred <- calc_surv_mean(mat = mat, distr = distr,
+                           beta = beta, scale = scale)
+
+    if (confint){
+        boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
+        for (i in 1:nSims){
+            temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
+            boot_fit <- survival::survreg(formula(fit$terms), data = temp,
+                                          dist = fit$dist)
+            boot_pred <- surv_boot_mean(tb, boot_fit)
+            boot_mat[i,] <- boot_pred
+        }
+        lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
+        upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
+    }
+    if (is.null(tb[[yhatName]]))
+        tb[[yhatName]] <- pred
+
+    tb[[names[1]]] <- lwr
+    tb[[names[2]]] <- upr
+    tibble::as_data_frame(tb)
+
 }

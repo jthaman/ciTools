@@ -54,7 +54,16 @@ parametrically via the Delta method, or through a non-parametric
 bootstrap resampling procedure. Generally, both of the these
 methods perform well under mild to moderate right censoring.
 
-TODO: finish coding bootstrap method.
+\code{add_ci.survreg} will compute confidence intervals for the
+following mean point estimates:
+
+Exponential: \eqn{E[Y|X] = \exp{X\beta}}
+
+Weibull: \eqn{E[Y|X] = \exp{X\beta}\Gamma(1 + \sigma)}
+
+Lognormal: \eqn{E[Y|X] = \exp{X\beta + \frac{\sigma^2}{2}}}
+
+Loglogistic: \eqn{E[Y|X] = \exp{X\beta}\Gamma(1 + \sigma)(1 - \sigma)}
 
 Traditionally, survival time predictions are made with the median
 survival time. For forming confidence intervals for the median

@@ -21,6 +21,15 @@
 #' called automatically when \code{add_pi} is used on a \code{fit} of
 #' class \code{survreg}.
 #'
+#' Note: Due to a limitation, the \code{Surv} object must be specified in
+#' \code{survreg} function call. See the examples section for one way
+#' to do this.
+#'
+#' Note: \code{add_pi.survreg} cannot inspect the convergence of
+#' \code{fit}. Poor maximum likelihood estimates will result in poor
+#' confidence intervals. Inspect any warning messages given from
+#' \code{survreg}.
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{survreg}.
 #' @param alpha A real number between 0 and 1. Controls the confidence

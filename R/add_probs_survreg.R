@@ -17,14 +17,44 @@
 
 #' Confidence Intervals for the Survivor Function of Parametric Survival Models
 #'
-#' TODO add a description
+#' This function is one of the methods of \code{add_probs} and is
+#' automatically called when an object of class \code{survreg} is
+#' passed to \code{add_probs}.
 #'
-#' TODO add details
+#' Confidence intervals may be produced for estimated probabilities of
+#' accelerated failure time models. Presently, confidence intervals
+#' may be computed for lognormal, weibull, exponential, and
+#' loglogistic failure time models. If \code{comparison = "<"},
+#' confidence intevals are made for the probability that a failure
+#' will be observed before \code{q}. Similarly, if \code{comparison =
+#' ">"}, confidence intervals will be formed for the probability that
+#' a unit fails after \code{q}. In the survival literature,
+#' \code{compaison = ">"} corresponds to estimating the survivor
+#' function, \emph{S(q)}.
+#'
+#' Confidence intervals may be produced paramerically via the Delta
+#' Method, or computationally through a nonparametric (case
+#' resampling) bootstrap procedure. Simulations show that under a mild
+#' to moderate amount of censoring, these methods perform
+#' similarly. Thus, the parametric method may be preferred in many
+#' standard applications.
+#'
+#' In both methods, the logistic transformation is applied to ensure
+#' that confidence interval bounds lie between \eqn{0} and \eqn{1}.
+#'
+#' Note: Due to a limitation, the \code{Surv} object must be specified in
+#' \code{survreg} function call. See the examples section for one way
+#' to do this.
+#'
+#' Note: \code{add_probs.survreg} cannot inspect the convergence of
+#' \code{fit}. Poor maximum likelihood estimates will result in poor
+#' confidence intervals. Inspect any warning messages given from
+#' \code{survreg}.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{survreg}. Predictions are made
 #'     with this object.
-#' @param q A double. A quantile of the response distribution. In
+#' @param q A double. A quantile of the survival time distribution. In
 #'     survival applications this is the time of event.
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
 #'     the estimated probabilities will be calculated and appended to
@@ -42,18 +72,24 @@
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
 #'     calculated. If \code{comparison = ">"}, the survivor function
 #'     at time \code{q} is calculated.
-#' @param nSims Number of simulations used for bootstrap confidence
-#'     intervals.
+#' @param nSims Number of simulations used if \code{method = "boot"}
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted values and
-#'     probabilities attached.
+#' @return A tibble, \code{tb}, with predicted medians, probabilities,
+#'     and confidence intervals for predicted probabilities attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
 #'     \code{survreg} objects, \code{\link{add_pi.survreg}} for
 #'     prediction intervals of \code{survreg} objects, and
 #'     \code{\link{add_quantile.survreg}} for response quantiles of
 #'     \code{survreg} objects.
+#'
+#' @references
+#' For the logistic transformation of estimated probabilities and error bounds:
+#' Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 8)
+#'
+#' For a discussion of forming confidence intervals for survival probabilities:
+#' Harrell, Frank E. Regression modeling strategies. Springer, 2015. (Chapter 17)
 #'
 #' @examples
 #' ## Define a data set.
@@ -72,10 +108,6 @@
 #' ## Calculate the level 0.75 quantile with CIs for the quantile
 #' add_probs(tb, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
 #'
-#' @references
-#'
-#' For the logistic transformation of estimated probabilities and error bounds:
-#' Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 8)
 #'
 #' @export
 
