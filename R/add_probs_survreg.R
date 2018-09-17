@@ -56,6 +56,26 @@
 #'     \code{survreg} objects.
 #'
 #' @examples
+#' ## Define a data set.
+#' tb <- survival::stanford2
+#' ## remove a covariate with missing values.
+#' tb <- tb[, 1:4]
+#' ## next, create the Surv object inside the survreg call:
+#' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+#'                          data = tb, dist = "lognormal")
+#' ## Calculate the level 0.75 quantile wit CIs for that quantile
+#' add_probs(tb, fit, q = 500, name = c("Fhat", "lwr", "upr"))
+#'
+#' ## Try a weibull model for the same data:
+#' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+#'                           data = tb, dist = "weibull")
+#' ## Calculate the level 0.75 quantile with CIs for the quantile
+#' add_probs(tb, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
+#'
+#' @references
+#'
+#' For the logistic transformation of estimated probabilities and error bounds:
+#' Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 8)
 #'
 #' @export
 
@@ -130,9 +150,12 @@ survreg_calc_probs <- function(tb, fit, q, comparison){
     ))
 }
 
-parametric_ci_survreg_prob <- function(tb, fit, q, confint,
-                                       alpha, name, yhatName,
-                                       comparison){
+parametric_ci_survreg_prob <- function(tb, fit, q,
+                                       name, yhatName,
+                                       comparison,
+                                       confint,
+                                       alpha
+                                       ){
 
     collect <- survreg_calc_probs(tb = tb, fit = fit, q = q,
                                   comparison = comparison)
@@ -180,9 +203,12 @@ parametric_ci_survreg_prob <- function(tb, fit, q, confint,
     tibble::as_data_frame(tb)
 }
 
-boot_ci_survreg_prob <- function(tb, fit, q, confint,
-                                 alpha, name, yhatName,
-                                 comparison, nSims){
+boot_ci_survreg_prob <- function(tb, fit, q,
+                                 name, yhatName,
+                                 comparison,
+                                 confint,
+                                 alpha,
+                                 nSims){
     pred <- predict(fit, tb, type = "quantile", p = 0.5)
 
     collect <- survreg_calc_probs(tb = tb, fit = fit, q = q,

@@ -43,11 +43,28 @@
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
 #'     \code{survreg} objects, \code{\link{add_probs.survreg}} for
-#'     conditional probabilities of \code{survreg} objects, and
-#'     \code{\link{add_quantile.survreg}} for response quantiles of
-#'     \code{survreg} objects.
+#'     conditional survival probabilities of \code{survreg} objects, and
+#'     \code{\link{add_quantile.survreg}} for survival time quantiles
+#'     of \code{survreg} objects.
+#'
+#' @references
+#' For a discussion prediction intervals of accelerated failure time models:
+#' Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 8)
 #'
 #' @examples
+#' ## Define a data set.
+#' tb <- survival::stanford2
+#' ## remove a covariate with missing values.
+#' tb <- tb[, 1:4]
+#' ## next, create the Surv object inside the survreg call:
+#' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+#'                          data = tb, dist = "lognormal")
+#' add_pi(tb, fit, alpha = 0.1, names = c("lwr", "upr"))
+#'
+#' ## Try a different model:
+#' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+#'                           data = tb, dist = "weibull")
+#' add_pi(tb, fit2, alpha = 0.1, names = c("lwr", "upr"))
 #'
 #' @export
 

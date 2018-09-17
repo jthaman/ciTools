@@ -2,8 +2,7 @@
 % Please edit documentation in R/add_quantile_survreg.R
 \name{add_quantile.survreg}
 \alias{add_quantile.survreg}
-\title{Confidence Intervals for Survival Time Quantiles of a Parametric
-Survival Model}
+\title{Confidence Intervals for Quantiles of the Survival Time Distribution}
 \usage{
 \method{add_quantile}{survreg}(tb, fit, p = 0.5, name = NULL,
   yhatName = "median_pred", confint = TRUE, alpha = 0.1,
@@ -39,8 +38,8 @@ to use.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted medians, level \emph{p}
-    quantiles attached and confidence intervals attached.
+A tibble, \code{tb}, with predicted medians, level \eqn{p}
+    quantiles, and confidence intervals attached.
 }
 \description{
 This function is one of the methods of \code{add_quantile} and is
@@ -48,18 +47,79 @@ automatically called when an object of class \code{survreg} is
 passed to \code{add_quantile}.
 }
 \details{
-Details here.
+\code{add_quantile.survreg} produces quantiles for the estimated
+distribution of survival times from a survreg object. Estimated
+quantiles (such as the median survival time) may be calculated for
+a range of distributions including lognormal, exponential, weibull,
+and loglogistic models. \code{add_quantile.survreg} can compute
+quantiles through a parametric method based on the Delta Method or
+by a nonparametric bootstrap method. Generally, these methods
+perform similarly under a mild to moderate amount of
+censoring. Parametric intervals are calculated using a
+transformation of the confidence intervals produced by
+\code{predict.survreg} and are mathematically idenical to intervals
+calculated by a manual Delta Method.
+
+Unlike other \code{add_quantile} methods,
+\code{add_quantile.survreg} produces confidence intervals for
+\code{survreg objects} by default. This may optionally be disabled
+by switching the \code{confint} argument.
+
+The estimated survival time level \eqn{p} quantile, \eqn{\hat{q}_p}
+is calculated by
+
+\deqn{
+\hat{q}_p = \exp\{ X\hat{\beta} + F^{-1}(p) \hat{\sigma} \}
+}
+
+where \eqn{F^{-1}(p)} is a quantile of the linear error
+distribution (e.g. Normal, smallest extreme value, etc.) and
+\eqn{\theta = (\beta, \sigma)} are maximum likelihood parameters
+estimated by \code{survreg}.
+
+The variance of \eqn{\hat{q}_p} is approximated by
+
+\deqn{
+\hat{var}(\hat{t}_p) = \left[ \frac{\partial q_p(\theta)}{\partial \theta}\right]^\intercal
+\hat{\Sigma}_\hat{\theta}
+\left[ \frac{\partial q_p(\theta)}{\partial \theta}\right]
+}
+
+where \eqn{\hat{\Sigma}_\hat{\theta}} is the variance-covariance matrix of the
+regression parameters.
 }
 \examples{
+## Define a data set:
+tb <- survival::stanford2
+## remove a covariate with missing values:
+tb <- tb[, 1:4]
+## next, create the Surv object inside the survreg call:
+fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+                         data = tb, dist = "lognormal")
+## Calculate the level 0.75 quantile wit CIs for that quantile
+add_quantile(tb, fit, p = 0.75, name = c("quant", "lwr", "upr"))
+
+## Try a weibull model for the same data:
+fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
+                          data = tb, dist = "weibull")
+## Calculate the level 0.75 quantile with CIs for the quantile
+add_quantile(tb, fit2, p = 0.75, name = c("quant", "lwr", "upr"))
 
 }
 \references{
+For descriptions of the log-location scale models supported:
+Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 4)
 
+For a description of the multivariate Delta method:
+Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Appendix B.2)
+
+For a description of Delta Method Confidence Intervals:
+Meeker, William Q., and Luis A. Escobar. Statistical methods for reliability data. John Wiley & Sons, 2014. (Chapter 8)
 }
 \seealso{
-\code{\link{add_ci.survreg}} for confidence intervals for
+\code{\link{add_ci.survreg}} for confidence intervals
     \code{survreg} objects, \code{\link{add_pi.survreg}} for
     prediction intervals of \code{survreg} objects, and
-    \code{\link{add_probs.survreg}} for response probabilities of
+    \code{\link{add_probs.survreg}} for survival probabilities of
     \code{survreg} objects.
 }
