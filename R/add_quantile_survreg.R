@@ -198,7 +198,6 @@ boot_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
     tibble::as_data_frame(tb)
 }
 
-#TODO : Test left and interval censored  data
 parametric_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
                                            confint, alpha){
     out <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = p)

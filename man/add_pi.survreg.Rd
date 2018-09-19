@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_pi_survreg.R
 \name{add_pi.survreg}
 \alias{add_pi.survreg}
-\title{Prediction Intervals for Survival Models}
+\title{Prediction Intervals for Accelerated Failure Time Models}
 \usage{
 \method{add_pi}{survreg}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "median_pred", nSims = 10000, method = "naive", ...)
@@ -42,6 +42,24 @@ called automatically when \code{add_pi} is used on a \code{fit} of
 class \code{survreg}.
 }
 \details{
+\code{add_pi.survreg} creates prediction intervals for the survival
+time $T$ conditioned on the covariates of the \code{survreg}
+model. In simple terms, this function calculates error bounds
+within which one can expect to observe a new survival time. Like
+other parametric survival methods in \code{ciTools}, prediction
+intervals are limited to unweighted lognormal, exponential,
+weibull, and loglogistic AFT models.
+
+Two methods are available for creating prediction intervals, the
+"naive" method (Meeker and Escobar, chapter 8) and a simulation
+method that implements a parametric bootstrap routine. The "naive"
+method calculates quantiles of the fitted survival time
+distribution to determine prediction intervals. The parametric
+bootstrap method simulates new survival times from the conditional
+survival time distribution, taking into account the uncertainty in
+the regression coefficients. The bootstrap method is similar to the
+one implemented in \code{add_pi.glm}.
+
 Note: Due to a limitation, the \code{Surv} object must be specified in
 \code{survreg} function call. See the examples section for one way
 to do this.

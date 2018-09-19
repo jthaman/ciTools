@@ -15,11 +15,29 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Prediction Intervals for Survival Models
+#' Prediction Intervals for Accelerated Failure Time Models
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
 #' class \code{survreg}.
+#'
+#' \code{add_pi.survreg} creates prediction intervals for the survival
+#' time $T$ conditioned on the covariates of the \code{survreg}
+#' model. In simple terms, this function calculates error bounds
+#' within which one can expect to observe a new survival time. Like
+#' other parametric survival methods in \code{ciTools}, prediction
+#' intervals are limited to unweighted lognormal, exponential,
+#' weibull, and loglogistic AFT models.
+#'
+#' Two methods are available for creating prediction intervals, the
+#' "naive" method (Meeker and Escobar, chapter 8) and a simulation
+#' method that implements a parametric bootstrap routine. The "naive"
+#' method calculates quantiles of the fitted survival time
+#' distribution to determine prediction intervals. The parametric
+#' bootstrap method simulates new survival times from the conditional
+#' survival time distribution, taking into account the uncertainty in
+#' the regression coefficients. The bootstrap method is similar to the
+#' one implemented in \code{add_pi.glm}.
 #'
 #' Note: Due to a limitation, the \code{Surv} object must be specified in
 #' \code{survreg} function call. See the examples section for one way
@@ -100,10 +118,7 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
-    if (method == "calibrated")
-        stop("not yet implemented")
-    ## sim_pi_survreg_calibrated(tb, fit, alpha, names, yhatName, nSims)
-    else if (method == "naive")
+    if (method == "naive")
         pi_survreg_naive(tb, fit, alpha, names, yhatName)
     else if (method == "boot")
         sim_pi_survreg_boot(tb, fit, alpha, names, yhatName, nSims)
@@ -124,7 +139,7 @@ pi_survreg_naive <- function(tb, fit, alpha, names, yhatName){
     tibble::as_data_frame(tb)
 }
 
-
+## Loglogistic distribution functions (taken from SPREDA library)
 qsev <- function(p) {
     p=ifelse(p>=.99999999999999,.99999999999999,p)
     p=ifelse(p<=1-.99999999999999,1-.99999999999999,p)
@@ -159,7 +174,6 @@ sim_surv_coefs <- function(tb, fit, nSims){
     params
 }
 
-## only works with log-linear models
 get_sim_response_surv_boot <- function(tb, fit, params){
     nSims <- dim(params)[1]
     nPreds <- NROW(tb)
@@ -207,45 +221,3 @@ sim_pi_survreg_boot <- function(tb, fit, alpha, names, yhatName, nSims){
     tb[[names[2]]] <- upr
     tibble::as_data_frame(tb)
 }
-
-## ### calibrated method ###
-
-## will only work with log-linear models
-## currently only works with log normal model
-## need to implement a censoring mechanism
-## get_sim_response_surv <- function(tb, fit, nSims){
-##     nPred <- NROW(tb)
-##     beta.hat <- coef(fit)
-##     sigma <- fit$scale
-##     modmat <- model.matrix(fit, data = tb)
-##     dist <- fit$dist
-##     sim_response <- matrix(0, ncol = nPred, nrow = nSims)
-
-##     for (i in 1:nSims){
-##         linear_pred <- modmat %*% beta.hat
-##         if(dist == "lognormal"){
-##             sim_response[i,] <- exp(linear_pred + sigma * rnorm(n = nPred))
-##         }
-##     }
-##     sim_response
-## }
-
-## get_mle_surv <- function(sim_response, tb, fit){
-##     nSims <- NROW(sim_response)
-##     dist <- fit$dist
-##     for (i in 1:nSims){
-##         ## how to get this into data arg? Use a regex...
-##         T <- sim_response[i,]
-##         form <- formula(fit)
-##         temp_model <- survreg(form, data = tb, dist = fit$dist)
-##     }
-## }
-
-## si_pi_survreg_calibrated <- function(tb, fit, alpha, names, yhatName, nSims){
-##     alpha_0 <- alpha
-##     sim_dat <- get_sim_response_surv(tb = tb, fit = fit, nSims = nSims)
-
-
-## }
-
-### boot method ###
