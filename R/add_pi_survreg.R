@@ -118,6 +118,9 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
+    if(any(is.na(tb)))
+        stop("Check tb for missingness")
+
     if (method == "naive")
         pi_survreg_naive(tb, fit, alpha, names, yhatName)
     else if (method == "boot")

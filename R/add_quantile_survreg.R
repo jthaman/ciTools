@@ -152,6 +152,9 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
+    if(any(is.na(tb)))
+        stop("Check tb for missingness")
+
     ## if(method == "boot")
     ##     boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
     ##                              confint, alpha, nSims)

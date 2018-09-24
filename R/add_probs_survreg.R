@@ -141,6 +141,9 @@ add_probs.survreg <- function(tb, fit, q,
           c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
         stop("Unsupported distribution")
 
+    if(any(is.na(tb)))
+        stop("Check tb for missingness")
+
     ## if (method == "parametric") {
         parametric_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
                                    confint, alpha)

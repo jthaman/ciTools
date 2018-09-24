@@ -125,6 +125,9 @@ add_ci.survreg <- function(tb, fit,
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
+    if(any(is.na(tb)))
+        stop("Check tb for missingness")
+
     if (!(fit$dist %in%
           c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
         stop("Unsupported distribution")
@@ -176,8 +179,6 @@ parametric_ci_survreg_expectation <- function(tb, fit,
     m <- model.frame(form, tb)
     mat <- model.matrix(form, m)
 
-    if(any(is.na(mat)))
-        stop("Check tb for missingness")
 
     nPred <- dim(tb)[1]
     beta <- coef(fit)
