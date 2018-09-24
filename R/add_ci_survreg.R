@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for the Mean Survival Time of Parametric
-#' Survival Models.
+#' Confidence Intervals for the Mean Survival Time of Accelerated
+#' Failure Time Models.
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
@@ -26,13 +26,11 @@
 #' survival time of several accelerated failure time (AFT) models
 #' including exponential, lognormal, weibull, and loglogistic
 #' models. AFT models must be fit with the \code{survreg} function in
-#' the \code{survival} package. Confidence intervals are formed either
-#' parametrically via the Delta method, or through a non-parametric
-#' bootstrap resampling procedure. Generally, both of the these
-#' methods perform well under mild to moderate right censoring.
+#' the \code{survival} package. Confidence intervals are formed
+#' parametrically via the Delta method.
 #'
 #' \code{add_ci.survreg} will compute confidence intervals for the
-#' following mean point estimates:
+#' following mean survival time point estimates:
 #'
 #' Exponential: \eqn{E[Y|X] = \exp{X\beta}}
 #'
@@ -61,26 +59,26 @@
 #' \code{survreg}.
 #'
 #' @param tb A tibble or data frame of new data on which to form
-#'     predictions and confidence interval.
+#'     predictions and confidence intervals.
 #' @param fit An object of class \code{survreg}. Predictions are made
 #'     with this object.
-#' @param names \code{NULL} or a string. If \code{NULL}, quantiles
+#' @param names \code{NULL} or a string of length 2. If \code{NULL}, quantiles
 #'     automatically will be named by \code{add_quantile}, otherwise,
-#'     they will be named \code{name}.
+#'     they will be named \code{names}.
 #' @param yhatName A string. Name of the vector of predictions. The
 #'     default name is \code{mean_pred}.
 #' @param alpha A number between 0 and 1. 1 - \code{alpha} is the
 #'     confidence level of the intervals.
-#' @param method A string. One of either \code{"parametric"} or
-#'     \code{"boot"}. If \code{method = "parametric"}, Delta method
-#'     intervals are calculated. If \code{method = "boot"}
-#'     nonparametric bootstrap intervals are calculated.
-#' @param nSims A positive integer. Set the number of simulated draws
-#'     to use. A value greater than or equal to 2000 is recommended.
+## #' @param method A string. One of either \code{"parametric"} or
+## #'     \code{"boot"}. If \code{method = "parametric"}, Delta method
+## #'     intervals are calculated. If \code{method = "boot"}
+## #'     nonparametric bootstrap intervals are calculated.
+## #' @param nSims A positive integer. Set the number of simulated draws
+## #'     to use. A value greater than or equal to 2000 is recommended.
 #' @param ... Additional arguments.
 #'
 #' @return A tibble, \code{tb}, with predicted expected values and
-#'     level \emph{alpha} confidence levels attached.
+#'     level \emph{1 - alpha} confidence levels attached.
 #'
 #' @seealso \code{\link{add_quantile.survreg}} for quantiles of the
 #'     survival time distribution of \code{survreg} objects,
@@ -116,7 +114,6 @@ add_ci.survreg <- function(tb, fit,
                            alpha = 0.1,
                            names = NULL,
                            yhatName = "mean_pred",
-                           method = "parametric", nSims = 2000,
                            ...){
 
     if (is.null(names)){
@@ -136,20 +133,19 @@ add_ci.survreg <- function(tb, fit,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
-    if(method == "boot")
-        boot_ci_survreg_expectation(tb, fit,
-                                    alpha,
-                                    names,
-                                    yhatName,
-                                    confint,
-                                    nSims)
-    else if(method == "parametric")
-        parametric_ci_survreg_expectation(tb, fit,
-                                          alpha,
-                                          names,
-                                          yhatName)
-    else
-        stop("method must be either 'boot' or 'parametric'")
+    ## if(method == "boot")
+    ##     boot_ci_survreg_expectation(tb, fit,
+    ##                                 alpha,
+    ##                                 names,
+    ##                                 yhatName,
+    ##                                 nSims)
+    ## else if(method == "parametric")
+    parametric_ci_survreg_expectation(tb, fit,
+                                      alpha,
+                                      names,
+                                      yhatName)
+    ## else
+    ##     stop("method must be either 'boot' or 'parametric'")
 }
 
 
@@ -262,7 +258,6 @@ boot_ci_survreg_expectation <- function(tb, fit,
                                         alpha,
                                         names,
                                         yhatName,
-                                        confint,
                                         nSims){
 
     distr <- fit$dist
@@ -284,20 +279,20 @@ boot_ci_survreg_expectation <- function(tb, fit,
     pred <- calc_surv_mean(mat = mat, distr = distr,
                            beta = beta, scale = scale)
 
-    if (confint){
-        boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
-        for (i in 1:nSims){
-            temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
-            boot_fit <- survival::survreg(formula(fit$terms), data = temp,
-                                          dist = fit$dist)
-            boot_pred <- surv_boot_mean(tb, boot_fit)
-            boot_mat[i,] <- boot_pred
-        }
-        lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
-        upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
+    boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
+
+    for (i in 1:nSims){
+        temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
+        boot_fit <- survival::survreg(formula(fit$terms), data = temp,
+                                      dist = fit$dist)
+        boot_pred <- surv_boot_mean(tb, boot_fit)
+        boot_mat[i,] <- boot_pred
     }
+
+    lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
+    upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
     if (is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
+        tb[[yhatName]] <- as.numeric(pred)
 
     tb[[names[1]]] <- lwr
     tb[[names[2]]] <- upr

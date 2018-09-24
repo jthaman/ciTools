@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for Quantiles of the Survival Time Distribution
+#' Confidence Intervals for Predicted Survival Time Quantiles of
+#' Accelerated Failure Time Models
 #'
 #' This function is one of the methods of \code{add_quantile} and is
 #' automatically called when an object of class \code{survreg} is
@@ -26,17 +27,16 @@
 #' quantiles (such as the median survival time) may be calculated for
 #' a range of distributions including lognormal, exponential, weibull,
 #' and loglogistic models. \code{add_quantile.survreg} can compute
-#' quantiles through a parametric method based on the Delta Method or
-#' by a nonparametric bootstrap method. Generally, these methods
-#' perform similarly under a mild to moderate amount of
-#' censoring. Parametric intervals are calculated using a
-#' transformation of the confidence intervals produced by
-#' \code{predict.survreg} and are mathematically idenical to intervals
+#' quantiles through a parametric method based on the Delta
+#' Method. Generally, this method performs well under a mild to
+#' moderate amount of censoring. Parametric intervals are calculated
+#' using a transformation of the confidence intervals produced by
+#' \code{predict.survreg} and are mathematically identical to intervals
 #' calculated by a manual Delta Method.
 #'
 #' Unlike other \code{add_quantile} methods,
 #' \code{add_quantile.survreg} produces confidence intervals for
-#' \code{survreg objects} by default. This may optionally be disabled
+#' \code{survreg} objects by default. This may optionally be disabled
 #' by switching the \code{confint} argument.
 #'
 #' The estimated survival time level \eqn{p} quantile, \eqn{\hat{q}_p}
@@ -76,18 +76,18 @@
 #'     with this object.
 #' @param p A real number between 0 and 1. Sets the probability level
 #'     of the quantiles.
-#' @param name \code{NULL} or a string. If \code{NULL}, quantiles
-#'     automatically will be named by \code{add_quantile}, otherwise,
-#'     they will be named \code{name}.
+#' @param name \code{NULL} or a character vector of length 3. If
+#'     \code{NULL}, quantiles automatically will be named by
+#'     \code{add_quantile}, otherwise, they will be named \code{name}.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
 #'     the quantiles are also appended to \code{tb}.
 #' @param alpha A number. Controls the confidence level of the
 #'     confidence intervals if \code{confint = TRUE}.
-#' @param method A string. One of either \code{"parametric"} or
-#'     \code{"boot"}.
-#' @param nSims A positive integer. Set the number of simulated draws
-#'     to use.
+## #' @param method A string. One of either \code{"parametric"} or
+## #'     \code{"boot"}.
+## #' @param nSims A positive integer. Set the
+## #'     number of simulated draws to use.
 #' @param ... Additional arguments.
 #' @return A tibble, \code{tb}, with predicted medians, level \eqn{p}
 #'     quantiles, and confidence intervals attached.
@@ -132,8 +132,6 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
                                  yhatName = "median_pred",
                                  confint = TRUE,
                                  alpha = 0.1,
-                                 method = "parametric",
-                                 nSims = 2000,
                                  ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
@@ -154,14 +152,14 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
-    if(method == "boot")
-        boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
-                                 confint, alpha, nSims)
-    else if(method == "parametric")
+    ## if(method == "boot")
+    ##     boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
+    ##                              confint, alpha, nSims)
+    ## else if(method == "parametric")
         parametric_ci_survreg_quantile(tb, fit, p, name, yhatName,
                                        confint, alpha)
-    else
-        stop("method must be either 'boot' or 'parametric'")
+    ## else
+    ##     stop("method must be either 'boot' or 'parametric'")
 }
 
 boot_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,

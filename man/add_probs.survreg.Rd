@@ -2,11 +2,12 @@
 % Please edit documentation in R/add_probs_survreg.R
 \name{add_probs.survreg}
 \alias{add_probs.survreg}
-\title{Confidence Intervals for the Survivor Function of Parametric Survival Models}
+\title{Confidence Intervals for the Survivor Function of Accelerated
+Failure Time Models}
 \usage{
 \method{add_probs}{survreg}(tb, fit, q, name = NULL,
-  yhatName = "median_pred", comparison = "<", method = "parametric",
-  confint = TRUE, alpha = 0.05, nSims = 2000, ...)
+  yhatName = "median_pred", comparison = "<", confint = TRUE,
+  alpha = 0.05, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -29,17 +30,12 @@ tibble}
 calculated. If \code{comparison = ">"}, the survivor function
 at time \code{q} is calculated.}
 
-\item{method}{A string. One of either \code{"parametric"} or
-\code{"bootstrap"}.}
-
 \item{confint}{A logical. If \code{TRUE}, confidence intervals for
 the estimated probabilities will be calculated and appended to
 \code{tb}.}
 
 \item{alpha}{A number. Control the confidence level of the
 confidence intervals if \code{confint = TRUE}.}
-
-\item{nSims}{Number of simulations used if \code{method = "boot"}}
 
 \item{...}{Additional arguments.}
 }
@@ -64,14 +60,12 @@ a unit fails after \code{q}. In the survival literature,
 \code{compaison = ">"} corresponds to estimating the survivor
 function, \emph{S(q)}.
 
-Confidence intervals may be produced paramerically via the Delta
-Method, or computationally through a nonparametric (case
-resampling) bootstrap procedure. Simulations show that under a mild
-to moderate amount of censoring, these methods perform
-similarly. Thus, the parametric method may be preferred in many
-standard applications.
+Confidence intervals are produced paramerically via the Delta
+Method. Simulations show that under a mild
+to moderate amount of censoring, this method performs
+adequately.
 
-In both methods, the logistic transformation is applied to ensure
+The logistic transformation is applied to ensure
 that confidence interval bounds lie between \eqn{0} and \eqn{1}.
 
 Note: Due to a limitation, the \code{Surv} object must be specified in

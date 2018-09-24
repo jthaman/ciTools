@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-#' Confidence Intervals for the Survivor Function of Parametric Survival Models
+#' Confidence Intervals for the Survivor Function of Accelerated
+#' Failure Time Models
 #'
 #' This function is one of the methods of \code{add_probs} and is
 #' automatically called when an object of class \code{survreg} is
@@ -32,14 +33,12 @@
 #' \code{compaison = ">"} corresponds to estimating the survivor
 #' function, \emph{S(q)}.
 #'
-#' Confidence intervals may be produced paramerically via the Delta
-#' Method, or computationally through a nonparametric (case
-#' resampling) bootstrap procedure. Simulations show that under a mild
-#' to moderate amount of censoring, these methods perform
-#' similarly. Thus, the parametric method may be preferred in many
-#' standard applications.
+#' Confidence intervals are produced paramerically via the Delta
+#' Method. Simulations show that under a mild
+#' to moderate amount of censoring, this method performs
+#' adequately.
 #'
-#' In both methods, the logistic transformation is applied to ensure
+#' The logistic transformation is applied to ensure
 #' that confidence interval bounds lie between \eqn{0} and \eqn{1}.
 #'
 #' Note: Due to a limitation, the \code{Surv} object must be specified in
@@ -65,14 +64,14 @@
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
 #'     tibble
-#' @param method A string. One of either \code{"parametric"} or
-#'     \code{"bootstrap"}.
+## #' @param method A string. One of either \code{"parametric"} or
+## #'     \code{"bootstrap"}.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param comparison A character vector of length one. If
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
 #'     calculated. If \code{comparison = ">"}, the survivor function
 #'     at time \code{q} is calculated.
-#' @param nSims Number of simulations used if \code{method = "boot"}
+## #' @param nSims Number of simulations used if \code{method = "boot"}
 #' @param ... Additional arguments.
 #'
 #' @return A tibble, \code{tb}, with predicted medians, probabilities,
@@ -115,10 +114,9 @@
 add_probs.survreg <- function(tb, fit, q,
                               name = NULL, yhatName = "median_pred",
                               comparison = "<",
-                              method = "parametric",
                               confint = TRUE,
                               alpha = 0.05,
-                              nSims = 2000, ...){
+                              ...){
 
     if (is.null(name) & (comparison == "<" || comparison == ">=")){
 
@@ -143,16 +141,16 @@ add_probs.survreg <- function(tb, fit, q,
           c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
         stop("Unsupported distribution")
 
-    if (method == "parametric") {
+    ## if (method == "parametric") {
         parametric_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
                                    confint, alpha)
-    }
-    else if (method == "boot") {
-        boot_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
-                             confint, alpha, nSims)
-    }
-    else
-        stop("method must be either boot or parametric")
+    ## }
+    ## else if (method == "boot") {
+    ##     boot_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
+    ##                          confint, alpha, nSims)
+    ## }
+    ## else
+    ##     stop("method must be either boot or parametric")
 }
 
 survreg_calc_probs <- function(tb, fit, q, comparison){
@@ -249,10 +247,13 @@ boot_ci_survreg_prob <- function(tb, fit, q,
     F <- collect[["F"]]
 
     if (confint){
-        nPred <- NROW(tb)
-        boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
+        dat <- model.frame(fit)
+        unsurv <- as.matrix(dat[,1])
+        dat <- cbind(dat, unsurv)
+        nBoot <- NROW(dat)
+        boot_mat <- matrix(NA, nrow = nSims, ncol = NROW(tb))
         for (i in 1:nSims){
-            temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
+            temp <- dat[sample(1:nBoot, size = nBoot, replace = TRUE),]
             boot_fit <- survival::survreg(formula(fit$terms), data = temp,
                                           dist = fit$dist)
             boot_mat[i,] <- survreg_calc_probs(tb = tb, fit = boot_fit, q = q,
@@ -265,11 +266,12 @@ boot_ci_survreg_prob <- function(tb, fit, q,
     if(is.null(tb[[yhatName]]))
         tb[[yhatName]] <- pred
 
+    tb[[name[1]]] <- F
+
     if (confint){
         tb[[name[2]]] <- lwr
         tb[[name[3]]] <- upr
     }
-    tb[[name[1]]] <- F
 
     tibble::as_data_frame(tb)
 }

@@ -2,15 +2,15 @@
 % Please edit documentation in R/add_ci_survreg.R
 \name{add_ci.survreg}
 \alias{add_ci.survreg}
-\title{Confidence Intervals for the Mean Survival Time of Parametric
-Survival Models.}
+\title{Confidence Intervals for the Mean Survival Time of Accelerated
+Failure Time Models.}
 \usage{
 \method{add_ci}{survreg}(tb, fit, alpha = 0.1, names = NULL,
-  yhatName = "mean_pred", method = "parametric", nSims = 2000, ...)
+  yhatName = "mean_pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data on which to form
-predictions and confidence interval.}
+predictions and confidence intervals.}
 
 \item{fit}{An object of class \code{survreg}. Predictions are made
 with this object.}
@@ -18,26 +18,18 @@ with this object.}
 \item{alpha}{A number between 0 and 1. 1 - \code{alpha} is the
 confidence level of the intervals.}
 
-\item{names}{\code{NULL} or a string. If \code{NULL}, quantiles
+\item{names}{\code{NULL} or a string of length 2. If \code{NULL}, quantiles
 automatically will be named by \code{add_quantile}, otherwise,
-they will be named \code{name}.}
+they will be named \code{names}.}
 
 \item{yhatName}{A string. Name of the vector of predictions. The
 default name is \code{mean_pred}.}
-
-\item{method}{A string. One of either \code{"parametric"} or
-\code{"boot"}. If \code{method = "parametric"}, Delta method
-intervals are calculated. If \code{method = "boot"}
-nonparametric bootstrap intervals are calculated.}
-
-\item{nSims}{A positive integer. Set the number of simulated draws
-to use. A value greater than or equal to 2000 is recommended.}
 
 \item{...}{Additional arguments.}
 }
 \value{
 A tibble, \code{tb}, with predicted expected values and
-    level \emph{alpha} confidence levels attached.
+    level \emph{1 - alpha} confidence levels attached.
 }
 \description{
 This function is one of the methods for \code{add_ci}, and is
@@ -49,13 +41,11 @@ class \code{survreg}.
 survival time of several accelerated failure time (AFT) models
 including exponential, lognormal, weibull, and loglogistic
 models. AFT models must be fit with the \code{survreg} function in
-the \code{survival} package. Confidence intervals are formed either
-parametrically via the Delta method, or through a non-parametric
-bootstrap resampling procedure. Generally, both of the these
-methods perform well under mild to moderate right censoring.
+the \code{survival} package. Confidence intervals are formed
+parametrically via the Delta method.
 
 \code{add_ci.survreg} will compute confidence intervals for the
-following mean point estimates:
+following mean survival time point estimates:
 
 Exponential: \eqn{E[Y|X] = \exp{X\beta}}
 

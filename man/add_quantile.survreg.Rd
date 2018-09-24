@@ -2,11 +2,11 @@
 % Please edit documentation in R/add_quantile_survreg.R
 \name{add_quantile.survreg}
 \alias{add_quantile.survreg}
-\title{Confidence Intervals for Quantiles of the Survival Time Distribution}
+\title{Confidence Intervals for Predicted Survival Time Quantiles of
+Accelerated Failure Time Models}
 \usage{
 \method{add_quantile}{survreg}(tb, fit, p = 0.5, name = NULL,
-  yhatName = "median_pred", confint = TRUE, alpha = 0.1,
-  method = "parametric", nSims = 2000, ...)
+  yhatName = "median_pred", confint = TRUE, alpha = 0.1, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -17,9 +17,9 @@ with this object.}
 \item{p}{A real number between 0 and 1. Sets the probability level
 of the quantiles.}
 
-\item{name}{\code{NULL} or a string. If \code{NULL}, quantiles
-automatically will be named by \code{add_quantile}, otherwise,
-they will be named \code{name}.}
+\item{name}{\code{NULL} or a character vector of length 3. If
+\code{NULL}, quantiles automatically will be named by
+\code{add_quantile}, otherwise, they will be named \code{name}.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
@@ -28,12 +28,6 @@ the quantiles are also appended to \code{tb}.}
 
 \item{alpha}{A number. Controls the confidence level of the
 confidence intervals if \code{confint = TRUE}.}
-
-\item{method}{A string. One of either \code{"parametric"} or
-\code{"boot"}.}
-
-\item{nSims}{A positive integer. Set the number of simulated draws
-to use.}
 
 \item{...}{Additional arguments.}
 }
@@ -52,17 +46,16 @@ distribution of survival times from a survreg object. Estimated
 quantiles (such as the median survival time) may be calculated for
 a range of distributions including lognormal, exponential, weibull,
 and loglogistic models. \code{add_quantile.survreg} can compute
-quantiles through a parametric method based on the Delta Method or
-by a nonparametric bootstrap method. Generally, these methods
-perform similarly under a mild to moderate amount of
-censoring. Parametric intervals are calculated using a
-transformation of the confidence intervals produced by
-\code{predict.survreg} and are mathematically idenical to intervals
+quantiles through a parametric method based on the Delta
+Method. Generally, this method performs well under a mild to
+moderate amount of censoring. Parametric intervals are calculated
+using a transformation of the confidence intervals produced by
+\code{predict.survreg} and are mathematically identical to intervals
 calculated by a manual Delta Method.
 
 Unlike other \code{add_quantile} methods,
 \code{add_quantile.survreg} produces confidence intervals for
-\code{survreg objects} by default. This may optionally be disabled
+\code{survreg} objects by default. This may optionally be disabled
 by switching the \code{confint} argument.
 
 The estimated survival time level \eqn{p} quantile, \eqn{\hat{q}_p}

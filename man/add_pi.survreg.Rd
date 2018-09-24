@@ -24,7 +24,7 @@ named \code{names[2]}.}
 \item{yhatName}{A string. Name of the predictions vector.}
 
 \item{nSims}{A positive integer. Determines the number of bootstrap
-replicates.}
+replicates if \code{method = "boot"}.}
 
 \item{method}{A string. Determines the method used to calculate
 prediction intevals. Must be one of either \code{"naive"} or
@@ -66,7 +66,7 @@ to do this.
 
 Note: \code{add_pi.survreg} cannot inspect the convergence of
 \code{fit}. Poor maximum likelihood estimates will result in poor
-confidence intervals. Inspect any warning messages given from
+prediction intervals. Inspect any warning messages given from
 \code{survreg}.
 }
 \examples{

@@ -45,7 +45,7 @@
 #'
 #' Note: \code{add_pi.survreg} cannot inspect the convergence of
 #' \code{fit}. Poor maximum likelihood estimates will result in poor
-#' confidence intervals. Inspect any warning messages given from
+#' prediction intervals. Inspect any warning messages given from
 #' \code{survreg}.
 #'
 #' @param tb A tibble or data frame of new data.
@@ -62,7 +62,7 @@
 #'     prediction intevals. Must be one of either \code{"naive"} or
 #'     \code{"boot"}.
 #' @param nSims A positive integer. Determines the number of bootstrap
-#'     replicates.
+#'     replicates if \code{method = "boot"}.
 #' @param ... Additional arguments.
 #'
 #' @return A tibble, \code{tb}, with predicted medians, upper and lower
@@ -163,7 +163,7 @@ sim_surv_coefs <- function(tb, fit, nSims){
     vcov.hat <- vcov(fit)
 
     if (fit$dist == "exponential")
-        cov_mat <- cbind(rbind(cov_mat, 0), 0)
+        vcov.hat <- cbind(rbind(vcov.hat, 0), 0)
 
     beta.logsigma.hat <- c(coef(fit), fit$scale)
     params <- matrix(NA,
@@ -203,7 +203,7 @@ get_sim_response_surv_boot <- function(tb, fit, params){
 
 sim_pi_survreg_boot <- function(tb, fit, alpha, names, yhatName, nSims){
 
-    out <- predict(fit, newdata = tb, type = "response")
+    out <- predict(fit, newdata = tb, type = "quantile", p = 0.5)
 
     params <- sim_surv_coefs(tb = tb,
                              fit = fit,
