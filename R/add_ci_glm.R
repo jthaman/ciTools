@@ -22,7 +22,7 @@
 #' class \code{glm}. Confidence Intervals are determined by making an
 #' interval on the scale of the linear predictor, then applying the
 #' inverse link function from the model fit to transform the linear
-#' level confidence intervals to the response level. 
+#' level confidence intervals to the response level.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -45,7 +45,7 @@
 #' @param nSims An integer. Number of simulations to perform if the
 #'     bootstrap method is used.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A tibble, \code{tb}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
@@ -63,7 +63,7 @@
 #' add_ci(cars, fit, alpha = 0.5)
 #' # Add custom names to the confidence bounds (may be useful for plotting)
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
-#' 
+#'
 #' # Logistic regression
 #' fit2 <- glm(I(dist > 30) ~ speed, data = cars, family = "binomial")
 #' dat <- cbind(cars, I(cars$dist > 30))
@@ -91,12 +91,12 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     if ((names[1] %in% colnames(tb))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
-    
+
     if (type == "boot")
         boot_ci_glm(tb, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
         parametric_ci_glm(tb, fit, alpha, names, yhatName, response)
-    else 
+    else
         stop("Incorrect interval type specified!")
 
 }
@@ -104,7 +104,7 @@ add_ci.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
 parametric_ci_glm <- function(tb, fit, alpha, names, yhatName, response){
     out <- predict(fit, tb, se.fit = TRUE, type = "link")
 
-    if (fit$family$family %in% c("binomial", "poisson")) 
+    if (fit$family$family %in% c("binomial", "poisson"))
         crit_val <- qnorm(p = 1 - alpha/2, mean = 0, sd = 1)
     else
         crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)

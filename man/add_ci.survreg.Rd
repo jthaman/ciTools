@@ -29,7 +29,7 @@ default name is \code{mean_pred}.}
 }
 \value{
 A tibble, \code{tb}, with predicted expected values and
-    level \emph{1 - alpha} confidence levels attached.
+    level \emph{1 - alpha} level confidence levels attached.
 }
 \description{
 This function is one of the methods for \code{add_ci}, and is

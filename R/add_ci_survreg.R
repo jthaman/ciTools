@@ -78,7 +78,7 @@
 #' @param ... Additional arguments.
 #'
 #' @return A tibble, \code{tb}, with predicted expected values and
-#'     level \emph{1 - alpha} confidence levels attached.
+#'     level \emph{1 - alpha} level confidence levels attached.
 #'
 #' @seealso \code{\link{add_quantile.survreg}} for quantiles of the
 #'     survival time distribution of \code{survreg} objects,
@@ -172,7 +172,7 @@ parametric_ci_survreg_expectation <- function(tb, fit,
                                               yhatName){
     distr <- fit$dist
 
-    if (distr == "loglogistic" && (scale >= 1))
+    if (distr == "loglogistic" && (fit$scale >= 1))
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
     form <- formula(fit)
@@ -238,7 +238,7 @@ parametric_ci_survreg_expectation <- function(tb, fit,
 surv_boot_mean <- function(tb, fit){
     distr <- fit$dist
 
-    if (distr == "loglogistic" && (scale >= 1)){
+    if (distr == "loglogistic" && (fit$scale >= 1)){
         pred <- NA
         return(pred)
     }
@@ -263,7 +263,7 @@ boot_ci_survreg_expectation <- function(tb, fit,
 
     distr <- fit$dist
 
-    if (distr == "loglogistic" && (scale >= 1))
+    if (distr == "loglogistic" && (fit$scale >= 1))
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
     form <- formula(fit)
