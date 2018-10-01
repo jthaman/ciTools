@@ -70,8 +70,8 @@
 #'     \code{\link{add_quantile.glmerMod}} for response quantiles of
 #'     \code{glmerMod} objects.
 #'
-#' @references
-#' For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+#' @references For general information about GLMMs
+#'     http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 #'
 #' @examples
 #' n <- 300
@@ -98,8 +98,8 @@ add_ci.glmerMod <- function(tb, fit,
     warning("Model matrix is rank deficient!")
 
   if (is.null(names)){
-    names[1] <- paste("LCB", alpha/2, sep = "")
-    names[2] <- paste("UCB", 1 - alpha/2, sep = "")
+      names[1] <- paste("LCB", alpha/2, sep = "")
+      names[2] <- paste("UCB", 1 - alpha/2, sep = "")
   }
   if ((names[1] %in% colnames(tb))) {
     warning ("These CIs may have already been appended to your dataframe. Overwriting.")

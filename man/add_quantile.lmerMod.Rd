@@ -5,8 +5,8 @@
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
 \method{add_quantile}{lmerMod}(tb, fit, p, name = NULL, yhatName = "pred",
-  includeRanef = TRUE, type = "boot", nSims = 200, log_response = FALSE,
-  ...)
+  includeRanef = TRUE, type = "boot", nSims = 10000,
+  log_response = FALSE, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

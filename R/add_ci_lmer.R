@@ -63,6 +63,7 @@
 #'     \code{lmerMod} objects.
 #'
 #' @examples
+#' \dontrun{
 #' dat <- lme4::sleepstudy
 #' # Fit a linear mixed model (random intercept model)
 #' fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
@@ -71,7 +72,7 @@
 #' add_ci(dat, fit, alpha = 0.5)
 #' # Try the parametric bootstrap method, and make prediction at the population level
 #' add_ci(dat, fit, alpha = 0.5, type = "boot", includeRanef = FALSE, nSims = 100)
-#'
+#' }
 #' @export
 
 add_ci.lmerMod <- function(tb, fit,

@@ -6,7 +6,7 @@
 \usage{
 \method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "pred", type = "parametric", includeRanef = TRUE,
-  log_response = FALSE, nSims = 200, ...)
+  log_response = FALSE, nSims = 10000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}
@@ -62,7 +62,7 @@ dat <- lme4::sleepstudy
 # Fit a (random intercept) linear mixed model
 fit <- lme4::lmer(Reaction ~ Days + (1|Subject), data = lme4::sleepstudy)
 # Add 50\% prediction intervals to the original data using the default
-# method. 
+# method.
 add_pi(dat, fit, alpha = 0.5)
 
 # Add 50\% prediction intervals to the original data using the

@@ -6,7 +6,7 @@
 \usage{
 \method{add_ci}{glmerMod}(tb, fit, alpha = 0.05, names = NULL,
   yhatName = "pred", response = TRUE, type = "boot",
-  includeRanef = TRUE, nSims = 250, ...)
+  includeRanef = TRUE, nSims = 500, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
@@ -81,7 +81,8 @@ fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
 
 }
 \references{
-For general information about GLMMs http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
+For general information about GLMMs
+    http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 }
 \seealso{
 \code{\link{add_pi.glmerMod}} for prediction intervals

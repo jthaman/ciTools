@@ -2,9 +2,9 @@ Package: ciTools
 Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
     for Statistical Models
-Version: 0.3.1
+Version: 0.5.0
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
-    email = "mail@johnhaman.org"),
+    email = "jhaman@ida.org"),
     person("Matthew", "Avery", role = "aut",
     email = "mavery@ida.org"),
     person("Institute for Defense Analyses", role = "cph"))
@@ -14,7 +14,8 @@ Description: Functions to append confidence intervals, prediction intervals,
     are for the response variable, after conditioning on the model and covariates.
     This package has a data frame first syntax that allows for easy piping.
     Currently supported models include (log-) linear, (log-) linear mixed,
-    and generalized linear models.
+    generalized linear models, generalized linear mixed models, and
+    accelerated failure time models.
 Depends:
     R (>= 3.4.0)
 Imports:
@@ -26,6 +27,7 @@ Imports:
     MASS,
     methods,
     stats,
+    survival,
     tibble,
     utils
 Suggests:
