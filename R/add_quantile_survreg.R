@@ -35,9 +35,9 @@
 #' calculated by a manual Delta Method.
 #'
 #' Unlike other \code{add_quantile} methods,
-#' \code{add_quantile.survreg} produces confidence intervals for
-#' \code{survreg} objects by default. This may optionally be disabled
-#' by switching the \code{confint} argument.
+#' \code{add_quantile.survreg} additionally produces confidence
+#' intervals for predicted quantiles by default. This may optionally
+#' be disabled by switching the \code{confint} argument.
 #'
 #' The estimated survival time level \eqn{p} quantile, \eqn{\hat{q}_p}
 #' is calculated by
@@ -50,17 +50,6 @@
 #' distribution (e.g. Normal, smallest extreme value, etc.) and
 #' \eqn{\theta = (\beta, \sigma)} are maximum likelihood parameters
 #' estimated by \code{survreg}.
-#'
-#' The variance of \eqn{\hat{q}_p} is approximated by
-#'
-#' \deqn{
-#' \hat{var}(\hat{t}_p) = \left[ \frac{\partial q_p(\theta)}{\partial \theta}\right]^\intercal
-#' \hat{\Sigma}_\hat{\theta}
-#' \left[ \frac{\partial q_p(\theta)}{\partial \theta}\right]
-#' }
-#'
-#' where \eqn{\hat{\Sigma}_\hat{\theta}} is the variance-covariance matrix of the
-#' regression parameters.
 #'
 #' Note: Due to a limitation, the \code{Surv} object must be specified in
 #' \code{survreg} function call. See the examples section for one way

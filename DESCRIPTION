@@ -8,7 +8,7 @@ Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     person("Matthew", "Avery", role = "aut",
     email = "mavery@ida.org"),
     person("Institute for Defense Analyses", role = "cph"))
-Maintainer: John Haman <mail@johnhaman.org>
+Maintainer: John Haman <jhaman@ida.org>
 Description: Functions to append confidence intervals, prediction intervals,
     and other quantities of interest to data frames. All appended quantities
     are for the response variable, after conditioning on the model and covariates.
