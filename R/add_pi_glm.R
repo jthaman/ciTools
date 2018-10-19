@@ -24,13 +24,11 @@
 #' Prediction intervals are generated through simulation with the aid
 #' \code{arm::sim}, which simulates the uncertainty in the regression
 #' coefficients. At the moment, only prediction intervals for Poisson,
-#' Quasipoisson, and Gamma GLMs are supported. Note that if the
-#' response is count data, prediction intervals are only
+#' Quasipoisson, Gaussian, and Gamma GLMs are supported. Note that if
+#' the response is count data, prediction intervals are only
 #' approximate. Simulation from the QuasiPoisson model is performed
 #' with the negative binomial distribution, see Gelman and Hill
-#' (2007). Prediction intervals for Gaussian GLMs are also supported,
-#' but these intervals are no different than the ones returned by
-#' \code{add_pi.lm} if an identity link is used.
+#' (2007).
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.

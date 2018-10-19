@@ -5,8 +5,8 @@
 \title{Confidence Intervals for Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE, nSims = 500,
-  ...)
+  yhatName = "pred", type = "boot", includeRanef = TRUE,
+  nSims = 500, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

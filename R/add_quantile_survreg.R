@@ -39,18 +39,6 @@
 #' intervals for predicted quantiles by default. This may optionally
 #' be disabled by switching the \code{confint} argument.
 #'
-#' The estimated survival time level \eqn{p} quantile, \eqn{\hat{q}_p}
-#' is calculated by
-#'
-#' \deqn{
-#' \hat{q}_p = \exp\{ X\hat{\beta} + F^{-1}(p) \hat{\sigma} \}
-#' }
-#'
-#' where \eqn{F^{-1}(p)} is a quantile of the linear error
-#' distribution (e.g. Normal, smallest extreme value, etc.) and
-#' \eqn{\theta = (\beta, \sigma)} are maximum likelihood parameters
-#' estimated by \code{survreg}.
-#'
 #' Note: Due to a limitation, the \code{Surv} object must be specified in
 #' \code{survreg} function call. See the examples section for one way
 #' to do this.

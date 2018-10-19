@@ -21,10 +21,10 @@
 #' frame. A prediction interval is made for each observation in
 #' \code{tb} with respect to the model \code{fit}. These intervals are
 #' then appended to \code{tb} and returned to the user as a
-#' tibble. \code{fit} can be a linear, log-linear, linear mixed, or
-#' generalized linear models (currently only Poisson models are
-#' supported).
-#' 
+#' tibble. \code{fit} can be a linear, log-linear, linear mixed,
+#' generalized linear, generalized linear mixed, or accelerated
+#' failure time model.
+#'
 #' For more specific information about the arguments that are applicable
 #' in each method, consult:
 #'
@@ -32,8 +32,10 @@
 #'   \item \code{\link{add_pi.lm}} for linear regression prediction intervals
 #'   \item \code{\link{add_pi.glm}} for generalized linear regression prediction intervals
 #'   \item \code{\link{add_pi.lmerMod}} for linear mixed models prediction intervals
+#'   \item \code{\link{add_pi.glmerMod}} for generalized linear mixed model prediction intervals
+#'   \item \code{\link{add_pi.lmerMod}} for accelerated failure time model prediction intervals
 #' }
-#' 
+#'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
@@ -58,7 +60,7 @@
 #' add_pi(new_data, fit)
 #'
 #' # Fit a Poisson model
-#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+#' fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
 #' # Add approximate prediction intervals to the fitted values of
 #' # new_data
 #' add_pi(new_data, fit2)
@@ -74,11 +76,9 @@
 #'     \code{\link{add_probs}} for response level probabilities, and
 #'     \code{\link{add_quantile}} for quantiles of the conditional
 #'     response distribution.
-#' 
+#'
 #' @export
 
 add_pi <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
   UseMethod("add_pi", fit)
 }
-
-

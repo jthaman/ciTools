@@ -5,8 +5,8 @@
 \title{Confidence Intervals for Negative Binomial Linear Model Predictions}
 \usage{
 \method{add_ci}{negbin}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", response = TRUE, type = "parametric", nSims = 2000,
-  ...)
+  yhatName = "pred", response = TRUE, type = "parametric",
+  nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

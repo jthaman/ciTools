@@ -5,8 +5,8 @@
 \title{Prediction Intervals for Generalized Linear Mixed Model Predictions}
 \usage{
 \method{add_pi}{glmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE, nSims = 10000,
-  ...)
+  yhatName = "pred", type = "boot", includeRanef = TRUE,
+  nSims = 10000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

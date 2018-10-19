@@ -21,18 +21,10 @@
 #' called automatically when \code{add_ci} is used on a \code{fit} of
 #' class \code{glmerMod}.
 #'
-#' There are two methods one can use to calculate confidence intervals
-#' for GLMM fits: bootstrap or parametric. The default and recommended
-#' method is bootstrap. The bootstrap method can handle many types of
-#' models and we find it to be generally reliable and robust as it is
-#' built on the \code{bootMer} function from \code{lme4}. An
-#' experimental parametric method is included that mimics the
-#' functionality of \code{add_ci.lmer}'s default method. We caution
-#' against using this method because presently it only works for GLMMs
-#' that have a single random intercept term, and tends to provide
-#' intervals that are wider than the intervals supplied by the
-#' bootstrap method. A simulation study on this discrepancy is
-#' pending.
+#' The default and recommended method is bootstrap. The bootstrap
+#' method can handle many types of models and we find it to be
+#' generally reliable and robust as it is built on the \code{bootMer}
+#' function from \code{lme4}.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glmerMod}.

@@ -19,10 +19,12 @@
 #'
 #' This function is one of the methods for \code{add_ci}, and is
 #' called automatically when \code{add_ci} is used on a \code{fit} of
-#' class \code{glm}. Confidence Intervals are determined by making an
-#' interval on the scale of the linear predictor, then applying the
-#' inverse link function from the model fit to transform the linear
-#' level confidence intervals to the response level.
+#' class \code{glm}. The default method calculates confidence
+#' intervals by making an interval on the scale of the linear
+#' predictor, then applying the inverse link function from the model
+#' fit to transform the linear level confidence intervals to the
+#' response level. Alternatively, confidence intervals may be
+#' calcuated through a nonparametric bootstrap method.
 #'
 #' @param tb A tibble or data frame of new data.
 #' @param fit An object of class \code{glm}.
@@ -33,11 +35,11 @@
 #'     \code{add_ci}, otherwise, the lower confidence bound will be
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
-#' @param yhatName A string. Name of the vector of predictions made
-#'     for each observation in tb
-#' @param type A string. Must be \code{type = "parametric"} or
-#'     \code{type = "boot"}. \code{type} determines the method used to
-#'     compute the confidence intervals.
+#' @param yhatName A character vector of length one. Name of the
+#'     vector of predictions made for each observation in tb
+#' @param type A character vector of length one. Must be \code{type =
+#'     "parametric"} or \code{type = "boot"}. \code{type} determines
+#'     the method used to compute the confidence intervals.
 #' @param response A logical. The default is \code{TRUE}. If
 #'     \code{TRUE}, the confidence intervals will be determined for
 #'     the expected response; if \code{FALSE}, confidence intervals

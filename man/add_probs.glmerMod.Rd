@@ -4,9 +4,9 @@
 \alias{add_probs.glmerMod}
 \title{Response Probabilities for Generalized Linear Mixed Model Predictions}
 \usage{
-\method{add_probs}{glmerMod}(tb, fit, q, name = NULL, yhatName = "pred",
-  comparison = "<", type = "boot", includeRanef = TRUE, nSims = 10000,
-  ...)
+\method{add_probs}{glmerMod}(tb, fit, q, name = NULL,
+  yhatName = "pred", comparison = "<", type = "boot",
+  includeRanef = TRUE, nSims = 10000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

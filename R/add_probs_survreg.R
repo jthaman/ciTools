@@ -30,7 +30,7 @@
 #' will be observed before \code{q}. Similarly, if \code{comparison =
 #' ">"}, confidence intervals will be formed for the probability that
 #' a unit fails after \code{q}. In the survival literature,
-#' \code{compaison = ">"} corresponds to estimating the survivor
+#' \code{comparison = ">"} corresponds to estimating the survivor
 #' function, \emph{S(q)}.
 #'
 #' Confidence intervals are produced paramerically via the Delta
