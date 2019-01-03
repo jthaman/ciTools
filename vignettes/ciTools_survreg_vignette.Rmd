@@ -1,0 +1,1028 @@
+---
+title:  Accelerated Failure Time Models with `ciTools`
+author: John Haman
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Accelerated Failure Time Models with ciTools}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+
+```{r, message = FALSE }
+library(tidyverse)
+library(knitr)
+library(ciTools)
+library(here)
+set.seed(20180925)
+```
+
+*Disclaimer:* `ciTools` makes three assumptions about your model:
+
+1 - no missing data in the design matrix.
+
+2 - distribution is one of weibull, lognormal, loglogistic, or exponential.
+
+3 - regression model is unweighted, and without random effects.
+
+
+The purpose of this vignette is to introduce and discuss some of
+the new capabilities that have been baked into `ciTools` to handle
+accelerated failure time (AFT) models. Some of the new AFT methods
+in `ciTools` are more informative than methods for
+previous models, and will inform future development decisions that
+will be made in `ciTools`. In particular, `ciTools` now supports
+intervals for estimated survival time probabilities and quantiles
+for a range of common AFTs.
+
+## The Accelerated Failure Time Model
+
+The accelerated failure time model is, like a generalized linear
+model (GLM), an extension of the standard linear model that
+accounts for specific types of data and non-linearity. AFTs
+constitute and important class of models as they can handle
+censored, highly skewed data -- exactly the type of data one would
+expect to collect when analyzing the failure times of a machine, or
+the survival times of a group of patients under study.
+
+AFTs are special in the field of survival/reliability analysis in
+that they are fully parametric models. This provides power to do
+certain inferences such as the estimation of tail probabilities
+that would be difficult in a non or semi-parametric framework. The
+trade-off made is that a specific distribution for survival times
+must be assumed, and this assumption may be incorrect.
+
+The structure of accelerated failure time models is as follows. We
+observe a vector of survival times (failure times, in the
+reliability literature) $T$ given a data matrix $X$. We assume the
+$\log$ of the survival times is affected linearly by the
+covariates of $X$. Because $T$ is non-negative, we model the effect
+of the linear predictor $X\beta$ on $\log(T)$. The model is
+
+$$
+F(T|X) = F \left(
+\frac{\log(T) - X\beta}{\sigma}
+\right).
+$$
+
+$F$ denotes a vectorized, standard distribution function; $X\beta$
+is called the linear predictor; and $\sigma$ is called the scale
+parameter. $S(T|X)$ is called he survivor function; the probability
+that a unit will fail after time $T$. $S(T|X) = 1 - F(T|X)$. Thus
+the AFT model is a family of log-linear models. Examples of $F$
+that are common are the standard normal, standard logistic, and
+standard smallest extreme value distribution functions (Meeker and
+Escobar, Ch. 4). We can more clearly write the model as
+
+$$
+\log(T) = X\beta + \sigma \varepsilon,
+$$
+
+where $\varepsilon \sim F$ to make the linear effect of $X\beta$
+on $\log(T)$ a bit more apparent.
+
+Like generalized linear  models, survival models are  fit through a
+maximum likelihood procedure. This is most useful in that it allows
+a  practitioner  to  specify   censored  data  in  the  statistical
+model.  That AFTs  are fully  parametric and  may account  for data
+censoring were  primary reasons  for adding  them to  `ciTools`. We
+assume that AFTs are fit in  **R** with the `survreg` function from
+the `survival` library.
+
+### Examples of AFTs
+
+Four examples of AFT models are presented, which are covered
+completely by `ciTools`. This list of AFT models is not exhaustive,
+as other models are available. See the `flexsurv` package, for
+example. Models in the `flexsurv` package do not presently receive
+treatment by `ciTools`.
+
+1. **Lognormal**: Let $\varepsilon \sim N(0,1)$. Then $\log(T) =
+X\beta + \sigma \varepsilon$ and $T$ is said to be lognormal with
+parameters $X\beta$ and $\sigma$. Confidence intervals for the
+following parameters are available in `ciTools`.
+
+$$
+E(T|X) = \exp(X \beta + \frac{\sigma^2}{2}) \qquad (\text{expected time to failure})
+$$
+
+$$
+\text{median}(T|X) = \exp(X\beta)  \qquad (\text{median time to failure})
+$$
+
+$$
+S(T|X) = 1 - \Phi \left(
+\frac{\log(T) - X\beta}{\sigma}
+\right) \qquad \Phi \sim \text{std. Normal CDF}
+$$
+
+$$
+F^{-1}_p(T|X) = \exp(X\beta + \Phi^{-1}(p) \sigma) \qquad (\text{level p quantile of failure time distribution})
+$$
+
+2. **Weibull**: Let $\varepsilon$ possess smallest extreme value
+distribution. We write $\varepsilon \sim SEV$ with
+$F_{SEV}(\varepsilon) = 1-\exp(-\exp(\varepsilon))$. If $\log(T) =
+X\beta + \sigma\varepsilon$, then $T$ is *weibull* distributed with
+scale parameter $\sigma$ and location parameter $\exp(X\beta)$ in
+the location-scale parameterization used in the `survival`
+package. This parameterization differs from the one used in
+`{p/d/q/r}weibull`, see `help(survreg)` for details.
+
+$$
+E(T|X) = \exp(X\beta)\Gamma(1 + \sigma)
+$$
+
+$$
+\text{median}(T|X) = \exp(X\beta + F^{-1}_{SEV}(0.5) \sigma)
+= \exp(X\beta)(\log(2))^{\sigma}
+$$
+
+$$
+F^{-1}_p(T|X) = \exp(X\beta + F^{-1}_{SEV}(p) \sigma)
+= \exp(X\beta)(-\log(1-p))^{\sigma}
+$$
+
+$$
+S(T|X) = \exp(-\exp(z)), \qquad  z = \frac{\log(T) - X\beta}{\sigma}
+$$
+
+3. **Exponential**: Like the weibull distribution, except scale
+parameter $\sigma$ is fixed to $1$.
+
+$$
+E(T|X) = \exp(X\beta)
+$$
+
+$$
+\text{median}(T|X) = \exp(X\beta + F^{-1}_{SEV}(0.5))
+= \exp(X\beta)\log(2)
+$$
+
+$$
+F^{-1}_p(T|X) = \exp(X\beta + F^{-1}_{SEV}(p))
+= \exp(X\beta)(-\log(1-p))
+$$
+
+$$
+S(T|X) = \exp(-\exp(z)), \qquad  z = \log(T) - X\beta
+$$
+
+4. **Loglogistic**: Let $\varepsilon \sim \text{Logistic}$. That is,
+$F(\varepsilon) = \frac{\exp(\varepsilon)}{1 + \exp(\varepsilon)}$,
+the standard logistic distribution. Then $\log(T) = X\beta +
+\sigma\varepsilon$, and $T$ is *loglogistic* distributed with scale
+parameter $\sigma$ and location parameter $X\beta$.
+
+$$
+E(T|X) = \exp(X\beta)\Gamma(1 + \sigma)\Gamma(1 - \sigma)
+$$
+
+$$
+\text{median}(T|X) = \exp(X\beta)
+$$
+
+$$
+F^{-1}_p(T|X) = \exp(X\beta + \sigma F^{-1}_{Logistic}(p))
+$$
+
+$$
+S(T|X) = 1 - F_{Logistic} \left(
+\frac{\log(T) - X\beta}{\sigma}
+\right)
+$$
+
+Note that the median of  each conditional failure time distribution
+is   technically  the   level   $p=0.5$  quantile   of  that   same
+distribution. For this reason, confidence intervals for medians are
+calculated with `add_quantile()`.
+
+## AFT Uncertainty Intervals
+
+In the analysis of AFT models, statisticians have several options for
+making predictions. `predict.survreg` for example, allows one to make
+predictions with the median of the conditional AFT model
+(`predict.survreg(fit, newdata, method = "quantile", p = 0.5)`), or
+with the just the linear predictor $\exp(X\beta)$
+(`predict.survreg(fit, newdata)`).  The former is a bona fide
+estimator of the population median, while the latter (generally) is
+not an estimator of a population mean or median.
+
+`ciTools` hopes to clarify survival times prediction for AFT models
+by relegating  prediction of the  expected (mean) survival  time to
+`add_ci.survreg`, and prediction of the median (or any quantile) of
+the  survival  time  distribution to  `add_quantile.survreg`.  Thus
+`add_ci.survreg` is in line with other `add_ci` S3 methods provided
+by  `ciTools`  by  only  providing  confidence  intervals  for  the
+expected response conditioned on the predictors.
+
+There are three popular methods  for forming confidence intervals in
+this case: parametrically, using either the (1) delta method or (2)
+likelihood ratios, or (3) through a bootstrap resampling procedure.
+In `ciTools`,  we generally favor parametric  methods, except where
+it makes sense  to include bootstrap methods as options,  as is the
+case with  many mixed effects  models, where bootstrap  methods are
+seen as less controversial than parametric interval methods.
+
+We have studied these three  techniques for interval estimation, and
+found that  the delta method  offers the best combination  of speed
+and accuracy for users. Therefore, the  delta method is used as the
+basis of  all interval estimation  procedures in `ciTools`  for AFT
+models.  This  is at  odds with the  recommendations of  Meeker and
+Escobar  in  favor  of   likelihood  based  intervals,  however  we
+implement delta method  based intervals as they are  much easier to
+write  for  multivariate   models  and  do  not   suffer  from  any
+convergence issues.  Compared to bootstrap intervals,  delta method
+intervals are faster and have  similar probability coverage in many
+scenarios.
+
+## Example.
+
+Data are collected  on the failure times of a  new spring installed
+in a car. The spring can be mounted in two types of cars, an SUV or
+a  sedan.  An  additional  variable, ambient  temperature was  also
+recorded. Experimental  vehicles were fitted with  the new springs,
+and the  vehicles are placed  into an observational  study. Vehicles
+with the  new springs  were driven,  and the  failure times  of the
+springs were noted until the conclusion  of the test time. The test
+concluded after $2000$ cumulative hours  of testing.  At this time,
+all surviving springs at marked  as right censored at $t=2000$. All
+data are notional.
+
+
+```{r include = FALSE, cache = TRUE}
+library(SPREDA)
+car <- rep(c("suv", "sedan"), 25)
+temp <- seq(40,100, length.out = 50)
+time <- exp(0.33 + 0.2 * ifelse(car == "sedan", 0, 1) + 0.08 * temp + rsev(50))
+time <- ifelse(time < 2000, time, 2000)
+failure <- ifelse(time < 2000, 1, 0)
+dat <- data.frame(temp = temp,
+                  car = car,
+                  time = time,
+                  failure = failure)
+```
+
+The time variable indicates of the  number of hours driven before a
+spring failure is  observed. If *failure = 1*, a  spring failure is
+observed at the indicated time.
+
+```{r cache = TRUE}
+kable(head(dat))
+
+```{r cache = TRUE, fig.width = 5, fig.height= 5, warning = FALSE}
+ggplot(dat, aes(x = temp, y = time)) +
+    geom_point(aes(color = factor(failure)))+
+    ggtitle("Censored obs. in red") +
+    theme_bw()
+```
+
+Seven of the observations are censored at $t = 2000$. This means we
+assume those $7$ springs would eventually fail at some later point
+in time had we chosen to run the study for a longer period of
+time. We fit a weibull model to the data. By default, `Surv` will
+infer (correctly, in this case) that our observations are right
+censored at $t=2000$. Check the documentation of `Surv` for how to
+coordinate a different censoring regime -- `survreg` is very
+flexible in the types of censoring allowed (another advantage of AFT
+models). Other distributions (exponential, lognormal, loglogistic)
+are available in `survreg` for parametric analysis, and receive
+treatment in `ciTools`, but we stick the weibull model for the
+example.
+
+```{r cache = TRUE}
+(fit <- survreg(Surv(time, failure) ~ temp + car, data = dat)) ## weibull dist is default
+```
+
+The output  of `survreg` indicates that  the model on the  whole is
+significantly  better   than  one   which  does  not   include  any
+covariates.  Maximum  likelihood   estimates  of  coefficients  are
+displayed as  well. We can  analyze the model graphically  with the
+help of `ciTools`. The `summary` function can be called on `fit` to
+show some  additional information about the  model coefficients. We
+calculate confidence  and prediction intervals, and  append them to
+the original data set.
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+with_ints <- ciTools::add_ci(dat,fit, names = c("lcb", "ucb")) %>%
+    ciTools::add_pi(fit, names = c("lpb", "upb"))
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+kable(head(with_ints))
+```
+
+The output of `ciTools`'s functions is always the inputted data with
+the requested statistics attached. The inputted data can be original
+data or a data frame of new observations. For this model fit, `add_ci`
+calculates conditional means (denoted `mean_pred` in the data frame)
+and `add_pi` calculates conditional medians (`median_pred` in the data
+frame).
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+ggplot(with_ints, aes(x = temp, y = time)) +
+    geom_point(aes(color = car)) +
+    facet_wrap(~car)+
+    theme_bw() +
+    ggtitle("Model fit with 95% CIs and PIs",
+            "solid line = mean, dotted line = median") +
+    geom_line(aes(y = mean_pred), linetype = 1) +
+    geom_line(aes(y = median_pred), linetype = 2) +
+    geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5) +
+    geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.1)
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+probs <- ciTools::add_probs(dat, fit, q = 500,
+                            name = c("prob", "lcb", "ucb"),
+                            comparison = ">")
+```
+
+We can calculate the estimated survival probabilities as
+well. Below, we calculate the probability of a spring failing after
+$t = 500$ (alternatively, the probability of a spring not failing
+before $t = 500$). This is not a new feature to `ciTools`, what's
+special to `survreg` methods is that `ciTools` will additionally
+compute confidence intervals for the estimated conditional survival
+probabilities.
+
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+ggplot(probs, aes(x = temp, y = prob)) +
+    ggtitle("Estimated prob. of avg. spring lasting longer than 500 hrs.") +
+    ylim(c(0,1)) +
+    facet_wrap(~car)+
+    theme_bw() +
+    geom_line(aes(y = prob)) +
+    geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5)
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+quants <- ciTools::add_quantile(dat, fit, p = 0.90,
+                                name = c("quant", "lcb", "ucb"))
+```
+
+Furthermore, we can calculate quantiles of the distribution of
+failure times given the covariates in `dat`. Again, the special
+sauce for AFT models comes when `ciTools` also tacks on confidence
+intervals for the estimated quantiles. Here, we show the estimated
+$0.90$ quantile, conditioned on the covariate information, with
+confidence intervals. One may use `add_quantile` to calculate the
+median failure time, or any other quantile.
+
+```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
+ggplot(quants, aes(x = temp, y = time)) +
+    geom_point(aes(color = car)) +
+    ggtitle("Estimated 90th percentile of condtional failure distribution, with CI") +
+    facet_wrap(~car)+
+    theme_bw() +
+    geom_line(aes(y = quant)) +
+    geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5)
+```
+
+## The Delta Method for Regression Models
+
+Here are some of the mathematical ideas that go into the above
+intervals. For AFT models, we calculate confidence intervals with the
+delta method (Prediction intervals are calculated using different
+methods, discussed later).
+
+Let $\boldsymbol{\theta} = (\beta_0,
+\beta_1, \ldots, \beta_p, \sigma)$ be the vector of maximum likelihood
+parameter estimates for the statistical model. We wish to form
+confidence intervals for continuous and twice differentiable functions
+of $\boldsymbol{\theta}$, say
+$\mathbf{g}(\boldsymbol{\theta})$. Because
+$\hat{\boldsymbol{\theta}}_{ML}$ is a maximum likelihood estimator of
+$\boldsymbol{\theta}$, $\mathbf{g}(\hat{\boldsymbol{\theta}_{ML}})$ is
+a maximum likelihood estimator of
+$\mathbf{g}(\boldsymbol{\theta})$. In large samples,
+$\mathbf{g}(\hat{\boldsymbol{\theta}})$ is approximately Normally
+distributed with mean $\mathbf{g}(\boldsymbol{\theta})$ and
+variance-covariance matrix
+
+$$
+\Sigma_{\hat{g}} = \left[ \frac{\partial \mathbf{g}
+(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}\right]^T
+\Sigma_{\hat{\boldsymbol{\theta}}} \left[ \frac{\partial \mathbf{g}
+(\boldsymbol{\theta})}{\partial \boldsymbol{\theta}}\right].
+$$
+
+This approximation is based on the assumption that
+$\mathbf{g}({\hat{\boldsymbol{\theta}}})$ is linear in
+$\hat{\boldsymbol{\theta}}$ in a region near
+$\boldsymbol{\theta}$. The larger the sample, the better, because
+the variation in $\hat{\boldsymbol{\theta}}$ decreases with sample
+size and thus the region over which $\hat{\boldsymbol{\theta}}$
+varies is correspondingly smaller. If the region is small enough,
+the approximation is adequate.
+
+Mathematically, the delta method is a statistical rebranding of the
+a Taylor series expansion for
+$\mathrm{Var}[\mathbf{g}(\hat{\boldsymbol{\theta}})]$ . We will use
+the delta method to form confidence intervals for functions of
+$\boldsymbol{\theta}$: expected values, quantiles, and survivor
+functions.
+
+## Expected Values
+
+Because it is somewhat easier to explain confidence intervals for the
+mean if we have a particular model in mind, suppose for the moment
+that we fit a *Weibull* AFT model. The expected survival time,
+$\mathrm{E}[T|X]$, written as a function of $\boldsymbol{\theta}$, is
+$\mathbf{g}(\boldsymbol{\theta}) = \exp(X\beta)\Gamma(1 + \sigma)$. We
+form a confidence interval for this mean survival time based on the
+estimated regression coefficients ($\hat{\boldsymbol{\beta}}$, and
+$\hat{\sigma}$) from `survreg`.  Due to some quirks in numerical
+optimization, it is often advantageous to reparameterize the scale
+parameter as $\delta = \log(\sigma)$ in the model.  Let $x$ denote a
+point in the factor space at which we wish to calculate the expected
+failure time. The relevant derivatives are
+
+$$
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial \boldsymbol{\beta}} =
+\exp(x^T \boldsymbol{\beta}) x^T \Gamma(1 + \exp(\delta)) ,\qquad i = 0, \ldots, p,
+$$
+and
+$$
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial \delta} =
+\exp(x^T \boldsymbol{\beta}) \Gamma(1 + \exp(\delta)) \psi(1 + \exp(\delta)) \exp(\delta),
+$$
+
+where $\psi(\cdot)$ denotes the digamma function. Let
+$\frac{\partial\mathbf{g}(\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}} = \left(\frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_0}, \frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_1}, \frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_2}, \ldots,
+\frac{\partial \mathbf{g}(\boldsymbol{\theta})}{\partial \beta_p},
+\frac{\partial \mathbf{g}(\boldsymbol{\theta})}{\partial
+\delta}\right)^T$.
+
+The standard error of the expected survival time estimate is
+
+$$
+\mathrm{s.e.}(\mathbf{g} (\hat{\boldsymbol{\theta}})) = \sqrt{\left[
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}}\right]^T \Sigma_{\hat{\boldsymbol{\theta}}}
+\left[ \frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}}\right]}.
+$$
+
+An approximate $100\times(1 - \alpha)\%$ confidence interval for
+$\mathbf{g}(\boldsymbol{\theta}) = \mathrm{E}[T]$
+based on the large sample standard Normal approximation of
+$Z_{\log(\mathbf{g}(\hat{\boldsymbol{\theta}}))} =
+\frac{\log(\mathbf{g}(\hat{\boldsymbol{\theta}})) -
+\log(\mathbf{g}(\boldsymbol{\theta}))}{s.e.(\mathbf{g}
+(\hat{\boldsymbol{\theta}}))}$ is
+
+$$
+\left[\mathrm{lower}, \mathrm{upper} \right] =
+\left[\mathbf{g}(\hat{\boldsymbol{\theta}})/w,
+\mathbf{g}(\hat{\boldsymbol{\theta}}) \times w \right],
+$$
+
+where $w = \exp(z_{1-\alpha/2} \times \mathrm{s.e.}(\mathbf{g}
+(\hat{\boldsymbol{\theta}})) /
+\mathbf{g}(\hat{\boldsymbol{\theta}}))$.
+
+Confidence intervals for the expected response of other AFT models
+may be calculated similarly, except that the function $\mathbf{g}$
+depends on the response distribution. For other functions of
+$\boldsymbol{\theta}$ such as the survivor function or response
+quantile, we apply the delta method as well.
+
+### Simulation Setup
+
+A simulation was conducted to investigate the performance of
+uncertainty intervals for AFT models. We varied sample size,
+distribution, and the proportion of observations censored. In all
+simulations, a simple AFT models with one predictor was used. A time
+censoring mechanism was assumed and set at one of three levels: no
+censoring, mild censoring (30% of observations censored) or moderate
+censoring (50% of observations censored).
+
+The number of simulations for each combination of distribution and
+censoring was $10,000$ (for the confidence intervals) or $5000$
+(for prediction intervals, survival probabilities, and quantiles).
+
+### Simulation for expected value CIs
+
+We produce graphs of the performance of the delta method for
+confidence intervals on the expected survival time. Below we show the
+observed coverage probability as sample size, distribution, and
+censoring proportion vary. The nominal coverage probability is set at
+90% for all simulations.
+
+We observe acceptable performance from the delta method in this
+case. Larger amounts of censoring (30% and 50%) produce mostly lower
+coverage probabilities for all distributions except the exponential
+distribution. The worst case scenario appears to be small sample
+Lognormal fits with moderate censoring. In this case, there is a near
+10% gap between the nominal and observed coverage probabilities.
+
+```{r include=FALSE, cache= TRUE}
+## need to change this later??
+path <- "~/git/ciTools/vignettes/survreg_data"
+exp0 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp00.csv"))
+exp1 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp03.csv"))
+exp2 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp05.csv"))
+exp_dat <- rbind(exp0, exp1, exp2) %>%
+    mutate(distr = "Exponential")
+loglog0 <- read_csv(paste0(path,"/",
+                           "loglogistic_sim_expect_ci_scale025_censoredp00.csv"))
+loglog1 <- read_csv(paste0(path,"/",
+                           "loglogistic_sim_expect_ci_scale025_censoredp03.csv"))
+loglog2 <- read_csv(paste0(path,"/",
+                           "loglogistic_sim_expect_ci_scale025_censoredp05.csv"))
+loglog_dat <- rbind(loglog0, loglog1, loglog2) %>%
+    mutate(distr = "Loglogistic") %>%
+    dplyr::select(-c(scale))
+lognorm0 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp00.csv"))
+lognorm1 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp03.csv"))
+lognorm2 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp05.csv"))
+lognorm_dat <- rbind(lognorm0, lognorm1, lognorm2) %>%
+    mutate(distr = "Lognormal") %>%
+    dplyr::select(-c(scale))
+weibull0 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp00.csv"))
+weibull1 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp03.csv"))
+weibull2 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp05.csv"))
+weibull_dat <- rbind(weibull0, weibull1, weibull2) %>%
+    mutate(distr = "Weibull") %>%
+    dplyr::select(-c(scale))
+ci_dat <- rbind(exp_dat, loglog_dat, lognorm_dat, weibull_dat)
+```
+
+```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE}
+ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+                      ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("C.I. Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities (zoomed in)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+
+```
+```{r fig.width=8, fig.height=8, echo=FALSE, cache= TRUE}
+ggplot(filter(ci_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    ylim(0,1) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+                      ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("C.I. Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities (zoomed out)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+Interval widths generally shrink to zero, which is expected. In one
+case, Lognormal fits with sample size 20 and 50% censoring, the
+interval widths are too large. This is due to too many unconverged
+maximum likelihood estimates.
+
+```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE}
+ggplot(filter(ci_dat), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+                      ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("C.I Simulation, by Distribution and Censoring",
+            subtitle = "Interval Widths") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.0), colour="blue", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+
+## Survivor Function
+
+Calculating confidence intervals for estimated probabilities requires
+a bit more care to ensure that the confidence bounds lie in the (0,1)
+interval. Because the mathematics of the confidence intervals for the
+survivor function depend less on the actual distribution, we won't
+focus on the Weibull model, and will treat all AFT models at once. The
+predicted probability of survival at time $T$, $\hat{S}(T|X)$, written
+as a function of $\boldsymbol{\theta}$, is
+$\mathbf{g}(\boldsymbol{\theta}) = 1 - \Phi \left( \frac{\log(T) -
+X\boldsymbol{\beta}}{\sigma}\right)$. Similar to the previous example,
+we form a confidence interval for this probability of survival based
+on the estimated regression coefficients ($\hat{\boldsymbol{\beta}}$
+and $\hat{\sigma}$) from `survreg`. The maximum likelihood estimator
+of the survivor function is $\hat{S}(T|X)_{ML} = \Phi \left(
+\frac{\log(T) - X\hat{\beta}}{\hat{\sigma}}\right)$. The relevant
+derivatives are
+
+$$
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial \beta} =
+f \left(\frac{\log(T) - x^T \boldsymbol{\beta}}{\sigma}\right) \times
+\left(\frac{-x^T}{\sigma}\right),\qquad i = 0, \ldots, n,
+$$
+
+and
+
+$$
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial \delta} =
+f \left(\frac{\log(T) - x^T \boldsymbol{\beta}}{\sigma}\right) \times
+\left(\frac{x^T \boldsymbol{\beta} - \log(T)}{\sigma} \right),
+$$
+
+where $f(\cdot)$ denotes the probability density function
+corresponding to $\Psi$, and $x_i$ is a new observation$. Let
+$\frac{\partial\mathbf{g}(\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}} = \left(\frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_0}, \frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_1}, \frac{\partial
+\mathbf{g}(\boldsymbol{\theta})}{\partial \beta_2}, \ldots,
+\frac{\partial \mathbf{g}(\boldsymbol{\theta})}{\partial \beta_p},
+\frac{\partial \mathbf{g}(\boldsymbol{\theta})}{\partial
+\delta}\right)^T$.
+
+Due to the delta method, the mathematical form of the standard
+errors of the estimated survival probability is as it was in the
+previous example:
+
+$$
+\mathrm{s.e.}(\mathbf{g} (\hat{\boldsymbol{\theta}})) = \sqrt{\left[
+\frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}}\right]^T \Sigma_{\hat{\boldsymbol{\theta}}}
+\left[ \frac{\partial \mathbf{g} (\boldsymbol{\theta})}{\partial
+\boldsymbol{\theta}}\right]}
+$$
+
+The obvious confidence interval based on the statistic
+$\frac{\hat{S} - S}{\hat{s.e.}(\hat{S})}$ could be potentially a
+very poor fit approximation. The approximation could be poor due to
+a small to moderate number of failures in the data (Meeker and
+Escobar, p. 190) or because the bounds of the confidence interval
+could far exceed the interval $[0,1]$. The chosen solution is to
+apply a transformation $u(\cdot)$ such that $\frac{u(\hat{S}) -
+u(S)}{\hat{s.e.}(\hat{u})}$ is closer in distribution to a standard
+Normal distribution. A transformation that achieves this is the
+logistic transform.
+
+$$
+u(\hat{S}) = \log \left( \frac{\hat{S}}{1 - \hat{S}} \right)
+$$
+
+First, we find a confidence interval for $u(\hat{S})$, then
+transform the endpoints of the interval to the $[0,1]$ through the
+inverse logistic function to find a confidence interval for
+$\hat{S}$.
+
+$$
+\left[\mathrm{lower}, \mathrm{upper} \right] =
+\left[
+\frac{\hat{S}}{\hat{S} + (1 - \hat{S}) \times w},
+\frac{\hat{S}}{\hat{S} + (1 - \hat{S})/w}
+\right]
+$$
+
+where $w = \exp \left( \frac{z_{1 - \alpha/2} \hat{s.e.} (\hat{S}) }
+{\hat{S}(1 - \hat{S})}\right)$.
+
+### Simulations for Survivor Function
+
+Plots below show the performance of the delta method for uncertainty
+intervals of the survivor function. Again we compare the observed
+coverage probability with the 90% nominal probability. In contrast to
+intervals for the mean, censoring appears to produce overly
+conservative intervals. This is particularly clear in the case of the
+Weibull distribution.
+
+```{r, include = FALSE, cache= TRUE, warning = FALSE}
+expp0 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp00.csv"))
+expp1 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp03.csv"))
+expp2 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp05.csv"))
+expp_dat <- rbind(expp0, expp1, expp2) %>%
+    mutate(distr = "Exponential")
+loglogp0 <- read_csv(paste0(path,"/",
+                            "loglogistic_sim_prob_ci_scale025_censoredp00.csv"))
+loglogp1 <- read_csv(paste0(path,"/",
+                            "loglogistic_sim_prob_ci_scale025_censoredp03.csv"))
+loglogp2 <- read_csv(paste0(path,"/",
+                            "loglogistic_sim_prob_ci_scale025_censoredp05.csv"))
+loglogp_dat <- rbind(loglogp0, loglogp1, loglogp2) %>%
+    mutate(distr = "Loglogisic") %>%
+    dplyr::select(-c(scale))
+lognormp0 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp00.csv"))
+lognormp1 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp03.csv"))
+lognormp2 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp05.csv"))
+lognormp_dat <- rbind(lognormp0, lognormp1, lognormp2) %>%
+    mutate(distr = "Lognormal") %>%
+    dplyr::select(-c(scale))
+weibullp0 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp00.csv"))
+weibullp1 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp03.csv"))
+weibullp2 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp05.csv"))
+weibullp_dat <- rbind(weibullp0, weibullp1, weibullp2) %>%
+    mutate(distr = "Weibull") %>%
+    dplyr::select(-c(scale))
+prob_dat <- rbind(expp_dat, loglogp_dat, lognormp_dat, weibullp_dat)
+```
+
+```{r, fig.width=8, fig.height=8, echo = FALSE, cache= TRUE, warning = FALSE}
+ggplot(filter(prob_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+                      ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("C.I. for Survival Probability Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities (zoomed in)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+However on the (0,1) probability scale, we find acceptable performance.
+
+```{r, fig.width=8, fig.height=8, echo = FALSE, cache= TRUE, warning = FALSE}
+ggplot(filter(prob_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    ylim(0,1) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+                      ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("Survival Probability Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities (zoomed out)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+Intervals widths go to zero as sample size increases.
+
+```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE, warning = FALSE}
+ggplot(filter(prob_dat), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+                      ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("Survival Probability Simulation, by Distribution and Censoring",
+            subtitle = "Interval Widths") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.0), colour="blue", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+## Prediction Intervals
+
+We have not yet discussed prediction intervals, but `ciTools` also has
+methods for creating two different types of prediction intervals. The
+first type is the "naive" method of Meeker and Escobar. The naive
+method simply forms a prediction interval based on $\alpha/2$ and
+$1-\alpha/2$ quantiles of the estimated conditional distribution. This
+method is simple and works reasonably well in the absence of
+censoring, as displayed in the plots below.
+
+A slightly better method is included in `ciTools`, which we call the
+simulation method. We generate prediction intervals for the next
+failure time by a parametric bootstrap. This simulation method assumes
+a multivariate normal distribution for the model coefficients
+(excluding the scale parameter) and generates new responses that
+account for this uncertainty in the model coefficients. This is
+essentially what we have done to produce prediction intervals for GLMs
+as well, just applied to the new class of AFT models.
+
+From the plot below, it's pretty clear that the bootstrap method
+outperforms the naive method. The difference is most stark when there
+is a moderate amount of censoring.
+
+Further improvements beyond the naive and simulations methods may be
+made. These techniques are detailed in Meeker and Escobar (Chapter
+12), but have yet to be implemented in `ciTools`.
+
+
+```{r include=FALSE, cache= TRUE}
+exppi0 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp00.csv"))
+exppi1 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp03.csv"))
+exppi2 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp05.csv"))
+exppi_dat <- rbind(exppi0, exppi1, exppi2) %>%
+    mutate(distr = "Exponential")
+loglogpi0 <- read_csv(paste0(path,"/",
+                             "loglogistic_sim_pi_scale025_censoredp00.csv"))
+loglogpi1 <- read_csv(paste0(path,"/",
+                             "loglogistic_sim_pi_scale025_censoredp03.csv"))
+loglogpi2 <- read_csv(paste0(path,"/",
+                             "loglogistic_sim_pi_scale025_censoredp05.csv"))
+loglogpi_dat <- rbind(loglogpi0, loglogpi1, loglogpi2) %>%
+    mutate(distr = "Loglogistic") %>%
+    dplyr::select(-c(scale))
+lognormpi0 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp00.csv"))
+lognormpi1 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp03.csv"))
+lognormpi2 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp05.csv"))
+lognormpi_dat <- rbind(lognormpi0, lognormpi1, lognormpi2) %>%
+    mutate(distr = "Lognormal") %>%
+    dplyr::select(-c(scale))
+weibullpi0 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp00.csv"))
+weibullpi1 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp03.csv"))
+weibullpi2 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp05.csv"))
+weibullpi_dat <- rbind(weibullpi0, weibullpi1, weibullpi2) %>%
+    mutate(distr = "Weibull") %>%
+    dplyr::select(-c(scale))
+pi_dat <- rbind(exppi_dat, loglogpi_dat, lognormpi_dat, weibullpi_dat)
+```
+```{r fig.width=8, fig.height=8, echo=FALSE, cache= TRUE}
+ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_line(aes(y = cov_prob_boot), size = 1.5, color = "blue") +
+    ## geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+    ##                   ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    ## geom_errorbar(aes(ymin=cov_prob_boot - 2*cov_prob_boot_se,
+    ##                   ymax = cov_prob_boot + 2*cov_prob_boot_se),
+    ##               width=.1, color = "blue") +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("P.I. Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities. Naive method (black). Simulation method (blue) ") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE}
+ggplot(filter(pi_dat), aes(x=sample_size, y=cov_prob)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    ylim(0,1) +
+    geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se,
+                      ymax = cov_prob + 2*cov_prob_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Coverage Probs +/- 2 SEs") +
+    ggtitle("P.I. Simulation, by Distribution and Censoring",
+            subtitle = "Coverage Probabilities (zoomed out)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) +
+    facet_grid(distr~censoredp)
+```
+
+Unlike confidence intervals, interval widths of prediction intervals
+should not shrink to zero as sample size is increased. Instead we
+should observe interval widths converge to a constant.
+
+```{r fig.width=8, fig.height=5, echo = FALSE, cache= TRUE}
+ggplot(filter(pi_dat, distr == "Exponential"), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_line(aes(y = int_width_boot), color = "blue", size = 1.5) +
+    ## geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+    ##                       ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("P.I Simulation, Exponential Distribution",
+            subtitle = "Interval Widths. naive method (black), simulation method (blue)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    facet_wrap(~censoredp)
+```
+
+```{r fig.width=8, fig.height=5, echo = FALSE, cache= TRUE}
+ggplot(filter(pi_dat, distr == "Loglogistic"), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_line(aes(y = int_width_boot), color = "blue", size = 1.5) +
+    ## geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+    ##                   ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("P.I Simulation, Loglogistic Distribution",
+            subtitle = "Interval Widths. naive method (black), simulation method (blue)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    facet_wrap(~censoredp)
+```
+
+```{r fig.width=8, fig.height=5, echo = FALSE, cache= TRUE}
+ggplot(filter(pi_dat, distr == "Lognormal"), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_line(aes(y = int_width_boot), color = "blue", size = 1.5) +
+    ## geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+    ##                   ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("P.I Simulation, Lognormal Distribution",
+            subtitle = "Interval Widths. naive method (black), simulation method (blue)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    facet_wrap(~censoredp)
+```
+
+```{r fig.width=8, fig.height=5, echo = FALSE, cache= TRUE}
+ggplot(filter(pi_dat, distr == "Weibull"), aes(x=sample_size, y=int_width)) +
+    geom_point(size = 2) +
+    geom_line(size = 1.5) +
+    geom_line(aes(y = int_width_boot), color = "blue", size = 1.5) +
+    ## geom_errorbar(aes(ymin=int_width - 2*int_width_se,
+    ##                   ymax = int_width + 2*int_width_se), width=.1) +
+    xlab("Sample Size (log scale)") +
+    ylab("Interval Widths +/- 2 SEs") +
+    ggtitle("P.I Simulation, Weibull Distribution",
+            subtitle = "Interval Widths. naive method (black), simulation method (blue)") +
+    scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
+    facet_wrap(~censoredp)
+```
+
+<!-- ## Medians -->
+
+<!-- ```{r, include = FALSE, cache= TRUE} -->
+<!-- expq0 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp00.csv")) -->
+<!-- expq1 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp03.csv")) -->
+<!-- expq2 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp05.csv")) -->
+<!-- expq_dat <- rbind(expq0, expq1, expq2) %>% -->
+<!--     mutate(distr = "Exponential") -->
+<!-- loglogq0 <- read_csv(paste0(path,"/", -->
+<!--                             "loglogistic_sim_quantile_ci_scale025_censoredp00.csv")) -->
+<!-- loglogq1 <- read_csv(paste0(path,"/", -->
+<!--                             "loglogistic_sim_quantile_ci_scale025_censoredp03.csv")) -->
+<!-- loglogq2 <- read_csv(paste0(path,"/", -->
+<!--                             "loglogistic_sim_quantile_ci_scale025_censoredp05.csv")) -->
+<!-- loglogq_dat <- rbind(loglogq0, loglogq1, loglogq2) %>% -->
+<!--     mutate(distr = "Loglogisic") %>% -->
+<!--     dplyr::select(-c(scale)) -->
+<!-- lognormq0 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- lognormq1 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- lognormq2 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- lognormq_dat <- rbind(lognormq0, lognormq1, lognormq2) %>% -->
+<!--     mutate(distr = "Lognormal") %>% -->
+<!--     dplyr::select(-c(scale)) -->
+<!-- weibullq0 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- weibullq1 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- weibullq2 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- weibullq_dat <- rbind(weibullq0, weibullq1, weibullq2) %>% -->
+<!--     mutate(distr = "Weibull") %>% -->
+<!--     dplyr::select(-c(scale)) -->
+<!-- quant_dat <- rbind(expq_dat, loglogq_dat, lognormq_dat, weibullq_dat) -->
+<!-- ``` -->
+<!-- ```{r fig.width=8, fig.height=8, echo = FALSE} -->
+<!-- ggplot(filter(quant_dat), aes(x=sample_size, y=cov_prob)) + -->
+<!--     geom_point(size = 2) + -->
+<!--     geom_line(size = 1.5) + -->
+<!--     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, -->
+<!--                       ymax = cov_prob + 2*cov_prob_se), width=.1) + -->
+<!--     xlab("Sample Size (log scale)") + -->
+<!--     ylab("Coverage Probs +/- 2 SEs") + -->
+<!--     ggtitle("C.I. for Median Simulation, by Distribution and Censoring", -->
+<!--             subtitle = "Coverage Probabilities (zoomed in)") + -->
+<!--     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) + -->
+<!--     geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) + -->
+<!--     facet_grid(distr~censoredp) -->
+<!-- ``` -->
+
+<!-- ```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE} -->
+<!-- ggplot(filter(quant_dat), aes(x=sample_size, y=cov_prob)) + -->
+<!--     geom_point(size = 2) + -->
+<!--     geom_line(size = 1.5) + -->
+<!--     ylim(0,1) + -->
+<!--     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, -->
+<!--                       ymax = cov_prob + 2*cov_prob_se), width=.1) + -->
+<!--     xlab("Sample Size (log scale)") + -->
+<!--     ylab("Coverage Probs +/- 2 SEs") + -->
+<!--     ggtitle("C.I. for Median Simulation, by Distribution and Censoring", -->
+<!--             subtitle = "Coverage Probabilities (zoomed out)") + -->
+<!--     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) + -->
+<!--     geom_hline(aes(yintercept = 0.90), colour="#BB0000", linetype="dashed", size = 1) + -->
+<!--     facet_grid(distr~censoredp) -->
+<!-- ``` -->
+
+<!-- ```{r fig.width=8, fig.height=8, echo = FALSE, cache= TRUE} -->
+<!-- ggplot(filter(quant_dat), aes(x=sample_size, y=int_width)) + -->
+<!--     geom_point(size = 2) + -->
+<!--     geom_line(size = 1.5) + -->
+<!--     geom_errorbar(aes(ymin=int_width - 2*int_width_se, -->
+<!--                       ymax = int_width + 2*int_width_se), width=.1) + -->
+<!--     xlab("Sample Size (log scale)") + -->
+<!--     ylab("Interval Widths +/- 2 SEs") + -->
+<!--     ggtitle("C.I for Median Simulation, by Distribution and Censoring", -->
+<!--             subtitle = "Interval Widths") + -->
+<!--     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) + -->
+<!--     geom_hline(aes(yintercept = 0.0), colour="blue", linetype="dashed", size = 1) + -->
+<!--     facet_grid(distr~censoredp) -->
+<!-- ``` -->
+
+
+References:
+
+Meeker, William Q., and Luis A. Escobar. Statistical methods for
+reliability data. John Wiley & Sons, 2014. (Chapter 4, 8, and Appendix B)
+
+Harrell, Frank E. Regression modeling strategies. Springer, 2015. (Chapter 17)
+
+
+
+```{r }
+sessionInfo()
+```

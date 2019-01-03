@@ -33,7 +33,7 @@
 #'   \item \code{\link{add_pi.glm}} for generalized linear regression prediction intervals
 #'   \item \code{\link{add_pi.lmerMod}} for linear mixed models prediction intervals
 #'   \item \code{\link{add_pi.glmerMod}} for generalized linear mixed model prediction intervals
-#'   \item \code{\link{add_pi.lmerMod}} for accelerated failure time model prediction intervals
+#'   \item \code{\link{add_pi.survreg}} for accelerated failure time model prediction intervals
 #' }
 #'
 #' @param tb A tibble or data frame of new data.

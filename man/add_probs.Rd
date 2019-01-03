@@ -51,16 +51,21 @@ in each method, consult:
   \item \code{\link{add_probs.lm}} for linear regression response probabilities
   \item \code{\link{add_probs.glm}} for generalized linear regression response probabilities
   \item \code{\link{add_probs.lmerMod}} for linear mixed models response probabilities
+  \item \code{\link{add_probs.glmerMod}} for generalized linear mixed model response probabilities
+  \item \code{\link{add_probs.survreg}} for accelerated failure time model response probabilities
 }
 
-Note that the probabilities calculated by \code{add_probs} are on
-the distribution of \eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use
-the same distribution from which a prediction interval is
-determined, not the distribution that determines a confidence
-interval.
+Note: Except in \code{add_probs.survreg}, the probabilities
+calculated by \code{add_probs} are on the distribution of
+\eqn{Y|x}, not \eqn{E[Y|x]}. That is, they use the same
+distribution from which a prediction interval is determined, not
+the distribution that determines a confidence
+interval. \code{add_probs.survreg} is an exception to this pattern
+so that users of accelerated failure time models can obtain
+estimates of the survivor function.
 }
 \examples{
-# Define a model 
+# Define a model
 fit <- lm(dist ~ speed, data = cars)
 
 # Calculate the probability that the probability that a new
@@ -72,7 +77,7 @@ add_probs(cars, fit, q = 20)
 add_probs(cars, fit, q = 20, comparison = ">")
 
 # Try a different model fit.
-fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
 add_probs(cars, fit2, q = 20)
 
 # Try a different model fit.

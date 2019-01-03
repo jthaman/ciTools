@@ -34,9 +34,9 @@ This is a generic function to append prediction intervals to a data
 frame. A prediction interval is made for each observation in
 \code{tb} with respect to the model \code{fit}. These intervals are
 then appended to \code{tb} and returned to the user as a
-tibble. \code{fit} can be a linear, log-linear, linear mixed, or
-generalized linear models (currently only Poisson models are
-supported).
+tibble. \code{fit} can be a linear, log-linear, linear mixed,
+generalized linear, generalized linear mixed, or accelerated
+failure time model.
 }
 \details{
 For more specific information about the arguments that are applicable
@@ -46,6 +46,8 @@ in each method, consult:
   \item \code{\link{add_pi.lm}} for linear regression prediction intervals
   \item \code{\link{add_pi.glm}} for generalized linear regression prediction intervals
   \item \code{\link{add_pi.lmerMod}} for linear mixed models prediction intervals
+  \item \code{\link{add_pi.glmerMod}} for generalized linear mixed model prediction intervals
+  \item \code{\link{add_pi.lmerMod}} for accelerated failure time model prediction intervals
 }
 }
 \examples{
@@ -57,7 +59,7 @@ new_data <- cars[sample(NROW(cars), 10), ]
 add_pi(new_data, fit)
 
 # Fit a Poisson model
-fit2 <- glm(dist ~ speed, family = "poisson", data = cars) 
+fit2 <- glm(dist ~ speed, family = "poisson", data = cars)
 # Add approximate prediction intervals to the fitted values of
 # new_data
 add_pi(new_data, fit2)

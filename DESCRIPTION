@@ -32,8 +32,10 @@ Imports:
     utils
 Suggests:
     broom,
+    here,
     knitr,
     rmarkdown,
+    SPREDA,
     tidyverse
 VignetteBuilder:
     rmarkdown,

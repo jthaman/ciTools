@@ -52,8 +52,8 @@ called automatically when \code{add_ci} is used on a \code{fit} of
 class \code{lmerMod}. It is recommended that one use parametric
 confidence intervals when modeling with a random intercept linear
 mixed model (i.e. a fit with a formula such as \code{lmer(y ~ x +
-(1|group))}). Otherwise, confidence intervals may be simulated
-bootstrapped via \code{lme4::bootMer}.
+(1|group))}). Otherwise, confidence intervals may be bootstrapped
+via \code{lme4::bootMer}.
 }
 \details{
 Bootstrapped intervals are slower to compute, but they are the

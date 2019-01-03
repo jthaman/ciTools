@@ -26,14 +26,14 @@
 #' accelerated failure time models. Presently, confidence intervals
 #' may be computed for lognormal, weibull, exponential, and
 #' loglogistic failure time models. If \code{comparison = "<"},
-#' confidence intevals are made for the probability that a failure
+#' confidence intervals are made for the probability that a failure
 #' will be observed before \code{q}. Similarly, if \code{comparison =
 #' ">"}, confidence intervals will be formed for the probability that
 #' a unit fails after \code{q}. In the survival literature,
 #' \code{comparison = ">"} corresponds to estimating the survivor
 #' function, \emph{S(q)}.
 #'
-#' Confidence intervals are produced paramerically via the Delta
+#' Confidence intervals are produced parametrically via the Delta
 #' Method. Simulations show that under a mild
 #' to moderate amount of censoring, this method performs
 #' adequately.

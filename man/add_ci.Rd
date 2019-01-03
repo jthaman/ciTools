@@ -7,23 +7,24 @@
 add_ci(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data. \code{tb} can be
-the original data or new data.}
+\item{tb}{A tibble or data frame of new data. \code{tb} can be the
+original data or new data.}
 
-\item{fit}{An object of class \code{lm}, \code{glm}, or
-\code{lmerMod}. Predictions are made with this object.}
+\item{fit}{An object of class \code{lm}, \code{glm},
+\code{lmerMod}, \code{glmerMod}, or \code{survreg}. Predictions
+are made with this object.}
 
 \item{alpha}{A real number between 0 and 1. Controls the confidence
 level of the interval estimates.}
 
-\item{names}{NULL or character vector of length two. If
+\item{names}{\code{NULL} or character vector of length two. If
 \code{NULL}, confidence bounds automatically will be named by
 \code{add_ci}, otherwise, the lower confidence bound will be
 named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
-\item{yhatName}{A string. Name of the vector of the predictions
-made for each observation in tb}
+\item{yhatName}{A character vector of length one. Name of the
+vector of the predictions made for each observation in \code{tb}}
 
 \item{...}{Additional arguments.}
 }
@@ -37,20 +38,24 @@ predictions of a model fit to a data frame. A confidence interval
 is generated for the fitted value of each observation in
 \code{tb}. These confidence intervals are then appended to
 \code{tb} and returned to the user as a tibble. The \code{fit} may
-be a linear, log-linear, linear mixed, or generalized linear model.
+be a linear, log-linear, linear mixed, generalized linear model,
+generalized linear mixed, or accelerated failure time model.
 }
 \details{
 For more specific information about the arguments that are applicable
 in each method, consult:
 
 \itemize{
-  \item \code{\link{add_ci.lm}} for linear regression confidence intervals
-  \item \code{\link{add_ci.glm}} for generalized linear regression confidence intervals
-  \item \code{\link{add_ci.lmerMod}} for linear mixed models confidence intervals
+  \item \code{\link{add_ci.lm}} for linear model confidence intervals
+  \item \code{\link{add_ci.glm}} for generalized linear model confidence intervals
+  \item \code{\link{add_ci.lmerMod}} for linear mixed model confidence intervals
+  \item \code{\link{add_ci.glmerMod}} for generalized linear mixed model confidence intervals
+  \item \code{\link{add_ci.survreg}} for accelerated failure time confidence intervals
 }
 
 Note that \code{add_ci} calculates confidence intervals for
-\emph{fitted values}, not model coefficients.
+\emph{fitted values}, not model coefficients. For confidence
+intervals of model coefficients, see \code{confint}.
 }
 \examples{
 # Fit a linear model

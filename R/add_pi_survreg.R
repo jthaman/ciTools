@@ -59,7 +59,7 @@
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the predictions vector.
 #' @param method A string. Determines the method used to calculate
-#'     prediction intevals. Must be one of either \code{"naive"} or
+#'     prediction intervals. Must be one of either \code{"naive"} or
 #'     \code{"boot"}.
 #' @param nSims A positive integer. Determines the number of bootstrap
 #'     replicates if \code{method = "boot"}.
@@ -164,16 +164,12 @@ dsev <- function(z) {
 
 sim_surv_coefs <- function(tb, fit, nSims){
     vcov.hat <- vcov(fit)
-
-    if (fit$dist == "exponential")
-        vcov.hat <- cbind(rbind(vcov.hat, 0), 0)
-
-    beta.logsigma.hat <- c(coef(fit), fit$scale)
+    beta.hat <- coef(fit)
     params <- matrix(NA,
                      nrow = nSims,
-                     ncol = length(beta.logsigma.hat))
+                     ncol = length(beta.hat))
 
-    params <- MASS::mvrnorm(nSims, beta.logsigma.hat, vcov.hat)
+    params <- MASS::mvrnorm(nSims, beta.hat, vcov.hat)
     params
 }
 
@@ -183,10 +179,10 @@ get_sim_response_surv_boot <- function(tb, fit, params){
     modmat <- model.matrix(fit, data = tb)
     distr <- fit$dist
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
+    scale <- fit$scale
 
     for (i in 1:nSims){
-        linear_pred <- modmat %*% params[i,1:dim(params)[2] - 1]
-        scale <- fit$scale
+        linear_pred <- modmat %*% params[i,1:dim(params)[2]]
 
         if ((distr == "lognormal") || (distr == "loggaussian")){
             sim_response[,i] <- exp(linear_pred + scale * rnorm(n = nPreds))
