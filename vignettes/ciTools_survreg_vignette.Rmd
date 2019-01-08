@@ -519,8 +519,7 @@ Lognormal fits with moderate censoring. In this case, there is a near
 10% gap between the nominal and observed coverage probabilities.
 
 ```{r include=FALSE, cache= TRUE}
-## need to change this later??
-path <- "~/git/ciTools/vignettes/survreg_data"
+path <- here("./survreg_data/")
 exp0 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp00.csv"))
 exp1 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp03.csv"))
 exp2 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp05.csv"))
