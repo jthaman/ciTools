@@ -27,7 +27,7 @@ named \code{names[2]}.}
 replicates if \code{method = "boot"}.}
 
 \item{method}{A string. Determines the method used to calculate
-prediction intevals. Must be one of either \code{"naive"} or
+prediction intervals. Must be one of either \code{"naive"} or
 \code{"boot"}.}
 
 \item{...}{Additional arguments.}

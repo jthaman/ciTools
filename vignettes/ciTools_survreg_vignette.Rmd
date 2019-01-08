@@ -2,7 +2,7 @@
 title:  Accelerated Failure Time Models with `ciTools`
 author: John Haman
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: word_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Accelerated Failure Time Models with ciTools}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,7 +20,7 @@ set.seed(20180925)
 
 *Disclaimer:* `ciTools` makes three assumptions about your model:
 
-1 - no missing data in the design matrix.
+1 - no missing data in the "newdata" matrix, `tb`.
 
 2 - distribution is one of weibull, lognormal, loglogistic, or exponential.
 

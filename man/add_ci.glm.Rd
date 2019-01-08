@@ -51,7 +51,7 @@ intervals by making an interval on the scale of the linear
 predictor, then applying the inverse link function from the model
 fit to transform the linear level confidence intervals to the
 response level. Alternatively, confidence intervals may be
-calcuated through a nonparametric bootstrap method.
+calculated through a nonparametric bootstrap method.
 }
 \examples{
 # Poisson regression
