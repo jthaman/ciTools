@@ -2,13 +2,12 @@
 title:  Accelerated Failure Time Models with `ciTools`
 author: John Haman
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: rmarkdown::html_vignette
+output: word_document
 vignette: >
   %\VignetteIndexEntry{Accelerated Failure Time Models with ciTools}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
 
 
 ```{r, message = FALSE }
@@ -28,14 +27,13 @@ set.seed(20180925)
 3 - regression model is unweighted, and without random effects.
 
 
-The purpose of this vignette is to introduce and discuss some of
-the new capabilities that have been baked into `ciTools` to handle
-accelerated failure time (AFT) models. Some of the new AFT methods
-in `ciTools` are more informative than methods for
-previous models, and will inform future development decisions that
+The purpose of this vignette is to introduce and discuss new `ciTools`
+capabilities for handling accelerated failure time (AFT) models. Some
+of the new AFT methods in `ciTools` are more informative than methods
+for previous models, and will inform future development decisions that
 will be made in `ciTools`. In particular, `ciTools` now supports
-intervals for estimated survival time probabilities and quantiles
-for a range of common AFTs.
+intervals for estimated survival time probabilities and quantiles for
+a range of common AFTs.
 
 ## The Accelerated Failure Time Model
 
@@ -80,7 +78,7 @@ $$
 \log(T) = X\beta + \sigma \varepsilon,
 $$
 
-where $\varepsilon \sim F$ to make the linear effect of $X\beta$
+where $\varepsilon \sim F$ to make the linear effect of $\beta$
 on $\log(T)$ a bit more apparent.
 
 Like generalized linear  models, survival models are  fit through a
@@ -202,13 +200,12 @@ calculated with `add_quantile()`.
 ## AFT Uncertainty Intervals
 
 In the analysis of AFT models, statisticians have several options for
-making predictions. `predict.survreg` for example, allows one to make
-predictions with the median of the conditional AFT model
-(`predict.survreg(fit, newdata, method = "quantile", p = 0.5)`), or
-with the just the linear predictor $\exp(X\beta)$
-(`predict.survreg(fit, newdata)`).  The former is a bona fide
-estimator of the population median, while the latter (generally) is
-not an estimator of a population mean or median.
+making predictions. `predict.survreg` for example, allows one to
+predict the median failure time, or any other quantile. These
+predictions have the same units as the original time scale (time to
+death or failure). Additionally, `predict.survreg` can also output the
+corresponding value of the linear predictor for a given point in the
+factor space.
 
 `ciTools` hopes to clarify survival times prediction for AFT models
 by relegating  prediction of the  expected (mean) survival  time to
@@ -381,7 +378,7 @@ ggplot(quants, aes(x = temp, y = time)) +
 
 ## The Delta Method for Regression Models
 
-Here are some of the mathematical ideas that go into the above
+Here are the mathematical details for calculating the above confidence
 intervals. For AFT models, we calculate confidence intervals with the
 delta method (Prediction intervals are calculated using different
 methods, discussed later).
@@ -786,18 +783,23 @@ We have not yet discussed prediction intervals, but `ciTools` also has
 methods for creating two different types of prediction intervals. The
 first type is the "naive" method of Meeker and Escobar. The naive
 method simply forms a prediction interval based on $\alpha/2$ and
-$1-\alpha/2$ quantiles of the estimated conditional distribution. This
-method is simple and works reasonably well in the absence of
-censoring, as displayed in the plots below.
+$1-\alpha/2$ quantiles of the estimated conditional distribution. The
+method is naive in the sense that it does not account for uncertainty
+in the estimates of the parameters $\boldsymbol{\beta}$ and
+$\sigma$. This method is simple and works reasonably well in the
+absence of censoring, as displayed in the plots below.
 
 A slightly better method is included in `ciTools`, which we call the
 simulation method. We generate prediction intervals for the next
 failure time by a parametric bootstrap. This simulation method assumes
 a multivariate normal distribution for the model coefficients
 (excluding the scale parameter) and generates new responses that
-account for this uncertainty in the model coefficients. This is
-essentially what we have done to produce prediction intervals for GLMs
-as well, just applied to the new class of AFT models.
+account for this uncertainty in the model coefficients,
+$\boldsymbol{\beta}$. This should make the bootstrap method slightly
+better than the naive method in practice, though a bit more
+computationally expensive. This is essentially what we have done to
+produce prediction intervals for GLMs as well, just applied to the new
+class of AFT models.
 
 From the plot below, it's pretty clear that the bootstrap method
 outperforms the naive method. The difference is most stark when there
