@@ -9,7 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-##Logistic regression with binomial data
+## Logistic regression with binomial data
 
 Logistic regression is most commonly used with a Bernoulli
 response. If $Y \sim Bernoulli(p)$, then $P(Y = 1) = p = 1 - P(Y =
@@ -47,7 +47,7 @@ the joint likelihood:
 
  $$\Pi_i {y_i \choose n_i} p_i^{y_i}(1-p_i)^{(1-y_i)}$$
 
-##Binomial regression in R
+## Binomial regression in R
 
 R is also capable of fitting binomial regression models using `glm`
 with `family = "binomial"`. However, there are a few syntactic
@@ -185,7 +185,7 @@ distribution. The final warning points out that the `pred` column
 refers to the fitted values rather than estimated probability of
 success, which was mentioned in the previous paragraph.
 
-##Summary
+## Summary
 
 Logistic regression can be used for both Bernoulli and Binomial
 response variables, and `glm` supports both. `ciTools`
