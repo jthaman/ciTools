@@ -5,9 +5,17 @@
 \title{Confidence Intervals for the Survivor Function of Accelerated
 Failure Time Models}
 \usage{
-\method{add_probs}{survreg}(tb, fit, q, name = NULL,
-  yhatName = "median_pred", comparison = "<", confint = TRUE,
-  alpha = 0.05, ...)
+\method{add_probs}{survreg}(
+  tb,
+  fit,
+  q,
+  name = NULL,
+  yhatName = "median_pred",
+  comparison = "<",
+  confint = TRUE,
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

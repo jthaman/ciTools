@@ -5,8 +5,7 @@
 \title{Confidence Intervals for the Mean Survival Time of Accelerated
 Failure Time Models.}
 \usage{
-\method{add_ci}{survreg}(tb, fit, alpha = 0.1, names = NULL,
-  yhatName = "mean_pred", ...)
+\method{add_ci}{survreg}(tb, fit, alpha = 0.1, names = NULL, yhatName = "mean_pred", ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data on which to form

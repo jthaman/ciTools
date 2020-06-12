@@ -4,9 +4,19 @@
 \alias{add_probs.lmerMod}
 \title{Response Probabilities for Linear Mixed Models}
 \usage{
-\method{add_probs}{lmerMod}(tb, fit, q, name = NULL, yhatName = "pred",
-  comparison = "<", type = "parametric", includeRanef = TRUE,
-  nSims = 10000, log_response = FALSE, ...)
+\method{add_probs}{lmerMod}(
+  tb,
+  fit,
+  q,
+  name = NULL,
+  yhatName = "pred",
+  comparison = "<",
+  type = "parametric",
+  includeRanef = TRUE,
+  nSims = 10000,
+  log_response = FALSE,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

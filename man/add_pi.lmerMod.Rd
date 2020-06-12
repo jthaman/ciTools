@@ -4,9 +4,18 @@
 \alias{add_pi.lmerMod}
 \title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
-\method{add_pi}{lmerMod}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", type = "parametric", includeRanef = TRUE,
-  log_response = FALSE, nSims = 10000, ...)
+\method{add_pi}{lmerMod}(
+  tb,
+  fit,
+  alpha = 0.05,
+  names = NULL,
+  yhatName = "pred",
+  type = "parametric",
+  includeRanef = TRUE,
+  log_response = FALSE,
+  nSims = 10000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data}

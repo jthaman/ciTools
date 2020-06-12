@@ -4,8 +4,16 @@
 \alias{add_probs.lm}
 \title{Response Level Probabilities for Linear Models}
 \usage{
-\method{add_probs}{lm}(tb, fit, q, name = NULL, yhatName = "pred",
-  comparison = "<", log_response = FALSE, ...)
+\method{add_probs}{lm}(
+  tb,
+  fit,
+  q,
+  name = NULL,
+  yhatName = "pred",
+  comparison = "<",
+  log_response = FALSE,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

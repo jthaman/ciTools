@@ -4,8 +4,7 @@
 \alias{add_quantile.glm}
 \title{Quantiles for the Response of a Generalized Linear Model}
 \usage{
-\method{add_quantile}{glm}(tb, fit, p, name = NULL, yhatName = "pred",
-  nSims = 2000, ...)
+\method{add_quantile}{glm}(tb, fit, p, name = NULL, yhatName = "pred", nSims = 2000, ...)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

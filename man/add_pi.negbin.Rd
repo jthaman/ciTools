@@ -4,8 +4,15 @@
 \alias{add_pi.negbin}
 \title{Prediction Intervals for Negative Binomial Linear Models}
 \usage{
-\method{add_pi}{negbin}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", nSims = 2000, ...)
+\method{add_pi}{negbin}(
+  tb,
+  fit,
+  alpha = 0.05,
+  names = NULL,
+  yhatName = "pred",
+  nSims = 2000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

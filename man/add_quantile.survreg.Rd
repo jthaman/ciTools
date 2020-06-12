@@ -5,8 +5,16 @@
 \title{Confidence Intervals for Predicted Survival Time Quantiles of
 Accelerated Failure Time Models}
 \usage{
-\method{add_quantile}{survreg}(tb, fit, p = 0.5, name = NULL,
-  yhatName = "median_pred", confint = TRUE, alpha = 0.1, ...)
+\method{add_quantile}{survreg}(
+  tb,
+  fit,
+  p = 0.5,
+  name = NULL,
+  yhatName = "median_pred",
+  confint = TRUE,
+  alpha = 0.1,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

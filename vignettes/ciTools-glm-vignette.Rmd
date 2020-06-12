@@ -12,7 +12,7 @@ vignette: >
 ```{r message=FALSE}
 library(tidyverse)
 library(ciTools)
-library(MASS) 
+library(MASS)
 library(arm)
 set.seed(20171102)
 ```
@@ -170,6 +170,7 @@ df1 <- add_ci(df, fit, names = c("lwr", "upr"), alpha = 0.1) %>%
 
 df2 <- add_ci(df, fit, type = "boot", names = c("lwr", "upr"), alpha = 0.1, nSims = 500) %>%
     mutate(type = "bootstrap")
+
 df <- bind_rows(df1, df2)
 ```
 
@@ -183,7 +184,7 @@ ggplot(df, aes(x = x, y = y)) +
 ```
 
 Our two confidence interval methods mostly agree, but the bootstrap
-method produces slightly wider intervals. 
+method produces slightly wider intervals.
 
 ```{r echo = F}
 df3 <- filter(df, type == "parametric")
@@ -207,7 +208,7 @@ ggplot(df4, aes(x = x, y = y)) +
     geom_jitter(height = 0.01) +
     geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
     geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
-    geom_line(aes(x = x , y = pred), size = 2)
+  geom_line(aes(x = x , y = pred...3), size = 2)
 ```
 
 If the sample size increases, we will find that the two estimates
@@ -286,7 +287,7 @@ $$
 \begin{equation}
 \label{eq:gauss-pi}
 g^{-1}(x'\beta) \pm t_{1-\alpha/2, n-p-1} \sqrt{\hat{\sigma}^2 +
-    \hat{\sigma}^2x'(X'X)^{-1}x} 
+    \hat{\sigma}^2x'(X'X)^{-1}x}
 \end{equation}
 $$
 
@@ -327,7 +328,7 @@ remind the user that precise quantiles cannot be formed for
 non-continuous distributions.
 
 ```{r }
-df_ints <- df %>% 
+df_ints <- df %>%
     add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
     add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
     print()
@@ -338,11 +339,11 @@ statistics are computed, appended to the data frame, and returned to
 the user as a tibble.
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center"}
-df_ints %>% 
+df_ints %>%
     ggplot(aes(x = x, y = y)) +
     geom_point(size = 2) +
     ggtitle("Poisson Regression", subtitle = "Model fit (black line), with prediction intervals (gray), confidence intervals (dark gray)") +
-    geom_line(aes(x = x, y = pred), size = 1.2) + 
+    geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.2)
 ```
@@ -355,8 +356,8 @@ argument in `add_pi` can help reduce some of this unsightliness.
 
 We may also wish to compute response-level probabilities and
 quantiles. `ciTools` can also handle these estimates with
-`add_probs()` and `add_quantile()` respectively. We use the same parametric 
-bootstrap approach for estimating quantiles and probabilities that we 
+`add_probs()` and `add_quantile()` respectively. We use the same parametric
+bootstrap approach for estimating quantiles and probabilities that we
 employed for `add_pi()`. Once again, an error message reminds the user
 that their support is not continuous.
 
@@ -423,16 +424,16 @@ Model Overdispersed Count Data?*
 ### Example
 
 Again, we generate fake data. The dispersion parameter is set to
-$5$ in the quasipoisson model. 
+$5$ in the quasipoisson model.
 
 
 ```{r }
 x <- runif(n = 100, min = 0, max = 2)
 mu <- exp(1 + x)
-y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1)) 
+y <- rnegbin(n = 100, mu = mu, theta = mu/(5 - 1))
 ```
 
-The data is over-dispersed: 
+The data is over-dispersed:
 
 ```{r }
 df <- data.frame(x = x, y = y)
@@ -445,11 +446,12 @@ for the range of a new observation:
 
 ```{r }
 df_ints <- add_ci(df, fit, names = c("lcb", "ucb"), alpha = 0.05) %>%
-    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) 
+    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000)
+```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center"}
 ggplot(df_ints, aes(x = x, y = y)) +
-    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") + 
+    ggtitle("Quasipoisson Regression", subtitle = "Model fit (black line), with Prediction intervals (gray), Confidence intervals (dark gray)") +
     geom_point(size = 2) +
     geom_line(aes(x = x, y = pred), size = 1.2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.4) +
@@ -519,7 +521,7 @@ knitr::kable(pois)
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(pois, aes(x=sample_size, y=cov_prob)) + 
+ggplot(pois, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -532,7 +534,7 @@ ggplot(pois, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(pois, aes(x=sample_size, y=cov_prob)) + 
+ggplot(pois, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -544,7 +546,7 @@ ggplot(pois, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(pois, aes(x=sample_size, y=int_width)) + 
+ggplot(pois, aes(x=sample_size, y=int_width)) +
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     xlab("Sample Size (log scale)") +
@@ -557,7 +559,7 @@ ggplot(pois, aes(x=sample_size, y=int_width)) +
 ### Negative Binomial
 
 A negative binomial model with log link function was fit with
-dispersion parameter $\theta = 4$. 
+dispersion parameter $\theta = 4$.
 
 $$
 y|x \sim \mathrm{NegBin}(\mu = \exp(1 + 2x), \theta = 4), \qquad x \in (1, 2)
@@ -586,7 +588,7 @@ knitr::kable(neg_bin)
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) + 
+ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -600,7 +602,7 @@ ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
 
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) + 
+ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -612,7 +614,7 @@ ggplot(neg_bin, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(neg_bin, aes(x=sample_size, y=int_width)) + 
+ggplot(neg_bin, aes(x=sample_size, y=int_width)) +
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 150, 200, 250, 500, 1000, 2000)) +
     xlab("Sample Size (log scale)") +
@@ -637,7 +639,7 @@ close, but consistently slightly below, the nominal level. In contrast
 to the results from the Poisson simulation, these coverage
 probabilities are within simulation error of the nominal
 level. Average interval widths tend to exhibit a high degree of
-variation. 
+variation.
 
 ```{r message=FALSE}
 gam <- read_csv("gamma_pi_results.csv") %>%
@@ -649,7 +651,7 @@ knitr::kable(gam)
 
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(gam, aes(x=sample_size, y=cov_prob)) + 
+ggplot(gam, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -663,7 +665,7 @@ ggplot(gam, aes(x=sample_size, y=cov_prob)) +
 
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(gam, aes(x=sample_size, y=cov_prob)) + 
+ggplot(gam, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -675,7 +677,7 @@ ggplot(gam, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(gam, aes(x=sample_size, y=int_width)) + 
+ggplot(gam, aes(x=sample_size, y=int_width)) +
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(100, 250, 500, 1000, 2000)) +
     xlab("Sample Size (log scale)") +
@@ -693,7 +695,7 @@ function does not drastically alter our prediction interval procedure,
 ### Gaussian with log link
 
 Gaussian prediction intervals may be determined parametrically by
-`ciTools`. The model we considered was 
+`ciTools`. The model we considered was
 
 $$
 y|x \sim \mathcal{N}(\mathrm{mean} = \exp(1 + x), \mathrm{sd} = 1) \qquad x \in (0,1)
@@ -714,7 +716,7 @@ knitr::kable(norm_log)
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(norm_log, aes(x=sample_size, y=cov_prob)) + 
+ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -727,7 +729,7 @@ ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(norm_log, aes(x=sample_size, y=cov_prob)) + 
+ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
     geom_point(size = 2) +
     geom_line(size = 1.5) +
     geom_errorbar(aes(ymin=cov_prob - 2*cov_prob_se, ymax = cov_prob + 2*cov_prob_se), width=.1) +
@@ -739,7 +741,7 @@ ggplot(norm_log, aes(x=sample_size, y=cov_prob)) +
 ```
 
 ```{r fig.width = 6, fig.heither = 4, fig.align="center", echo = F}
-ggplot(norm_log, aes(x=sample_size, y=int_width)) + 
+ggplot(norm_log, aes(x=sample_size, y=int_width)) +
     geom_errorbar(aes(ymin=int_width - 2*int_width_se, ymax = int_width + 2*int_width_se), width=.1) +
     scale_x_log10(breaks = c(20, 30, 50, 100, 250, 500, 1000, 2000)) +
     xlab("Sample Size (log scale)") +
@@ -758,7 +760,7 @@ GLM. To date, we provide coverage for many common GLMs used by
 practitioners. For the models covered by `ciTools`, our simulations
 show that our confidence and prediction intervals are trustworthy.
 
-There is still work to be done on this portion of `ciTools`. We would like to 
+There is still work to be done on this portion of `ciTools`. We would like to
 
 1. Include more parametric methods for prediction
 intervals.
@@ -782,4 +784,3 @@ that contain $95\%$ of the simulated data.
 ```{r}
 sessionInfo()
 ```
-

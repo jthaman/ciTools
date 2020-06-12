@@ -4,8 +4,15 @@
 \alias{add_pi.glm}
 \title{Prediction Intervals for Generalized Linear Models}
 \usage{
-\method{add_pi}{glm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", nSims = 2000, ...)
+\method{add_pi}{glm}(
+  tb,
+  fit,
+  alpha = 0.05,
+  names = NULL,
+  yhatName = "pred",
+  nSims = 2000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

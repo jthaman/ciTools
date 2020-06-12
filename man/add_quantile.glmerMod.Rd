@@ -4,9 +4,17 @@
 \alias{add_quantile.glmerMod}
 \title{Response Quantiles for Generalized Linear Mixed Model Predictions}
 \usage{
-\method{add_quantile}{glmerMod}(tb, fit, p, name = NULL,
-  yhatName = "pred", type = "boot", includeRanef = TRUE,
-  nSims = 10000, ...)
+\method{add_quantile}{glmerMod}(
+  tb,
+  fit,
+  p,
+  name = NULL,
+  yhatName = "pred",
+  type = "boot",
+  includeRanef = TRUE,
+  nSims = 10000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

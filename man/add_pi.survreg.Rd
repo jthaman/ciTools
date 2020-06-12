@@ -4,8 +4,16 @@
 \alias{add_pi.survreg}
 \title{Prediction Intervals for Accelerated Failure Time Models}
 \usage{
-\method{add_pi}{survreg}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "median_pred", nSims = 10000, method = "naive", ...)
+\method{add_pi}{survreg}(
+  tb,
+  fit,
+  alpha = 0.05,
+  names = NULL,
+  yhatName = "median_pred",
+  nSims = 10000,
+  method = "naive",
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

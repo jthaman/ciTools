@@ -4,8 +4,15 @@
 \alias{add_quantile.lm}
 \title{Quantiles for the Response of a Linear Model}
 \usage{
-\method{add_quantile}{lm}(tb, fit, p, name = NULL, yhatName = "pred",
-  log_response = FALSE, ...)
+\method{add_quantile}{lm}(
+  tb,
+  fit,
+  p,
+  name = NULL,
+  yhatName = "pred",
+  log_response = FALSE,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

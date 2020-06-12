@@ -4,8 +4,15 @@
 \alias{add_ci.lm}
 \title{Confidence Intervals for Linear Model Predictions}
 \usage{
-\method{add_ci}{lm}(tb, fit, alpha = 0.05, names = NULL,
-  yhatName = "pred", log_response = FALSE, ...)
+\method{add_ci}{lm}(
+  tb,
+  fit,
+  alpha = 0.05,
+  names = NULL,
+  yhatName = "pred",
+  log_response = FALSE,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame.}

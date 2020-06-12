@@ -4,8 +4,16 @@
 \alias{add_probs.negbin}
 \title{Response Probabilities for Negative Binomial Models}
 \usage{
-\method{add_probs}{negbin}(tb, fit, q, name = NULL, yhatName = "pred",
-  comparison = "<", nSims = 2000, ...)
+\method{add_probs}{negbin}(
+  tb,
+  fit,
+  q,
+  name = NULL,
+  yhatName = "pred",
+  comparison = "<",
+  nSims = 2000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}

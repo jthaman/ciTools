@@ -4,8 +4,16 @@
 \alias{add_probs.glm}
 \title{Response Probabilities for Generalized Linear Models}
 \usage{
-\method{add_probs}{glm}(tb, fit, q, name = NULL, yhatName = "pred",
-  comparison = "<", nSims = 2000, ...)
+\method{add_probs}{glm}(
+  tb,
+  fit,
+  q,
+  name = NULL,
+  yhatName = "pred",
+  comparison = "<",
+  nSims = 2000,
+  ...
+)
 }
 \arguments{
 \item{tb}{A tibble or data frame of new data.}
