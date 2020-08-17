@@ -80,14 +80,14 @@ that we're all on the same page. To an extent, I'll follow the
 notation used by the author of `lme4` (Doug Bates) in his 2010 book on
 the package.
 
-$$\texdff{Y}|\texdff{G} = \texdff{g} \sim N(X\beta + Z\texdff{g}, \sigma^2I)$$
-$$\texdff{G} \sim N(0, \sigma_G^2I)$$
+$$\textbf{Y}|\textbf{G} = \textbf{g} \sim N(X\beta + Z\textbf{g}, \sigma^2I)$$
+$$\textbf{G} \sim N(0, \sigma_G^2I)$$
 
-In the above, $\texdff{Y}$ is our response vector for a particular
+In the above, $\textbf{Y}$ is our response vector for a particular
 group, $X$ is the design matrix containing fixed effects, $\beta$ is
 the vector of fixed effects parameters, $Z$ is the random effects
-matrix, $\texdff{G}$ is the vector of random effects with realizations
-$\texdff{G}$, $\sigma^2$ is the within-group variance, and
+matrix, $\textbf{G}$ is the vector of random effects with realizations
+$\textbf{G}$, $\sigma^2$ is the within-group variance, and
 $\sigma_G^2$ is the between-group variance, and $I$ is the identity
 matrix.
 
