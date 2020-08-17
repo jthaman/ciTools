@@ -42,14 +42,14 @@
 #' the comparison \code{=} is used in the Gaussian GLM, an informative
 #' error is returned.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
 #' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
-#'     tibble
+#'     dataframe.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param comparison A character vector of length one. If
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is
@@ -60,7 +60,7 @@
 #'     draws to make if the model is Poisson.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted values and
+#' @return A dataframe, \code{df}, with predicted values and
 #'     probabilities attached.
 #'
 #' @seealso \code{\link{add_ci.glm}} for confidence intervals for
@@ -91,7 +91,7 @@
 #' add_probs(cars, fit2, q = 1, comparison = "=")
 #'
 #' @export
-add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
+add_probs.glm <- function(df, fit, q, name = NULL, yhatName = "pred",
                           comparison = "<", nSims = 2000, ...){
 
     if (is.null(name) & (comparison == "<"))
@@ -105,7 +105,7 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
 
-    if ((name %in% colnames(tb)))
+    if ((name %in% colnames(df)))
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
     if (fit$family$family %in% c("poisson", "quasipoisson"))
         warning("The response is not continuous, so estimated probabilities are only approximate")
@@ -113,26 +113,26 @@ add_probs.glm <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (fit$family$family == "binomial"){
         if(max(fit$prior.weights) == 1){ #distinguish between Bernoulli and binomial regression
             warning("Equivalent to Pr(Y = 0) (or Pr(Y = 1) if comparison = '>' is specified)")
-            probs_logistic(tb, fit, q, name, yhatName, comparison)
+            probs_logistic(df, fit, q, name, yhatName, comparison)
 
         } else {
             warning("Treating weights as indicating the number of trials for a
                   binomial regression where the response is the proportion of successes")
-            sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+            sim_probs_other(df, fit, q, name, yhatName, nSims, comparison)
         }
     } else if (fit$family$family == "gaussian"){
-        probs_gaussian(tb, fit, q, name, yhatName, comparison)
+        probs_gaussian(df, fit, q, name, yhatName, comparison)
     } else if (fit$family$family %in% c("poisson", "qausipoisson", "Gamma")){
-        sim_probs_other(tb, fit, q, name, yhatName, nSims, comparison)
+        sim_probs_other(df, fit, q, name, yhatName, nSims, comparison)
     } else {
         stop("Unsupported family")
     }
 }
 
-probs_gaussian <- function(tb, fit, q, name, yhatName, comparison){
+probs_gaussian <- function(df, fit, q, name, yhatName, comparison){
     sigma_sq <- summary(fit)$dispersion
     inverselink <- fit$family$linkinv
-    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    out <- predict(fit, newdata = df, se.fit = TRUE)
     se_terms <- out$se.fit
     se_global <- sqrt(sigma_sq + se_terms^2)
     t_quantile <- (q - inverselink(out$fit)) / se_global
@@ -143,28 +143,28 @@ probs_gaussian <- function(tb, fit, q, name, yhatName, comparison){
         t_prob <- 1 - pt(q = t_quantile, df = fit$df.residual)
     if (comparison == "=")
         stop("The response is assumed to be continuous -- the probability of this event is 0")
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- inverselink(out$fit)
-    tb[[name]] <- t_prob
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- inverselink(out$fit)
+    df[[name]] <- t_prob
+    data.frame(df)
 }
 
-probs_logistic <- function(tb, fit, q, name, yhatName, comparison){
-    out <- predict(fit, newdata = tb, type = "response")
+probs_logistic <- function(df, fit, q, name, yhatName, comparison){
+    out <- predict(fit, newdata = df, type = "response")
     if (((comparison == "=") && (q == 0)) || ((comparison == "<") && (q < 1) && (q > 0)))
         probs <- 1 - out
     else
         probs <- out
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[name]] <- probs
+    data.frame(df)
 }
 
-sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
+sim_probs_other <- function(df, fit, q, name, yhatName, nSims, comparison){
 
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
+    out <- predict(fit, newdata = df, type = "response")
+    sim_response <- get_sim_response(df = df, fit = fit, nSims = nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
 
@@ -172,9 +172,9 @@ sim_probs_other <- function(tb, fit, q, name, yhatName, nSims, comparison){
         out <- out * fit$prior.weights
         warning("For binomial models, add_probs's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[name]] <- probs
+    data.frame(df)
 
 }

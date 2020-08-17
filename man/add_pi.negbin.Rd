@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Negative Binomial Linear Models}
 \usage{
 \method{add_pi}{negbin}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{negbin}.}
 
@@ -36,7 +36,7 @@ simulations to run.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{

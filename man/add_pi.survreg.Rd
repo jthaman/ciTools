@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Accelerated Failure Time Models}
 \usage{
 \method{add_pi}{survreg}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -16,7 +16,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{survreg}.}
 
@@ -41,7 +41,7 @@ prediction intervals. Must be one of either \code{"naive"} or
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted medians, upper and lower
+A dataframe, \code{df}, with predicted medians, upper and lower
     prediction bounds attached.
 }
 \description{
@@ -79,18 +79,18 @@ prediction intervals. Inspect any warning messages given from
 }
 \examples{
 ## Define a data set.
-tb <- survival::stanford2
+df <- survival::stanford2
 ## remove a covariate with missing values.
-tb <- tb[, 1:4]
+df <- df[, 1:4]
 ## next, create the Surv object inside the survreg call:
 fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                         data = tb, dist = "lognormal")
-add_pi(tb, fit, alpha = 0.1, names = c("lwr", "upr"))
+                         data = df, dist = "lognormal")
+add_pi(df, fit, alpha = 0.1, names = c("lwr", "upr"))
 
 ## Try a different model:
 fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                          data = tb, dist = "weibull")
-add_pi(tb, fit2, alpha = 0.1, names = c("lwr", "upr"))
+                          data = df, dist = "weibull")
+add_pi(df, fit2, alpha = 0.1, names = c("lwr", "upr"))
 
 }
 \references{

@@ -2,7 +2,7 @@ Package: ciTools
 Type: Package
 Title: Confidence or Prediction Intervals, Quantiles, and Probabilities
     for Statistical Models
-Version: 0.5.2
+Version: 0.6.0
 Authors@R: c(person("John", "Haman", role = c("cre", "aut"),
     email = "jhaman@ida.org"),
     person("Matthew", "Avery", role = "aut",
@@ -28,15 +28,13 @@ Imports:
     methods,
     stats,
     survival,
-    tibble,
     utils
 Suggests:
-    broom,
     here,
+    ggplot2,
     knitr,
     rmarkdown,
-    SPREDA,
-    tidyverse
+    SPREDA
 VignetteBuilder:
     rmarkdown,
     knitr

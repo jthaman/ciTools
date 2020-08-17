@@ -4,10 +4,10 @@
 \alias{add_quantile}
 \title{Add Regression Quantiles to Data Frames}
 \usage{
-add_quantile(tb, fit, p = 0.5, name = NULL, yhatName = "pred", ...)
+add_quantile(df, fit, p = 0.5, name = NULL, yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lm}, \code{glm}, or
 \code{lmerMod}. Predictions are made with this object.}
@@ -18,14 +18,14 @@ be between 0 and 1.}
 \item{name}{\code{NULL} or a string. If \code{NULL},
 quantiles automatically will be named by \code{add_quantile()},
 otherwise, the quantiles will be named \code{name} in the
-returned tibble.}
+returned data frame.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{...}{Additional arguments}
 }
 \value{
-A tibble, \code{tb}, with predicted values and
+A dataframe, \code{df}, with predicted values and
     level-\emph{p} quantiles attached.
 }
 \description{
@@ -33,8 +33,8 @@ This is a generic function to append regression quantiles to a data
 frame. A regression quantile \emph{q} is a point such that
 \eqn{Pr(Response | Covariates < q) = p}. These quantiles are
 generated for the fitted value of each observation in
-\code{tb}. Quantiles are then appended to \code{tb} and returned to
-the user as a tibble.
+\code{df}. Quantiles are then appended to \code{df} and returned to
+the user as a data frame.
 }
 \details{
 For more specific information about the arguments that are applicable

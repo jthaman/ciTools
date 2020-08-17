@@ -26,7 +26,7 @@
 #' prediction intervals may be simulated via a parametric bootstrap
 #' using the function \code{lme4.simulate()}.
 #'
-#' @param tb A tibble or data frame of new data
+#' @param df A data frame of new data
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -49,7 +49,7 @@
 #'     scale in the model fit. If \code{TRUE}, prediction intervals
 #'     will be returned on the response scale.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.lmerMod}} for confidence intervals
@@ -73,7 +73,7 @@
 #'
 #' @export
 
-add_pi.lmerMod <- function(tb, fit,
+add_pi.lmerMod <- function(df, fit,
                            alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "parametric", includeRanef = TRUE,
                            log_response = FALSE, nSims = 10000, ...) {
@@ -81,68 +81,68 @@ add_pi.lmerMod <- function(tb, fit,
     names[1] <- paste("LPB", alpha/2, sep = "")
     names[2] <- paste("UPB", 1 - alpha/2, sep = "")
   }
-  if ((names[1] %in% colnames(tb))) {
+  if ((names[1] %in% colnames(df))) {
     warning ("These PIs may have already been appended to your dataframe. Overwriting.")
   }
 
   if(type == "parametric")
-        parametric_pi_lmermod(tb, fit, alpha, names, includeRanef, log_response, yhatName)
+        parametric_pi_lmermod(df, fit, alpha, names, includeRanef, log_response, yhatName)
     else if(type == "boot")
-        boot_pi_lmermod(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
+        boot_pi_lmermod(df, fit, alpha, names, includeRanef, nSims, log_response, yhatName)
     else
         stop("Incorrect type specified!")
 
 }
 
 
-parametric_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, log_response, yhatName){
+parametric_pi_lmermod <- function(df, fit, alpha, names, includeRanef, log_response, yhatName){
 
     rdf <- get_resid_df_mermod(fit)
-    seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
+    seGlobal <- get_pi_mermod_var(df, fit, includeRanef)
 
     if(includeRanef)
         re.form <- NULL
     else
         re.form <- NA
 
-    out <- predict(fit, tb, re.form = re.form)
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- out + qt(alpha/2,df = rdf) * seGlobal
-    tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
+    out <- predict(fit, df, re.form = re.form)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[names[1]]] <- out + qt(alpha/2,df = rdf) * seGlobal
+    df[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
     if (log_response){
-        tb[[yhatName]] <- exp(out)
-        tb[[names[1]]] <- exp(tb[[names[1]]])
-        tb[[names[2]]] <- exp(tb[[names[2]]])
+        df[[yhatName]] <- exp(out)
+        df[[names[1]]] <- exp(df[[names[1]]])
+        df[[names[2]]] <- exp(df[[names[2]]])
     }
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }
 
 
 
-boot_pi_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
+boot_pi_lmermod <- function(df, fit, alpha, names, includeRanef, nSims, log_response, yhatName) {
 
     if (includeRanef)
         reform = NULL
     else
         reform = NA
 
-    gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
+    gg <- simulate(fit, newdata = df, re.form = reform, nsim = nSims)
     gg <- as.matrix(gg)
     lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
     upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
 
-    out <- predict(fit, tb, re.form = reform)
+    out <- predict(fit, df, re.form = reform)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
 
     if (log_response){
-        tb[[yhatName]] <- exp(out)
-        tb[[names[1]]] <- exp(tb[[names[1]]])
-        tb[[names[2]]] <- exp(tb[[names[2]]])
+        df[[yhatName]] <- exp(out)
+        df[[names[1]]] <- exp(df[[names[1]]])
+        df[[names[2]]] <- exp(df[[names[2]]])
     }
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }

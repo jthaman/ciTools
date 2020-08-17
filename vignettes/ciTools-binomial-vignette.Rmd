@@ -13,11 +13,11 @@ vignette: >
 
 Logistic regression is most commonly used with a Bernoulli
 response. If $Y \sim Bernoulli(p)$, then $P(Y = 1) = p = 1 - P(Y =
-0)$. Logistic regression can be used to estimate $p|\textbf{x}$
-where $\textbf{x}$ is a collection of predictor variables. This is
+0)$. Logistic regression can be used to estimate $p|\texdff{x}$
+where $\texdff{x}$ is a collection of predictor variables. This is
 accomplished by assuming the relationship
 
-$$log(\frac{p}{1-p}) = \textbf{x}\beta$$
+$$log(\frac{p}{1-p}) = \texdff{x}\beta$$
 
 and then choosing $\beta$ to maximize the joint likelihood:
 
@@ -25,7 +25,7 @@ $$\Pi_i p_i^{y_i}(1-p_i)^{(1-y_i)}$$
 
 Note that the function linking the predictor variables to $p$ is
 called the logit function, which is what gives logistic regression
-its name. In $\textbf{R}$, this model can be fit using `glm` by
+its name. In $\texdff{R}$, this model can be fit using `glm` by
 specifying the options `family = "binomial"`.
 
 The binomial distribution is a generalization of the Bernoulli,
@@ -59,23 +59,21 @@ number of attempts. An example here might be instructive.
 
 ```{r message = F}
 set.seed(20171011)
-library(tidyverse)
+library(dplyr)
 library(ciTools)
-library(broom)
 ```
 
 ```{r}
-tb <- tibble(
+df <- data.frame(
   x = runif(30, -1, 1),
-  n = rbinom(30, 6, .8)
-  ) %>%
+  n = rbinom(30, 6, .8)) %>%
   mutate(y = rbinom(30, n, (exp(x)/(1 + exp(x)))))
 ```
 
-Consider the data set, `tb`, given below.
+Consider the data set, `df`, given below.
 
 ```{r }
-tb
+df
 ```
 
 Here, $x$ is some predictor variable related to the number of
@@ -83,44 +81,44 @@ successes, $y$, for the given number of attempts, $n$. We can fit a
 logistic regression to this data to estimate this relationship:
 
 ```{r }
-glm(y/n ~ x, data = tb, family = "binomial", weights = n) %>% tidy()
+glm(y/n ~ x, data = df, family = "binomial", weights = n)
 ```
 
 We get the same results using different syntax:
 
 ```{r }
-tbProb <- mutate(tb, prob = y/n)
-tbProb
-glm(prob ~ x, data = tbProb, family = "binomial", weights = n) %>% tidy()
+dfProb <- mutate(df, prob = y/n)
+dfProb
+glm(prob ~ x, data = dfProb, family = "binomial", weights = n)
 ```
 
 Notably, these fitted values are equivalent to what we would get if
 we were to transform each of our binomial responses into equivalent
 sets of Bernoulli trials. For example, the first observation in
-`tb` is a single success out of 5 attempts with a covariate of
-`r round(tb$x[1], 3)`.  Another way to think of this is five Bernoulli
+`df` is a single success out of 5 attempts with a covariate of
+`r round(df$x[1], 3)`.  Another way to think of this is five Bernoulli
 trials, one successful, four unsuccessful, all with a covariate
-value of `r round(tb$x[1], 3)`.
+value of `r round(df$x[1], 3)`.
 
 ```{r echo = F}
 get_box <- function(myRow){
-    tibble(x = rep(myRow$x, myRow$n),
-           y = c(rep(1, myRow$y), rep(0, myRow$n - myRow$y)))
+  data.frame(x = rep(myRow$x, myRow$n),
+             y = c(rep(1, myRow$y), rep(0, myRow$n - myRow$y)))
 }
 
 out <- NULL
-for(i in 1:nrow(tb)){
-  out <- bind_rows(out, get_box(tb[i,]))
+for(i in 1:nrow(df)){
+  out <- bind_rows(out, get_box(df[i,]))
 }
 
-tbTall <- out
+dfTall <- out
 ```
 
 For example:
 
 ```{r }
-tbTall
-glm(y ~ x, data = tbTall, family = "binomial") %>% tidy()
+dfTall
+glm(y ~ x, data = dfTall, family = "binomial")
 ```
 
 Note that while the degrees of freedom, information criteria,
@@ -157,13 +155,13 @@ intervals, quantiles, or probabilities. For example, it may be interesting
 to consider the 90 percent quantile for a binomial regression:
 
 ```{r echo = F}
-fit <- glm(y/n ~ x, data = tb, family = "binomial", weights = n)
+fit <- glm(y/n ~ x, data = df, family = "binomial", weights = n)
 ```
 
 
 
 ```{r }
-add_quantile(tb, fit, p = 0.9)
+add_quantile(df, fit, p = 0.9)
 ```
 
 There is a lot to unpack here, including three warning

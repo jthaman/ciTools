@@ -25,11 +25,11 @@
 #' determine these probabilities. To do so, use the option \code{type
 #' = "boot"}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs}, otherwise, the
-#'     probabilities will be named \code{name} in the returned tibble.
+#'     probabilities will be named \code{name} in the returned data frame.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param q A real number. A quantile of the conditional response
 #'     distribution.
@@ -46,13 +46,13 @@
 #' @param comparison A character vector of length one. Must be either
 #'     \code{"<"} or \code{">"}. If \code{comparison = "<"}, then
 #'     \eqn{Pr(Y|x < q)} is calculated for each x in the new data,
-#'     \code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.
+#'     \code{df}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.
 #' @param log_response A logical. Set to \code{TRUE} if your model is
 #'     a log-linear mixed model: \eqn{log(Y) = X \beta + Z \gamma +
 #'     \epsilon}.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predictions and probabilities
+#' @return A dataframe, \code{df}, with predictions and probabilities
 #'     attached.
 #'
 #' @seealso \code{\link{add_ci.lmerMod}} for confidence intervals
@@ -78,7 +78,7 @@
 #' @export
 
 
-add_probs.lmerMod <- function(tb, fit,
+add_probs.lmerMod <- function(df, fit,
                               q, name = NULL, yhatName = "pred",
                               comparison = "<", type = "parametric",
                               includeRanef = TRUE,
@@ -92,32 +92,32 @@ add_probs.lmerMod <- function(tb, fit,
     if (log_response)
         q <- log(q)
 
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(df))) {
         warning ("These Probabilities may have already been appended to your dataframe. Overwriting.")
     }
 
     if (type == "parametric")
-        parametric_probs_lmermod(tb, fit, q, name, includeRanef, comparison, yhatName)
+        parametric_probs_lmermod(df, fit, q, name, includeRanef, comparison, yhatName)
     else if (type == "boot")
-        boot_probs_lmermod(tb, fit, q, name, includeRanef, comparison, nSims, yhatName)
+        boot_probs_lmermod(df, fit, q, name, includeRanef, comparison, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 
 }
 
-parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, yhatName){
+parametric_probs_lmermod <- function(df, fit, q, name, includeRanef, comparison, yhatName){
 
     rdf <- get_resid_df_mermod(fit)
-    seGlobal <- get_pi_mermod_var(tb, fit, includeRanef)
+    seGlobal <- get_pi_mermod_var(df, fit, includeRanef)
 
     if(includeRanef)
         re.form <- NULL
     else
         re.form <- NA
 
-    out <- predict(fit, tb, re.form = re.form)
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
+    out <- predict(fit, df, re.form = re.form)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
 
     t_quantile <- (q - out) / seGlobal
 
@@ -126,24 +126,24 @@ parametric_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison,
     if (comparison == ">")
         t_prob <- 1 - pt(q = t_quantile, df = rdf)
 
-    tb[[name]] <- t_prob
-    tibble::as_data_frame(tb)
+    df[[name]] <- t_prob
+    data.frame(df)
 }
 
 
-boot_probs_lmermod <- function(tb, fit, q, name, includeRanef, comparison, nSims, yhatName){
+boot_probs_lmermod <- function(df, fit, q, name, includeRanef, comparison, nSims, yhatName){
 
     if (includeRanef)
         reform = NULL
     else
         reform = NA
 
-    gg <- simulate(fit, newdata = tb, re.form = reform, nsim = nSims)
+    gg <- simulate(fit, newdata = df, re.form = reform, nsim = nSims)
     gg <- as.matrix(gg)
     probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- predict(fit, tb, re.form = reform)
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- predict(fit, df, re.form = reform)
+    df[[name]] <- probs
+    data.frame(df)
 }

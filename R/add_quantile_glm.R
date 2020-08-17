@@ -35,7 +35,7 @@
 #' those of \code{add_quantile.lm}. If a different link function is
 #' used, the appropriate inverse transformation is applied.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glm}. Predictions are made with
 #'     this object.
 #' @param p A real number between 0 and 1. Sets the probability level
@@ -47,7 +47,7 @@
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and level
+#' @return A dataframe, \code{df}, with predicted values and level
 #'     \emph{p} quantiles attached.
 #'
 #' @seealso \code{\link{add_ci.glm}} for confidence intervals for
@@ -72,13 +72,13 @@
 #'
 #' @export
 
-add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+add_quantile.glm <- function(df, fit, p, name = NULL, yhatName = "pred",
                              nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
         name <- paste("quantile", p, sep="")
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(df))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
@@ -95,40 +95,40 @@ add_quantile.glm <- function(tb, fit, p, name = NULL, yhatName = "pred",
         warning("The response is not continuous, so estimated quantiles are only approximate")
 
     if (fit$family$family == "gaussian"){
-        quant_gaussian(tb, fit, p, name, yhatName)}
+        quant_gaussian(df, fit, p, name, yhatName)}
     else if((fit$family$family %in% c("poisson", "quasipoisson", "Gamma", "binomial")))
-        sim_quantile_other(tb, fit, p, name, yhatName, nSims)
+        sim_quantile_other(df, fit, p, name, yhatName, nSims)
     else
         stop("Unsupported family")
 }
 
-quant_gaussian <- function(tb, fit, p, name, yhatName){
+quant_gaussian <- function(df, fit, p, name, yhatName){
     sigma_sq <- summary(fit)$dispersion
     inverselink <- fit$family$linkinv
-    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    out <- predict(fit, newdata = df, se.fit = TRUE)
     se_terms <- out$se.fit
     t_quant <- qt(p = p, df = fit$df.residual, lower.tail = TRUE)
     se_global <- sqrt(sigma_sq + se_terms^2)
     quant <- inverselink(out$fit) + t_quant * se_global
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- inverselink(out$fit)
-    tb[[name]] <- quant
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- inverselink(out$fit)
+    df[[name]] <- quant
+    data.frame(df)
 }
 
-sim_quantile_other <- function(tb, fit, p, name, yhatName, nSims){
+sim_quantile_other <- function(df, fit, p, name, yhatName, nSims){
 
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
+    out <- predict(fit, newdata = df, type = "response")
+    sim_response <- get_sim_response(df = df, fit = fit, nSims = nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
       warning("For binomial models, add_quantile's column of fitted values reflect E(Y|X) rather than typical default for logistic regression, pHat")
     }
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- quants
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[name]] <- quants
+    data.frame(df)
 }

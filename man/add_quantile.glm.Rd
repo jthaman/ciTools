@@ -4,10 +4,10 @@
 \alias{add_quantile.glm}
 \title{Quantiles for the Response of a Generalized Linear Model}
 \usage{
-\method{add_quantile}{glm}(tb, fit, p, name = NULL, yhatName = "pred", nSims = 2000, ...)
+\method{add_quantile}{glm}(df, fit, p, name = NULL, yhatName = "pred", nSims = 2000, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{glm}. Predictions are made with
 this object.}
@@ -27,7 +27,7 @@ to use.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level
+A dataframe, \code{df}, with predicted values and level
     \emph{p} quantiles attached.
 }
 \description{

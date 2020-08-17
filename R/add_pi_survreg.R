@@ -48,7 +48,7 @@
 #' prediction intervals. Inspect any warning messages given from
 #' \code{survreg}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{survreg}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -65,7 +65,7 @@
 #'     replicates if \code{method = "boot"}.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted medians, upper and lower
+#' @return A dataframe, \code{df}, with predicted medians, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
@@ -80,22 +80,22 @@
 #'
 #' @examples
 #' ## Define a data set.
-#' tb <- survival::stanford2
+#' df <- survival::stanford2
 #' ## remove a covariate with missing values.
-#' tb <- tb[, 1:4]
+#' df <- df[, 1:4]
 #' ## next, create the Surv object inside the survreg call:
 #' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                          data = tb, dist = "lognormal")
-#' add_pi(tb, fit, alpha = 0.1, names = c("lwr", "upr"))
+#'                          data = df, dist = "lognormal")
+#' add_pi(df, fit, alpha = 0.1, names = c("lwr", "upr"))
 #'
 #' ## Try a different model:
 #' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                           data = tb, dist = "weibull")
-#' add_pi(tb, fit2, alpha = 0.1, names = c("lwr", "upr"))
+#'                           data = df, dist = "weibull")
+#' add_pi(df, fit2, alpha = 0.1, names = c("lwr", "upr"))
 #'
 #' @export
 
-add_pi.survreg <- function(tb, fit, alpha = 0.05,
+add_pi.survreg <- function(df, fit, alpha = 0.05,
                            names = NULL,
                            yhatName = "median_pred",
                            nSims = 10000,
@@ -107,7 +107,7 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
 
-    if ((names[1] %in% colnames(tb)))
+    if ((names[1] %in% colnames(df)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
 
     if (!(fit$dist %in%
@@ -118,28 +118,28 @@ add_pi.survreg <- function(tb, fit, alpha = 0.05,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
-    if(any(is.na(tb)))
-        stop("Check tb for missingness")
+    if(any(is.na(df)))
+        stop("Check df for missingness")
 
     if (method == "naive")
-        pi_survreg_naive(tb, fit, alpha, names, yhatName)
+        pi_survreg_naive(df, fit, alpha, names, yhatName)
     else if (method == "boot")
-        sim_pi_survreg_boot(tb, fit, alpha, names, yhatName, nSims)
+        sim_pi_survreg_boot(df, fit, alpha, names, yhatName, nSims)
     else
         stop("unrecognized method.")
 }
 
-pi_survreg_naive <- function(tb, fit, alpha, names, yhatName){
-    med <- predict(fit, tb, p = 0.5, type = "quantile")
-    lwr <- predict(fit, tb, p = alpha / 2, type = "quantile")
-    upr <- predict(fit, tb, p = 1 - alpha / 2, type = "quantile")
+pi_survreg_naive <- function(df, fit, alpha, names, yhatName){
+    med <- predict(fit, df, p = 0.5, type = "quantile")
+    lwr <- predict(fit, df, p = alpha / 2, type = "quantile")
+    upr <- predict(fit, df, p = 1 - alpha / 2, type = "quantile")
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- med
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- med
 
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }
 
 ## Loglogistic distribution functions (taken from SPREDA library)
@@ -162,7 +162,7 @@ dsev <- function(z) {
     exp(z-exp(z))
 }
 
-sim_surv_coefs <- function(tb, fit, nSims){
+sim_surv_coefs <- function(df, fit, nSims){
     vcov.hat <- vcov(fit)
     beta.hat <- coef(fit)
     params <- matrix(NA,
@@ -173,10 +173,10 @@ sim_surv_coefs <- function(tb, fit, nSims){
     params
 }
 
-get_sim_response_surv_boot <- function(tb, fit, params){
+get_sim_response_surv_boot <- function(df, fit, params){
     nSims <- dim(params)[1]
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit, data = tb)
+    nPreds <- NROW(df)
+    modmat <- model.matrix(fit, data = df)
     distr <- fit$dist
     sim_response <- matrix(0, ncol = nSims, nrow = nPreds)
     scale <- fit$scale
@@ -200,23 +200,23 @@ get_sim_response_surv_boot <- function(tb, fit, params){
     sim_response
 }
 
-sim_pi_survreg_boot <- function(tb, fit, alpha, names, yhatName, nSims){
+sim_pi_survreg_boot <- function(df, fit, alpha, names, yhatName, nSims){
 
-    out <- predict(fit, newdata = tb, type = "quantile", p = 0.5)
+    out <- predict(fit, newdata = df, type = "quantile", p = 0.5)
 
-    params <- sim_surv_coefs(tb = tb,
+    params <- sim_surv_coefs(df = df,
                              fit = fit,
                              nSims = nSims)
 
-    sim_response <- get_sim_response_surv_boot(tb, fit, params)
+    sim_response <- get_sim_response_surv_boot(df, fit, params)
 
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
 
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }

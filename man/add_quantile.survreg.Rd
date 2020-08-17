@@ -6,7 +6,7 @@
 Accelerated Failure Time Models}
 \usage{
 \method{add_quantile}{survreg}(
-  tb,
+  df,
   fit,
   p = 0.5,
   name = NULL,
@@ -17,7 +17,7 @@ Accelerated Failure Time Models}
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{survreg}. Predictions are made
 with this object.}
@@ -32,7 +32,7 @@ of the quantiles.}
 \item{yhatName}{A string. Name of the vector of predictions.}
 
 \item{confint}{A logical. If \code{TRUE}, confidence intervals for
-the quantiles are also appended to \code{tb}.}
+the quantiles are also appended to \code{df}.}
 
 \item{alpha}{A number. Controls the confidence level of the
 confidence intervals if \code{confint = TRUE}.}
@@ -40,7 +40,7 @@ confidence intervals if \code{confint = TRUE}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted medians, level \eqn{p}
+A dataframe, \code{df}, with predicted medians, level \eqn{p}
     quantiles, and confidence intervals attached.
 }
 \description{
@@ -77,20 +77,20 @@ confidence intervals. Inspect any warning messages given from
 }
 \examples{
 ## Define a data set:
-tb <- survival::stanford2
+df <- survival::stanford2
 ## remove a covariate with missing values:
-tb <- tb[, 1:4]
+df <- df[, 1:4]
 ## next, create the Surv object inside the survreg call:
 fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                         data = tb, dist = "lognormal")
+                         data = df, dist = "lognormal")
 ## Calculate the level 0.75 quantile wit CIs for that quantile
-add_quantile(tb, fit, p = 0.75, name = c("quant", "lwr", "upr"))
+add_quantile(df, fit, p = 0.75, name = c("quant", "lwr", "upr"))
 
 ## Try a weibull model for the same data:
 fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                          data = tb, dist = "weibull")
+                          data = df, dist = "weibull")
 ## Calculate the level 0.75 quantile with CIs for the quantile
-add_quantile(tb, fit2, p = 0.75, name = c("quant", "lwr", "upr"))
+add_quantile(df, fit2, p = 0.75, name = c("quant", "lwr", "upr"))
 
 }
 \references{

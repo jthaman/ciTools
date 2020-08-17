@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Linear Model Predictions}
 \usage{
 \method{add_ci}{lm}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame.}
+\item{df}{A data frame.}
 
 \item{fit}{An object of class \code{lm}. Predictions are made with this
 object.}
@@ -30,7 +30,7 @@ named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the vector of the predictions
-made for each observation in tb}
+made for each observation in df}
 
 \item{log_response}{Logical. Default is \code{FALSE}. If
 \code{TRUE}, confidence intervals will be generated for the
@@ -40,7 +40,7 @@ X\beta + \epsilon}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{
@@ -51,7 +51,7 @@ to \code{add_ci}.
 \details{
 Confidence intervals for \code{lm} objects are calculated
 parametrically. This function is essentially a wrapper for
-\code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
+\code{predict(fit, df, interval = "confidence")} if \code{fit} is a
 linear model. If \code{log_response = TRUE}, confidence intervals
 for the response are calculated using Wald's Method. See Meeker and
 Escobar (1998) for details.
@@ -64,7 +64,7 @@ fit <- lm(dist ~ speed, data = cars)
 add_ci(cars, fit)
 # Try a different confidence level
 add_ci(cars, fit, alpha = 0.5)
-# Try custom names for the confidence bounds 
+# Try custom names for the confidence bounds
 add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 
 }

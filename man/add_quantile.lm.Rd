@@ -5,7 +5,7 @@
 \title{Quantiles for the Response of a Linear Model}
 \usage{
 \method{add_quantile}{lm}(
-  tb,
+  df,
   fit,
   p,
   name = NULL,
@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lm}. Predictions are made with
 this object.}
@@ -37,7 +37,7 @@ original response, \eqn{Y}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level -
+A dataframe, \code{df}, with predicted values and level -
     \emph{p} quantiles attached.
 }
 \description{

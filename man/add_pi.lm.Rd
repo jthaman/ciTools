@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Model Predictions}
 \usage{
 \method{add_pi}{lm}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class lm. Predictions are made with this
 object.}
@@ -39,7 +39,7 @@ be on the scale of the original response, Y.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{
@@ -50,7 +50,7 @@ to \code{add_pi}.
 \details{
 Prediction intervals for \code{lm} objects are calculated
 parametrically. This function is essentially just a wrapper for
-\code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
+\code{predict(fit, df, interval = "prediction")} if \code{fit} is a
 linear model. If \code{log_response = TRUE}, prediction intervals
 for the response are calculated parametrically, then the
 exponential function is applied to transform them to the original

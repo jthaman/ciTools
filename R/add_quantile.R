@@ -21,8 +21,8 @@
 #' frame. A regression quantile \emph{q} is a point such that
 #' \eqn{Pr(Response | Covariates < q) = p}. These quantiles are
 #' generated for the fitted value of each observation in
-#' \code{tb}. Quantiles are then appended to \code{tb} and returned to
-#' the user as a tibble.
+#' \code{df}. Quantiles are then appended to \code{df} and returned to
+#' the user as a data frame.
 #'
 #' For more specific information about the arguments that are applicable
 #' for each type of model, consult:
@@ -41,7 +41,7 @@
 #' distribution that determines a prediction interval, not the
 #' distribution that determines a confidence interval.
 
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
 #' @param p A double. A probability that determines the quantile. Must
@@ -49,10 +49,10 @@
 #' @param name \code{NULL} or a string. If \code{NULL},
 #'     quantiles automatically will be named by \code{add_quantile()},
 #'     otherwise, the quantiles will be named \code{name} in the
-#'     returned tibble.
+#'     returned data frame.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values and
+#' @return A dataframe, \code{df}, with predicted values and
 #'     level-\emph{p} quantiles attached.
 #'
 #' @examples
@@ -83,6 +83,6 @@
 #'
 #' @export
 
-add_quantile <- function(tb, fit, p = 0.5, name = NULL, yhatName = "pred", ...){
+add_quantile <- function(df, fit, p = 0.5, name = NULL, yhatName = "pred", ...){
     UseMethod("add_quantile", fit)
 }

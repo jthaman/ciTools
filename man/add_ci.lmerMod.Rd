@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{lmerMod}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -17,7 +17,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lmerMod}.}
 
@@ -51,7 +51,7 @@ replicates if \code{type = "boot"}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{

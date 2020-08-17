@@ -19,9 +19,9 @@
 #'
 #' This is a generic function to append prediction intervals to a data
 #' frame. A prediction interval is made for each observation in
-#' \code{tb} with respect to the model \code{fit}. These intervals are
-#' then appended to \code{tb} and returned to the user as a
-#' tibble. \code{fit} can be a linear, log-linear, linear mixed,
+#' \code{df} with respect to the model \code{fit}. These intervals are
+#' then appended to \code{df} and returned to the user as a
+#' data frame. \code{fit} can be a linear, log-linear, linear mixed,
 #' generalized linear, generalized linear mixed, or accelerated
 #' failure time model.
 #'
@@ -36,7 +36,7 @@
 #'   \item \code{\link{add_pi.survreg}} for accelerated failure time model prediction intervals
 #' }
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -48,7 +48,7 @@
 #'     named \code{piNames[2]}.
 #' @param yhatName A string. Name of the predictions vector.
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
 #' @examples
@@ -79,6 +79,6 @@
 #'
 #' @export
 
-add_pi <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
+add_pi <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...){
   UseMethod("add_pi", fit)
 }

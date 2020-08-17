@@ -24,9 +24,9 @@
 #' The default and recommended method is bootstrap. The bootstrap
 #' method can handle many types of models and we find it to be
 #' generally reliable and robust as it is built on the \code{bootMer}
-#' function from \code{lme4}.
+#' function from \code{lme4}. This function is experimental.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'   level of the interval estimates.
@@ -53,7 +53,7 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'   replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'   confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
@@ -65,19 +65,23 @@
 #' @references For general information about GLMMs
 #'     http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 #'
+#' @details If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+#'   `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+#'   generalized estimating equations if this is desired.
+#'
 #' @examples
 #' n <- 300
 #' x <- runif(n)
 #' f <- factor(sample(1:5, size = n, replace = TRUE))
 #' y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-#' tb <- tibble::tibble(x = x, f = f, y = y)
-#' fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+#' df <- data.frame(x = x, f = f, y = y)
+#' fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 #'
-#' \dontrun{add_ci(tb, fit, names = c("lcb", "ucb"), nSims = 300)}
+#' \dontrun{add_ci(df, fit, names = c("lcb", "ucb"), nSims = 300)}
 #'
 #' @export
 
-add_ci.glmerMod <- function(tb, fit,
+add_ci.glmerMod <- function(df, fit,
                             alpha = 0.05, names = NULL, yhatName = "pred",
                             response = TRUE,
                             type = "boot", includeRanef = TRUE,
@@ -93,37 +97,37 @@ add_ci.glmerMod <- function(tb, fit,
       names[1] <- paste("LCB", alpha/2, sep = "")
       names[2] <- paste("UCB", 1 - alpha/2, sep = "")
   }
-  if ((names[1] %in% colnames(tb))) {
+  if ((names[1] %in% colnames(df))) {
     warning ("These CIs may have already been appended to your dataframe. Overwriting.")
   }
 
   if (type == "boot") {
-    bootstrap_ci_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName, response)
+    bootstrap_ci_glmermod(df, fit, alpha, names, includeRanef, nSims, yhatName, response)
   } else if (type == "parametric") {
     stop("Parametric intervals give incorrect coverage")
-    ##parametric_ci_glmermod(tb, fit, alpha, names, includeRanef, yhatName, response)
+    ##parametric_ci_glmermod(df, fit, alpha, names, includeRanef, yhatName, response)
   } else {
     stop("Incorrect type specified!")
   }
 }
 
-parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName, response){
+parametric_ci_glmermod <- function(df, fit, alpha, names, includeRanef, yhatName, response){
 
   if (length(fit@cnms[[1]]) != 1)
     stop("parametric confidence intervals are currently only implemented for random intercept models.")
 
-  seFixed <- get_prediction_se_mermod(tb, fit)
+  seFixed <- get_prediction_se_mermod(df, fit)
   ranef_name <- names(fit@cnms)[1] ## just one random effect for now
   seRandom <- arm::se.ranef(fit)[[1]][,1]
-  seRandom_vec <- rep(NA, length(tb[[ranef_name]]))
+  seRandom_vec <- rep(NA, length(df[[ranef_name]]))
 
-  seRandom_df <- tibble::tibble(
+  seRandom_df <- data.frame(
     group = names(seRandom),
     seRandom = seRandom
   )
 
   names(seRandom_df)[names(seRandom_df) == 'group'] <- ranef_name
-  seRandom_vec <- dplyr::left_join(tb, seRandom_df, by = ranef_name)[["seRandom"]]
+  seRandom_vec <- dplyr::left_join(df, seRandom_df, by = ranef_name)[["seRandom"]]
 
   rdf <- get_resid_df_mermod(fit)
 
@@ -143,7 +147,7 @@ parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName
     seGlobal <- seFixed
   }
 
-  out <- predict(fit, tb, re.form = re.form)
+  out <- predict(fit, df, re.form = re.form)
 
   pred <- out
   upr <- out + crit_val * seGlobal
@@ -161,17 +165,17 @@ parametric_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, yhatName
     upr <- upr1
   }
 
-  tb[[yhatName]] <- pred
-  tb[[names[1]]] <- lwr
-  tb[[names[2]]] <- upr
-  tibble::as_data_frame(tb)
+  df[[yhatName]] <- pred
+  df[[names[1]]] <- lwr
+  df[[names[2]]] <- upr
+  data.frame(df)
 }
 
 ciTools_data <- new.env(parent = emptyenv())
 
-bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName, response) {
+bootstrap_ci_glmermod <- function(df, fit, alpha, names, includeRanef, nSims, yhatName, response) {
 
-  ciTools_data$tb_temp <- tb
+  ciTools_data$df_temp <- df
 
   if (includeRanef) {
     rform <- NULL
@@ -196,8 +200,8 @@ bootstrap_ci_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
   boot_obj <- lme4::bootMer(fit, my_pred, nsim=nSims, type="parametric", re.form = rform)
   ci_out <- boot_quants(boot_obj, alpha)
 
-  tb[[yhatName]] <- predict(fit, ciTools_data$tb_temp, re.form = rform, type = lvl)
-  tb[[names[1]]] <- ci_out$lwr
-  tb[[names[2]]] <- ci_out$upr
-  tibble::as_data_frame(tb)
+  df[[yhatName]] <- predict(fit, ciTools_data$df_temp, re.form = rform, type = lvl)
+  df[[names[1]]] <- ci_out$lwr
+  df[[names[2]]] <- ci_out$upr
+  data.frame(df)
 }

@@ -7,7 +7,8 @@ Tips for extending ciTools:
 ---------------------------
 
 1.  Make use of S3 methods. Each of the functions `add_{ci, pi, probs,
-     quantile}` is a generic that always accepts `data` as the first argument and `fit` as the second argument. `data` may be a dataframe or tibble, and the output of a method should always be a tibble.
+     quantile}` is a generic that always accepts `df` as the first argument and `fit` as the
+     second argument.
 2.  Each method (and functions pertaining directly to that method) belongs in a separate file.
 3.  Use existing interval estimation functions -- there is no reason to duplicate this effort. For example, add<sub>ci</sub>.lm is just a wrapper around `predict.lm`.
 4.  But think twice before adding a dependency and keep the number of dependencies to a minimum. Only rely on other packages that are well trusted in the R ecosystem. Consider adding new dependencies to the "Enhances:" line of the DESCRIPTION file instead of the "Imports:" line.
@@ -19,4 +20,3 @@ Tips for extending ciTools:
 10. If you are writing a new method, you will need to justify your work so the maintainers can understand how the interval estimates are formed and, if there are multiple interval types included, why one of them should be the default type. The best way to accomplish this is by writing good documentation and a vignette that shows how to use your new methods in an analysis.
 11. If you have a novel solution to an interval estimates problem, you will need to prepare a simulation study that addresses coverage probabilities and interval widths. See the vignette on Linear Mixed Models for an example of this.
 12. If your solutions are well studied, include citations.
-

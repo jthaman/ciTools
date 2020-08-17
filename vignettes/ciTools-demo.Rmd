@@ -10,11 +10,13 @@ vignette: >
 ---
 
 ```{r, include = F}
-## setup 
+## setup
 set.seed(20170808)
-knitr::opts_chunk$set(fig.width=8, fig.height=4) 
+knitr::opts_chunk$set(fig.width=8, fig.height=4)
 library(ciTools)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
 library(knitr)
 ```
 
@@ -138,7 +140,7 @@ my_data_with_ci %>%
     geom_point(size = 2) +
     geom_line(aes(y = pred), size = 2, color = "maroon") +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), fill =
-    "royalblue1", alpha = 0.3) + 
+    "royalblue1", alpha = 0.3) +
     ggtitle("Stopping Distance vs. Car Speed: 95% Confidence Interval") +
     xlab("Car Speed (mph)") +
     ylab("Stopping Distance (ft)")
@@ -184,16 +186,16 @@ and prediction intervals at the same time:
 my_data %>%
   add_ci(model, names = c("lcb", "ucb")) %>%
   add_pi(model, names = c("lpb", "upb")) %>%
-    ggplot(aes(x = speed, y = dist)) +
-    geom_point(size = 2) +
-    geom_line(aes(y = pred), size = 2, color = "maroon") +
-    geom_ribbon(aes(ymin = lpb, ymax = upb), fill = "orange2",
-                alpha = 0.3) +
-    geom_ribbon(aes(ymin = lcb, ymax = ucb), fill =
-    "royalblue1", alpha = 0.3) + 
-    ggtitle("Stopping Distance vs. Car Speed: 95% CI and 95% PI") +
-    xlab("Car Speed (mph)") +
-    ylab("Stopping Distance (ft)")
+  ggplot(aes(x = speed, y = dist)) +
+  geom_point(size = 2) +
+  geom_line(aes(y = pred), size = 2, color = "maroon") +
+  geom_ribbon(aes(ymin = lpb, ymax = upb), fill = "orange2",
+              alpha = 0.3) +
+  geom_ribbon(aes(ymin = lcb, ymax = ucb), fill =
+                                             "royalblue1", alpha = 0.3) +
+  ggtitle("Stopping Distance vs. Car Speed: 95% CI and 95% PI") +
+  xlab("Car Speed (mph)") +
+  ylab("Stopping Distance (ft)")
 ```
 
 In the graph above, the blue confidence intervals show the
@@ -206,7 +208,7 @@ responses (Stopping Distances) to fall.
 Often we want other quantities that depend on the conditional
 predictive distribution. These include response-level probabilities
 and response-level quantiles, which are accessed with the functions
-`add_probs` and `add_quantile` respectively. 
+`add_probs` and `add_quantile` respectively.
 
 For example, suppose in the `cars` data set, I want to know: For
 each Speed what is the probability that a new Stopping Distance
@@ -222,12 +224,12 @@ before the problem becomes moot:
 ```{r }
 my_data %>%
   add_probs(model, q = 70) %>%
-    ggplot(aes(x = speed, y = prob_less_than70)) +
-    geom_line(aes(y = prob_less_than70), size = 2, color = "maroon") +
-    scale_y_continuous(limits = c(0,1)) +
-    ggtitle("Probability Stopping Distance is Less Than 70") +
-    xlab("Car Speed (mph)") +
-    ylab("Pr(Dist < 70)")
+  ggplot(aes(x = speed, y = prob_less_than70)) +
+  geom_line(aes(y = prob_less_than70), size = 2, color = "maroon") +
+  scale_y_continuous(limits = c(0,1)) +
+  ggtitle("Probability Stopping Distance is Less Than 70") +
+  xlab("Car Speed (mph)") +
+  ylab("Pr(Dist < 70)")
 ```
 
 
@@ -262,15 +264,15 @@ bounds of the prediction intervals that we calculated previously.
 my_data %>%
   add_pi(model, names = c("lpb", "upb")) %>%
   add_quantile(model, p = 0.9) %>%
-    ggplot(aes(x = speed, y = dist)) +
-    geom_point(size = 2) +
-    geom_line(aes(y = pred), size = 2, color = "maroon") +
-    geom_line(aes(y = quantile0.9), size = 2, color = "forestgreen") + 
-    geom_ribbon(aes(ymin = lpb, ymax = upb), fill = "orange2",
-                alpha = 0.3) +
-    ggtitle("Stopping Distance vs. Car Speed: 95% PI with 0.9-Quantile") +
-    xlab("Car Speed (mph)") +
-    ylab("Stopping Distance (ft)")
+  ggplot(aes(x = speed, y = dist)) +
+  geom_point(size = 2) +
+  geom_line(aes(y = pred), size = 2, color = "maroon") +
+  geom_line(aes(y = quantile0.9), size = 2, color = "forestgreen") +
+  geom_ribbon(aes(ymin = lpb, ymax = upb), fill = "orange2",
+              alpha = 0.3) +
+  ggtitle("Stopping Distance vs. Car Speed: 95% PI with 0.9-Quantile") +
+  xlab("Car Speed (mph)") +
+  ylab("Stopping Distance (ft)")
 ```
 
 The 0.9 quantile lies slightly below the upper prediction bound,
@@ -289,7 +291,7 @@ data_with_results <- my_data %>%
   add_ci(model) %>%
   add_pi(model) %>%
   add_probs(model, q= 70) %>%
-  add_quantile(model, p = 0.9) 
+  add_quantile(model, p = 0.9)
 
 kable(head(data_with_results))
 ```
@@ -306,11 +308,11 @@ development:
 |--------------------------|:--------------------:|:--------------------:|:----------------------:|:------------------:|
 | Linear                   |          [X]         |          [X]         |           [X]          |         [X]        |
 | Log-Linear               |          [X]         |          [X]         |           [X]          |         [X]        |
-| GLM                      |          [X]         |       [Poisson]      |        [Poisson]       |      [Poisson]     |
+| GLM                      |          [X]         |       [X]      |        [X]       |      [X]     |
 | Linear Mixed Model       |          [X]         |          [X]         |           [X]          |         [X]        |
 | Log-Linear Mixed         |        [TODO]        |          [X]         |           [X]          |         [X]        |
-| Survival                 |        [TODO]        |        [TODO]        |         [TODO]         |       [TODO]       |
-| Generalized Linear Mixed |        [TODO]        |        [TODO]        |         [TODO]         |       [TODO]       |
+| Survival                 |        [X]        |        [X]        |         [X]         |       [X]       |
+| Generalized Linear Mixed |        [X]        |        [X]        |         [X]         |       [X]       |
 
 * [X] = complete, available now
 

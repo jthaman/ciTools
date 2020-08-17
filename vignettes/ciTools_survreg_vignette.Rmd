@@ -11,7 +11,9 @@ vignette: >
 
 
 ```{r, message = FALSE }
-library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
 library(knitr)
 library(ciTools)
 library(here)
@@ -20,11 +22,11 @@ set.seed(20180925)
 
 *Disclaimer:* `ciTools` makes three assumptions about your model:
 
-1 - no missing data in the "newdata" matrix, `tb`.
+1 - no missing data in the "newdata" dataframe, `df`.
 
 2 - distribution is one of weibull, lognormal, loglogistic, or exponential.
 
-3 - regression model is unweighted, and without random effects.
+3 - regression model is unweighted and without random effects.
 
 
 The purpose of this vignette is to introduce and discuss new `ciTools`
@@ -268,6 +270,7 @@ observed at the indicated time.
 
 ```{r cache = TRUE}
 kable(head(dat))
+```
 
 ```{r cache = TRUE, fig.width = 5, fig.height= 5, warning = FALSE}
 ggplot(dat, aes(x = temp, y = time)) +
@@ -305,6 +308,7 @@ the original data set.
 ```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
 with_ints <- ciTools::add_ci(dat,fit, names = c("lcb", "ucb")) %>%
     ciTools::add_pi(fit, names = c("lpb", "upb"))
+```
 
 ```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
 kable(head(with_ints))
@@ -328,6 +332,7 @@ ggplot(with_ints, aes(x = temp, y = time)) +
     geom_line(aes(y = median_pred), linetype = 2) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5) +
     geom_ribbon(aes(ymin = lpb, ymax = upb), alpha = 0.1)
+```
 
 ```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
 probs <- ciTools::add_probs(dat, fit, q = 500,
@@ -352,6 +357,7 @@ ggplot(probs, aes(x = temp, y = prob)) +
     theme_bw() +
     geom_line(aes(y = prob)) +
     geom_ribbon(aes(ymin = lcb, ymax = ucb), alpha = 0.5)
+```
 
 ```{r cache = TRUE, fig.width = 8, fig.height = 5, warning = FALSE}
 quants <- ciTools::add_quantile(dat, fit, p = 0.90,
@@ -520,29 +526,29 @@ Lognormal fits with moderate censoring. In this case, there is a near
 
 ```{r include=FALSE, cache= TRUE}
 path <- "./survreg_data"
-exp0 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp00.csv"))
-exp1 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp03.csv"))
-exp2 <- read_csv(paste0(path,"/","exponential_sim_expect_ci_censoredp05.csv"))
+exp0 <- read.csv(paste0(path,"/","exponential_sim_expect_ci_censoredp00.csv"))
+exp1 <- read.csv(paste0(path,"/","exponential_sim_expect_ci_censoredp03.csv"))
+exp2 <- read.csv(paste0(path,"/","exponential_sim_expect_ci_censoredp05.csv"))
 exp_dat <- rbind(exp0, exp1, exp2) %>%
     mutate(distr = "Exponential")
-loglog0 <- read_csv(paste0(path,"/",
+loglog0 <- read.csv(paste0(path,"/",
                            "loglogistic_sim_expect_ci_scale025_censoredp00.csv"))
-loglog1 <- read_csv(paste0(path,"/",
+loglog1 <- read.csv(paste0(path,"/",
                            "loglogistic_sim_expect_ci_scale025_censoredp03.csv"))
-loglog2 <- read_csv(paste0(path,"/",
+loglog2 <- read.csv(paste0(path,"/",
                            "loglogistic_sim_expect_ci_scale025_censoredp05.csv"))
 loglog_dat <- rbind(loglog0, loglog1, loglog2) %>%
     mutate(distr = "Loglogistic") %>%
     dplyr::select(-c(scale))
-lognorm0 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp00.csv"))
-lognorm1 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp03.csv"))
-lognorm2 <- read_csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp05.csv"))
+lognorm0 <- read.csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp00.csv"))
+lognorm1 <- read.csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp03.csv"))
+lognorm2 <- read.csv(paste0(path,"/","lognormal_sim_expect_ci_scale2_censoredp05.csv"))
 lognorm_dat <- rbind(lognorm0, lognorm1, lognorm2) %>%
     mutate(distr = "Lognormal") %>%
     dplyr::select(-c(scale))
-weibull0 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp00.csv"))
-weibull1 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp03.csv"))
-weibull2 <- read_csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp05.csv"))
+weibull0 <- read.csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp00.csv"))
+weibull1 <- read.csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp03.csv"))
+weibull2 <- read.csv(paste0(path,"/","weibull_sim_expect_ci_scale2_censoredp05.csv"))
 weibull_dat <- rbind(weibull0, weibull1, weibull2) %>%
     mutate(distr = "Weibull") %>%
     dplyr::select(-c(scale))
@@ -697,29 +703,29 @@ conservative intervals. This is particularly clear in the case of the
 Weibull distribution.
 
 ```{r, include = FALSE, cache= TRUE, warning = FALSE}
-expp0 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp00.csv"))
-expp1 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp03.csv"))
-expp2 <- read_csv(paste0(path,"/","exponential_sim_prob_ci_censoredp05.csv"))
+expp0 <- read.csv(paste0(path,"/","exponential_sim_prob_ci_censoredp00.csv"))
+expp1 <- read.csv(paste0(path,"/","exponential_sim_prob_ci_censoredp03.csv"))
+expp2 <- read.csv(paste0(path,"/","exponential_sim_prob_ci_censoredp05.csv"))
 expp_dat <- rbind(expp0, expp1, expp2) %>%
     mutate(distr = "Exponential")
-loglogp0 <- read_csv(paste0(path,"/",
+loglogp0 <- read.csv(paste0(path,"/",
                             "loglogistic_sim_prob_ci_scale025_censoredp00.csv"))
-loglogp1 <- read_csv(paste0(path,"/",
+loglogp1 <- read.csv(paste0(path,"/",
                             "loglogistic_sim_prob_ci_scale025_censoredp03.csv"))
-loglogp2 <- read_csv(paste0(path,"/",
+loglogp2 <- read.csv(paste0(path,"/",
                             "loglogistic_sim_prob_ci_scale025_censoredp05.csv"))
 loglogp_dat <- rbind(loglogp0, loglogp1, loglogp2) %>%
     mutate(distr = "Loglogisic") %>%
     dplyr::select(-c(scale))
-lognormp0 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp00.csv"))
-lognormp1 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp03.csv"))
-lognormp2 <- read_csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp05.csv"))
+lognormp0 <- read.csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp00.csv"))
+lognormp1 <- read.csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp03.csv"))
+lognormp2 <- read.csv(paste0(path,"/","lognormal_sim_prob_ci_scale2_censoredp05.csv"))
 lognormp_dat <- rbind(lognormp0, lognormp1, lognormp2) %>%
     mutate(distr = "Lognormal") %>%
     dplyr::select(-c(scale))
-weibullp0 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp00.csv"))
-weibullp1 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp03.csv"))
-weibullp2 <- read_csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp05.csv"))
+weibullp0 <- read.csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp00.csv"))
+weibullp1 <- read.csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp03.csv"))
+weibullp2 <- read.csv(paste0(path,"/","weibull_sim_prob_ci_scale2_censoredp05.csv"))
 weibullp_dat <- rbind(weibullp0, weibullp1, weibullp2) %>%
     mutate(distr = "Weibull") %>%
     dplyr::select(-c(scale))
@@ -810,29 +816,29 @@ made. These techniques are detailed in Meeker and Escobar (Chapter
 
 
 ```{r include=FALSE, cache= TRUE}
-exppi0 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp00.csv"))
-exppi1 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp03.csv"))
-exppi2 <- read_csv(paste0(path,"/","exponential_sim_pi_censoredp05.csv"))
+exppi0 <- read.csv(paste0(path,"/","exponential_sim_pi_censoredp00.csv"))
+exppi1 <- read.csv(paste0(path,"/","exponential_sim_pi_censoredp03.csv"))
+exppi2 <- read.csv(paste0(path,"/","exponential_sim_pi_censoredp05.csv"))
 exppi_dat <- rbind(exppi0, exppi1, exppi2) %>%
     mutate(distr = "Exponential")
-loglogpi0 <- read_csv(paste0(path,"/",
+loglogpi0 <- read.csv(paste0(path,"/",
                              "loglogistic_sim_pi_scale025_censoredp00.csv"))
-loglogpi1 <- read_csv(paste0(path,"/",
+loglogpi1 <- read.csv(paste0(path,"/",
                              "loglogistic_sim_pi_scale025_censoredp03.csv"))
-loglogpi2 <- read_csv(paste0(path,"/",
+loglogpi2 <- read.csv(paste0(path,"/",
                              "loglogistic_sim_pi_scale025_censoredp05.csv"))
 loglogpi_dat <- rbind(loglogpi0, loglogpi1, loglogpi2) %>%
     mutate(distr = "Loglogistic") %>%
     dplyr::select(-c(scale))
-lognormpi0 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp00.csv"))
-lognormpi1 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp03.csv"))
-lognormpi2 <- read_csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp05.csv"))
+lognormpi0 <- read.csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp00.csv"))
+lognormpi1 <- read.csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp03.csv"))
+lognormpi2 <- read.csv(paste0(path,"/","lognormal_sim_pi_scale2_censoredp05.csv"))
 lognormpi_dat <- rbind(lognormpi0, lognormpi1, lognormpi2) %>%
     mutate(distr = "Lognormal") %>%
     dplyr::select(-c(scale))
-weibullpi0 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp00.csv"))
-weibullpi1 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp03.csv"))
-weibullpi2 <- read_csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp05.csv"))
+weibullpi0 <- read.csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp00.csv"))
+weibullpi1 <- read.csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp03.csv"))
+weibullpi2 <- read.csv(paste0(path,"/","weibull_sim_pi_scale2_censoredp05.csv"))
 weibullpi_dat <- rbind(weibullpi0, weibullpi1, weibullpi2) %>%
     mutate(distr = "Weibull") %>%
     dplyr::select(-c(scale))
@@ -940,29 +946,29 @@ ggplot(filter(pi_dat, distr == "Weibull"), aes(x=sample_size, y=int_width)) +
 <!-- ## Medians -->
 
 <!-- ```{r, include = FALSE, cache= TRUE} -->
-<!-- expq0 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp00.csv")) -->
-<!-- expq1 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp03.csv")) -->
-<!-- expq2 <- read_csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp05.csv")) -->
+<!-- expq0 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp00.csv")) -->
+<!-- expq1 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp03.csv")) -->
+<!-- expq2 <- read.csv(paste0(path,"/","exponential_sim_quantile_ci_censoredp05.csv")) -->
 <!-- expq_dat <- rbind(expq0, expq1, expq2) %>% -->
 <!--     mutate(distr = "Exponential") -->
-<!-- loglogq0 <- read_csv(paste0(path,"/", -->
+<!-- loglogq0 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp00.csv")) -->
-<!-- loglogq1 <- read_csv(paste0(path,"/", -->
+<!-- loglogq1 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp03.csv")) -->
-<!-- loglogq2 <- read_csv(paste0(path,"/", -->
+<!-- loglogq2 <- read.csv(paste0(path,"/", -->
 <!--                             "loglogistic_sim_quantile_ci_scale025_censoredp05.csv")) -->
 <!-- loglogq_dat <- rbind(loglogq0, loglogq1, loglogq2) %>% -->
 <!--     mutate(distr = "Loglogisic") %>% -->
 <!--     dplyr::select(-c(scale)) -->
-<!-- lognormq0 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp00.csv")) -->
-<!-- lognormq1 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp03.csv")) -->
-<!-- lognormq2 <- read_csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- lognormq0 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- lognormq1 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- lognormq2 <- read.csv(paste0(path,"/","lognormal_sim_quantile_ci_scale2_censoredp05.csv")) -->
 <!-- lognormq_dat <- rbind(lognormq0, lognormq1, lognormq2) %>% -->
 <!--     mutate(distr = "Lognormal") %>% -->
 <!--     dplyr::select(-c(scale)) -->
-<!-- weibullq0 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp00.csv")) -->
-<!-- weibullq1 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp03.csv")) -->
-<!-- weibullq2 <- read_csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp05.csv")) -->
+<!-- weibullq0 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp00.csv")) -->
+<!-- weibullq1 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp03.csv")) -->
+<!-- weibullq2 <- read.csv(paste0(path,"/","weibull_sim_quantile_ci_scale2_censoredp05.csv")) -->
 <!-- weibullq_dat <- rbind(weibullq0, weibullq1, weibullq2) %>% -->
 <!--     mutate(distr = "Weibull") %>% -->
 <!--     dplyr::select(-c(scale)) -->

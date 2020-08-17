@@ -83,7 +83,7 @@ is the same for any other model.
 
 library(ciTools)
 library(lme4)
-library(tidyverse)
+library(magrittr)
 
 dat <- sleepstudy ## data included with lme4
 ## Fit a random intercept model

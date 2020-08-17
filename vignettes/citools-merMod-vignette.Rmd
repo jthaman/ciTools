@@ -10,7 +10,9 @@ vignette: >
 ---
 
 ```{r, include = F}
-library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(ggplot2)
 library(ciTools)
 library(lme4)
 set.seed(20170627)
@@ -20,38 +22,38 @@ x_gen_mermod <- function(ng = 8, nw = 5){
   x1 <- base::sample(letters[1:2], n, replace = T)
   x2 <- runif(n)
   group <- rep(as.character(1:ng), each = nw)
-  return(tibble::tibble(x1 = x1,
-              x2 = x2,
-              group = group))
+  return(data.frame(x1 = x1,
+                    x2 = x2,
+                    group = group))
 }
 
-mm_pipe <- function(tb, ...){
-  model.matrix(data = tb, ...)
+mm_pipe <- function(df, ...){
+  model.matrix(data = df, ...)
 }
 
-get_validation_set <- function(tb, sigma, sigmaG, beta, includeRanef, groupIntercepts){
-  vm <- sample_n(tb, 5, replace = F)[rep(1:5, each = 100), ]
-  vf <- bind_rows(vm, tb) %>%
+get_validation_set <- function(df, sigma, sigmaG, beta, includeRanef, groupIntercepts){
+  vm <- sample_n(df, 5, replace = F)[rep(1:5, each = 100), ]
+  vf <- bind_rows(vm, df) %>%
     select(-group) %>%
-    mm_pipe(~.*.) 
+    mm_pipe(~.*.)
   vf <- vf[1:500, ]
   vGroups <- if(!includeRanef) rnorm(500, 0, sigmaG) else groupIntercepts[as.numeric(vm$group)]
   vm[["y"]] <- vf %*% beta + vGroups + rnorm(500, mean = 0, sd = sigma)
   vm
 }
 
-y_gen_mermod <- function(tb, sigma = 1, sigmaG = 1, delta = 1, includeRanef = FALSE, validationPoints = FALSE){
-  groupIntercepts <- rnorm(length(unique(tb$group)), 0, sigmaG)
-  tf <- tb %>%
+y_gen_mermod <- function(df, sigma = 1, sigmaG = 1, delta = 1, includeRanef = FALSE, validationPoints = FALSE){
+  groupIntercepts <- rnorm(length(unique(df$group)), 0, sigmaG)
+  tf <- df %>%
     dplyr::select(-group) %>%
     mm_pipe(~.*.)
   beta <- rep(delta, ncol(tf))
   if(validationPoints)  {
-    vm <- get_validation_set(tb, sigma, sigmaG, beta, includeRanef, groupIntercepts)
+    vm <- get_validation_set(df, sigma, sigmaG, beta, includeRanef, groupIntercepts)
   }
-  tb[["y"]] <- tf %*% beta + groupIntercepts[as.numeric(tb$group)] + rnorm(nrow(tb), mean = 0, sd = sigma)
-  tb[["truth"]] <- tf %*% beta + groupIntercepts[as.numeric(tb$group)] * (includeRanef)
-  if(validationPoints) return(list(tb = tb, vm = vm)) else return(tb) 
+  df[["y"]] <- tf %*% beta + groupIntercepts[as.numeric(df$group)] + rnorm(nrow(df), mean = 0, sd = sigma)
+  df[["truth"]] <- tf %*% beta + groupIntercepts[as.numeric(df$group)] * (includeRanef)
+  if(validationPoints) return(list(df = df, vm = vm)) else return(df)
 }
 
 ```
@@ -78,14 +80,14 @@ that we're all on the same page. To an extent, I'll follow the
 notation used by the author of `lme4` (Doug Bates) in his 2010 book on
 the package.
 
-$$\textbf{Y}|\textbf{G} = \textbf{g} \sim N(X\beta + Z\textbf{g}, \sigma^2I)$$
-$$\textbf{G} \sim N(0, \sigma_G^2I)$$
+$$\texdff{Y}|\texdff{G} = \texdff{g} \sim N(X\beta + Z\texdff{g}, \sigma^2I)$$
+$$\texdff{G} \sim N(0, \sigma_G^2I)$$
 
-In the above, $\textbf{Y}$ is our response vector for a particular
+In the above, $\texdff{Y}$ is our response vector for a particular
 group, $X$ is the design matrix containing fixed effects, $\beta$ is
 the vector of fixed effects parameters, $Z$ is the random effects
-matrix, $\textbf{G}$ is the vector of random effects with realizations
-$\textbf{G}$, $\sigma^2$ is the within-group variance, and
+matrix, $\texdff{G}$ is the vector of random effects with realizations
+$\texdff{G}$, $\sigma^2$ is the within-group variance, and
 $\sigma_G^2$ is the between-group variance, and $I$ is the identity
 matrix.
 
@@ -152,7 +154,7 @@ solving
 
 $$\Phi(\frac{\hat{u}- (X_{ij}\hat{\beta} + \hat{g_j})}{\hat{\sigma}}) = 1-\frac{\alpha}{2}.$$
 
-and 
+and
 
 $$\Phi(\frac{\hat{l}- (X_{ij}\hat{\beta} + \hat{g_j})}{\hat{\sigma}}) = \frac{\alpha}{2}.$$
 
@@ -166,7 +168,7 @@ Here, we are instead solving
 
 $$\Phi(\frac{\hat{u}- X_{ij}\hat{\beta}}{\hat{\sigma}_C}) = 1-\frac{\alpha}{2}$$
 
-and 
+and
 
 $$\Phi(\frac{\hat{l}- X_{ij}\hat{\beta}}{\hat{\sigma}_C}) = \frac{\alpha}{2},$$
 
@@ -191,7 +193,7 @@ these values are set to a default of 1.
 
 ```{r}
 set.seed(20170812)
-tb <- x_gen_mermod(10, 20) %>%
+df <- x_gen_mermod(10, 20) %>%
   y_gen_mermod()
 ```
 
@@ -201,7 +203,7 @@ prediction intervals.
 
 
 ```{r}
-fit2 <- lmer(y ~ x1 * x2 + (1|group) , data = tb)
+fit2 <- lmer(y ~ x1 * x2 + (1|group) , data = df)
 fit2
 ```
 
@@ -219,7 +221,7 @@ driven by both $SE(\hat{\beta})$ and $SE(\hat{g})$.
 
 
 ```{r}
-tb %>% add_ci(fit2, type = "parametric", includeRanef = T)
+df %>% add_ci(fit2, type = "parametric", includeRanef = T)
 ```
 
 Plotting these results lets us visualize the uncertainty around our
@@ -229,12 +231,12 @@ our example data set:
 
 
 ```{r, fig.width = 8, fig.heither = 5}
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -250,7 +252,7 @@ intervals can be obtained by specifying `type = boot`.
 
 ```{r}
 set.seed(20170628)
-tb %>%   
+df %>%
   add_ci(fit2, includeRanef = T, type = "parametric", names = c("Lpar", "Upar")) %>%
   add_ci(fit2, includeRanef = T, type = "boot", names = c("Lboot", "Uboot"))
 ```
@@ -263,15 +265,15 @@ intervals from `simulate.merMod` shown in red and the invervals from
 
 ```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, includeRanef = T, type = "parametric", names = c("Lpar", "Upar")) %>%
   add_ci(fit2, includeRanef = T, type = "boot", names = c("Lboot", "Uboot")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = Lpar, ymax = Upar), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "blue1", size = 2) + 
-  geom_ribbon(aes(ymin = Lboot, ymax = Uboot), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = Lpar, ymax = Upar), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "blue1", size = 2) +
+  geom_ribbon(aes(ymin = Lboot, ymax = Uboot), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -287,11 +289,11 @@ We can see that the results for unconditional intervals are also
 similar between the parametric and bootstrap methods. Unconditional
 intervals are generated `add_ci` by using the `includeRanef = F`
 option. Note that this is the default setting for `includeRanef`.
- 
+
 
 
 ```{r}
-tb %>% add_ci(fit2, includeRanef = F, type = "parametric")
+df %>% add_ci(fit2, includeRanef = F, type = "parametric")
 ```
 
 
@@ -303,13 +305,13 @@ while the conditional intervals as plotten in red.
 
 ```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, includeRanef = F, type = "parametric", names = c("LU", "UU")) %>%
   add_ci(fit2, includeRanef = T, type = "parametric", names = c("LC", "UC")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LU, ymax = UU), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_ribbon(aes(ymin = LC, ymax = UC), colour = "black", fill = "red1", alpha = 0.2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LU, ymax = UU), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_ribbon(aes(ymin = LC, ymax = UC), colour = "black", fill = "red1", alpha = 0.2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -328,15 +330,15 @@ intervals:
 
 ```{r, fig.width = 8, fig.heither = 5}
 set.seed(20170628)
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, includeRanef = F, type = "parametric", names = c("Lpar", "Upar")) %>%
   add_ci(fit2, includeRanef = F, type = "boot", names = c("Lboot", "Uboot")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = Lpar, ymax = Upar), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "blue1", size = 2) + 
-  geom_ribbon(aes(ymin = Lboot, ymax = Uboot), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = Lpar, ymax = Upar), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "blue1", size = 2) +
+  geom_ribbon(aes(ymin = Lboot, ymax = Uboot), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -356,13 +358,13 @@ plotting the fitted values against these conditional mean estimates:
 
 
 ```{r, fig.width = 8, fig.heither = 5}
-tb %>% 
+df %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
-  geom_point(aes(y = y), size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
+  geom_point(aes(y = y), size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -378,13 +380,13 @@ By way of contrast, attempting to plot fitted values against
 
 
 ```{r, fig.width = 8, fig.heither = 5}
-tb %>% 
+df %>%
   add_ci(fit2, type = "parametric", includeRanef = F, names = c("LCB", "UCB")) %>%
   filter(group %in% c(1:3)) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
-  geom_point(aes(y = y), size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
+  geom_point(aes(y = y), size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -407,11 +409,11 @@ intervals are useful when making such comparisons:
 
 
 ```{r, fig.width = 6, fig.heither = 4}
-tb %>% 
+df %>%
   add_ci(fit2, type = "parametric", includeRanef = F, names = c("LCB", "UCB")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "blue", size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "blue", size = 2) +
   facet_grid( ~ x1) +
   geom_hline(yintercept = 1.5, colour = "red1", size = 2, linetype = 2, alpha = .5)
 ```
@@ -438,18 +440,18 @@ confidence intervals only wider:
 
 
 ```{r}
-tb %>% add_pi(fit2, includeRanef = T, type = "parametric")
+df %>% add_pi(fit2, includeRanef = T, type = "parametric")
 ```
 
 ```{r, fig.width = 8, fig.heither = 5}
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
   add_pi(fit2, type = "parametric", includeRanef = T, names = c("LPB", "UPB")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -467,7 +469,7 @@ Finally, the unconditional prediction interval:
 
 
 ```{r}
-tb %>% add_pi(fit2, type = "parametric",includeRanef = F)
+df %>% add_pi(fit2, type = "parametric",includeRanef = F)
 ```
 
 In this case, there are a number of applications. Rather than
@@ -477,13 +479,13 @@ single observation can meet or exceed a threshold:
 
 
 ```{r, fig.width = 6, fig.heither = 4}
-tb %>% 
+df %>%
   add_pi(fit2, type = "parametric", includeRanef = F, names = c("LPB", "UPB")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
-  geom_point(aes(y = y), size = 2) + 
-  facet_grid( ~x1 )+ 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
+  geom_point(aes(y = y), size = 2) +
+  facet_grid( ~x1 )+
   geom_hline(yintercept = 0, colour = "red1", size = 2, linetype = 2)
 ```
 
@@ -508,15 +510,15 @@ could drive variation:
 
 
 ```{r, fig.width = 8, fig.heither = 5}
-tb %>% 
+df %>%
   filter(group %in% c(1:3)) %>%
   add_ci(fit2, type = "parametric", includeRanef = T, names = c("LCB", "UCB")) %>%
   add_pi(fit2, type = "parametric", includeRanef = F, names = c("LPB", "UPB")) %>%
-  ggplot(aes(x = x2)) + 
-  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) + 
-  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) + 
-  geom_line(aes(y = pred), colour = "red1", size = 2) + 
-  geom_point(aes(y = y), size = 2) + 
+  ggplot(aes(x = x2)) +
+  geom_ribbon(aes(ymin = LCB, ymax = UCB), colour = "black", fill = "red1", alpha = 0.2) +
+  geom_ribbon(aes(ymin = LPB, ymax = UPB), colour = "black", fill = "blue1", alpha = 0.2) +
+  geom_line(aes(y = pred), colour = "red1", size = 2) +
+  geom_point(aes(y = y), size = 2) +
   facet_grid(x1 ~ group)
 ```
 
@@ -564,11 +566,11 @@ wm <- read.csv("lmer_unconditional_width.csv")
 
 ```{r, echo = F, fig.width = 8, fig.heither = 4}
 pm %>%
-    ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
-    geom_line(size = 2) + facet_grid(~numberOfGroups) +
-    scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Coverage probabilities for unconditional confidence intervals") + 
+  ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
+  geom_line(size = 2) + facet_grid(~numberOfGroups) +
+  scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Coverage probabilities for unconditional confidence intervals") +
   geom_hline(yintercept = 0.8)
 
 ```
@@ -583,8 +585,8 @@ pm %>%
   ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
   geom_line(size = 2) + facet_grid(~numberOfGroups) +
   scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Coverage probabilities for unconditional confidence intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Coverage probabilities for unconditional confidence intervals") +
   geom_hline(yintercept = 0.8)
 
 ```
@@ -616,8 +618,8 @@ pm %>%
   ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
   geom_line(size = 2) + facet_grid(~numberOfGroups) +
   scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Coverage probabilities for unconditional confidence intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Coverage probabilities for unconditional confidence intervals") +
   geom_hline(yintercept = 0.8)
 ```
 
@@ -640,8 +642,8 @@ interval estimates.
 ```{r, echo = F, fig.width = 8, fig.heither = 4}
 wm %>%
   ggplot(aes(x = groupSize, y = IntWidth, colour = Method)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Interval widths for conditional confidence intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Interval widths for conditional confidence intervals") +
   geom_line(size = 2) + facet_grid(~numberOfGroups)
 ```
 
@@ -677,8 +679,8 @@ pm %>%
   ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
   geom_line(size = 2) + facet_grid(~numberOfGroups) +
   scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Coverage probabilities for unconditional prediction intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Coverage probabilities for unconditional prediction intervals") +
   geom_hline(yintercept = 0.8)
 
 ```
@@ -694,8 +696,8 @@ too wide for the nominal level.
 ```{r, echo = F, fig.width = 8, fig.heither = 4}
 wm %>%
   ggplot(aes(x = groupSize, y = IntWidth, colour = Method)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Interval widths for unconditional prediction intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Interval widths for unconditional prediction intervals") +
   geom_line(size = 2) + facet_grid(~numberOfGroups)
 ```
 
@@ -716,14 +718,14 @@ for conditional prediction intervals as it was for unconditional
 prediction intervals.
 
 ```{r, echo = F, fig.width = 8, fig.heither = 4}
-pm %>% 
+pm %>%
   ggplot(aes(x = groupSize, y = CoverageProb, colour = Method)) +
   geom_line(size = 2) + facet_grid(~numberOfGroups) +
   scale_y_continuous(breaks = seq(0, 1, length.out = 6), limits = c(0, 1)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Coverage probabilities for conditional prediction intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Coverage probabilities for conditional prediction intervals") +
   geom_hline(yintercept = 0.8)
-```  
+```
 
 Coverage probability for both intervals is near the nominal level,
 with the parametric approach producing wider intervals that are closer
@@ -733,8 +735,8 @@ reach the nominal coverage probability even for large sample sizes.
 ```{r, echo = F, fig.width = 8, fig.heither = 4}
 wm %>%
   ggplot(aes(x = groupSize, y = IntWidth, colour = Method)) +
-  scale_x_log10(breaks = c(5, 10, 20, 50)) + 
-  ggtitle("Interval widths for conditional prediction intervals") + 
+  scale_x_log10(breaks = c(5, 10, 20, 50)) +
+  ggtitle("Interval widths for conditional prediction intervals") +
   geom_line(size = 2) +
   facet_grid(~numberOfGroups)
 ```
@@ -743,4 +745,3 @@ Interval widths also show a similar pattern to the one shown for
 unconditional prediction intervals, with the parametric interval's
 width converging towards the bootstrap interval's width as group size
 and number of groups increases.
-              

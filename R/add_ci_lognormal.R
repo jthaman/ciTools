@@ -15,17 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-get_sigma_mle <- function(tb, fit, alpha){
+get_sigma_mle <- function(df, fit, alpha){
     X <- model.matrix(fit)
     n <- NROW(X)
-    out <- predict(fit, tb, se.fit = TRUE, interval = "confidence", level = 1 - alpha)
+    out <- predict(fit, df, se.fit = TRUE, interval = "confidence", level = 1 - alpha)
     rmse <- out$residual.scale
     residual_df <- out$df
     sigma_mle <- sqrt(rmse^2 * residual_df / n)
     sigma_mle
 }
 
-create_cov_mat <- function(sigma_mle, tb, fit){
+create_cov_mat <- function(sigma_mle, df, fit){
     X <- model.matrix(fit)
     n <- NROW(X)
     sigma_var_mle <- sigma_mle^2 /(2 * n)
@@ -38,10 +38,10 @@ create_cov_mat <- function(sigma_mle, tb, fit){
     V
 }
 
-get_Xpred_list <- function(tb, fit, p, sigma_mle){
-    Xbeta <- predict(fit, tb)
+get_Xpred_list <- function(df, fit, p, sigma_mle){
+    Xbeta <- predict(fit, df)
     pred <- exp(Xbeta + qnorm(p) * sigma_mle)
-    reg_mat <- cbind(tb, pred)
+    reg_mat <- cbind(df, pred)
     names(reg_mat)[ncol(reg_mat)] = "Prediction"
     lhs <- "Prediction"
     rhs <- as.character(fit$call$formula)[3]
@@ -61,19 +61,19 @@ get_se_pred <- function(pred, Xpred, V, p){
     se_pred
 }
 
-add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
+add_ci_lm_log <- function(df, fit, alpha = 0.05, names = NULL, yhatName){
 
     if (is.null(names)) {
         names[1] <- paste("LCB", alpha/2, sep = "")
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(df))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
-    sigma_mle <- get_sigma_mle(tb, fit, alpha)
-    V <- create_cov_mat(sigma_mle, tb, fit)
+    sigma_mle <- get_sigma_mle(df, fit, alpha)
+    V <- create_cov_mat(sigma_mle, df, fit)
     p <- pnorm(sigma_mle / 2)
-    pred_list <- get_Xpred_list(tb, fit, p, sigma_mle)
+    pred_list <- get_Xpred_list(df, fit, p, sigma_mle)
     pred <- pred_list$pred
     Xpred <- pred_list$Xpred
     Xbeta <- pred_list$Xbeta
@@ -83,10 +83,10 @@ add_ci_lm_log <- function(tb, fit, alpha = 0.05, names = NULL, yhatName){
     lwr <- exp(Xbeta + qnorm(p) * sigma_mle - z_quantile * se_pred / pred)
     upr <- exp(Xbeta + qnorm(p) * sigma_mle + z_quantile * se_pred / pred)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- pred
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
 
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }

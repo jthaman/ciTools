@@ -24,7 +24,7 @@
 #' Quantiles for linear models are determined parametrically, by
 #' applying a pivotal quantity to the distribution of \eqn{Y|x}.
 #' 
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lm}. Predictions are made with
 #'     this object.
 #' @param p A real number between 0 and 1. Sets the level of the
@@ -38,7 +38,7 @@
 #'     X\beta + \epsilon}. These quantiles will be on the scale of the
 #'     original response, \eqn{Y}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and level -
+#' @return A dataframe, \code{df}, with predicted values and level -
 #'     \emph{p} quantiles attached.
 #'
 #' @seealso \code{\link{add_ci.lm}} for confidence intervals for
@@ -60,10 +60,10 @@
 #' 
 #' @export
 
-add_quantile.lm <- function(tb, fit, p, name = NULL, yhatName = "pred",
+add_quantile.lm <- function(df, fit, p, name = NULL, yhatName = "pred",
                             log_response = FALSE, ...){
     if (log_response)
-        add_quantile_lm_log(tb, fit, p, name, yhatName)
+        add_quantile_lm_log(df, fit, p, name, yhatName)
     else {
         if (p == 0.5)
             warning ("The 0.5 quantile is equal to the fitted values")
@@ -71,10 +71,10 @@ add_quantile.lm <- function(tb, fit, p, name = NULL, yhatName = "pred",
             stop ("p should be in (0,1)")
         if (is.null(name))
             name <- paste("quantile", p, sep="")
-        if (name %in% colnames(tb)) {
+        if (name %in% colnames(df)) {
             warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
         }
-        out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
+        out <- predict(fit, df, interval = "prediction", se.fit = TRUE)
         fitted <- out$fit[,1]
         residual_df <- out$df
         se_fitted <- out$se.fit
@@ -82,10 +82,10 @@ add_quantile.lm <- function(tb, fit, p, name = NULL, yhatName = "pred",
         se_pred <- sqrt(resid_var + se_fitted^2)
         t_quantile <- qt(p = p, df = residual_df)
         out_quantiles <- fitted + se_pred * t_quantile
-        if (is.null(tb[[yhatName]]))
-            tb[[yhatName]] <- fitted
-        tb[[name]] <- out_quantiles
-        tibble::as_data_frame(tb)
+        if (is.null(df[[yhatName]]))
+            df[[yhatName]] <- fitted
+        df[[name]] <- out_quantiles
+        data.frame(df)
     }
 }
 

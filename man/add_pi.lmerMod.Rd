@@ -5,7 +5,7 @@
 \title{Prediction Intervals for Linear Mixed Model Fitted Values}
 \usage{
 \method{add_pi}{lmerMod}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data}
+\item{df}{A data frame of new data}
 
 \item{fit}{An object of class \code{lmerMod}.}
 
@@ -52,7 +52,7 @@ to perform.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     prediction bounds attached.
 }
 \description{

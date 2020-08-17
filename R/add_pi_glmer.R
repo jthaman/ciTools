@@ -19,12 +19,12 @@
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{glmerMod}.
+#' class \code{glmerMod}. This function is experimental.
 #'
 #' Prediction intervals are approximate and determined by simulation
 #' through the \code{simulate} function distributed with \code{lme4}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -45,7 +45,7 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.glmerMod}} for confidence intervals
@@ -54,19 +54,23 @@
 #'     \code{\link{add_quantile.glmerMod}} for response quantiles of
 #'     \code{glmerMod} objects.
 #'
+#' @details If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+#'   `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+#'   generalized estimating equations if this is desired.
+#'
 #' @examples
 #' n <- 300
 #' x <- runif(n)
 #' f <- factor(sample(1:5, size = n, replace = TRUE))
 #' y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-#' tb <- tibble::tibble(x = x, f = f, y = y)
-#' fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+#' df <- data.frame(x = x, f = f, y = y)
+#' fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 #'
-#' add_pi(tb, fit, names = c("LPB", "UPB"), nSims = 500)
+#' add_pi(df, fit, names = c("LPB", "UPB"), nSims = 500)
 #'
 #' @export
 
-add_pi.glmerMod <- function(tb, fit,
+add_pi.glmerMod <- function(df, fit,
                             alpha = 0.05, names = NULL, yhatName = "pred",
                             type = "boot", includeRanef = TRUE,
                             nSims = 10000, ...){
@@ -81,7 +85,7 @@ add_pi.glmerMod <- function(tb, fit,
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(df))) {
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
     }
 
@@ -89,12 +93,12 @@ add_pi.glmerMod <- function(tb, fit,
         warning("The response is not continuous, so Prediction Intervals are approximate")
 
     if (type == "boot")
-        bootstrap_pi_glmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+        bootstrap_pi_glmermod(df, fit, alpha, names, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
 
-bootstrap_pi_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_pi_glmermod <- function(df, fit, alpha, names, includeRanef, nSims, yhatName) {
 
     if (includeRanef) {
         rform = NULL
@@ -102,18 +106,18 @@ bootstrap_pi_glmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yh
         rform = NA
     }
 
-    gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
+    gg <- simulate(fit, newdata = df, re.form = rform, nsim = nSims)
 
     gg <- as.matrix(gg)
     lwr <- apply(gg, 1, FUN = quantile, probs = alpha/2)
     upr <- apply(gg, 1, FUN = quantile, probs = 1 - alpha / 2)
 
-    out <- predict(fit, tb, re.form = rform, type = "response")
+  out <- predict(fit, df, re.form = rform, type = "response")
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
+  if(is.null(df[[yhatName]]))
+    df[[yhatName]] <- out
+  df[[names[1]]] <- lwr
+  df[[names[2]]] <- upr
 
-    tibble::as_data_frame(tb)
+  data.frame(df)
 }

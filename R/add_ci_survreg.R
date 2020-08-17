@@ -58,7 +58,7 @@
 #' confidence intervals. Inspect any warning messages given from
 #' \code{survreg}.
 #'
-#' @param tb A tibble or data frame of new data on which to form
+#' @param df A data frame of new data on which to form
 #'     predictions and confidence intervals.
 #' @param fit An object of class \code{survreg}. Predictions are made
 #'     with this object.
@@ -77,7 +77,7 @@
 ## #'     to use. A value greater than or equal to 2000 is recommended.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted expected values and
+#' @return A dataframe, \code{df}, with predicted expected values and
 #'     level \emph{1 - alpha} level confidence levels attached.
 #'
 #' @seealso \code{\link{add_quantile.survreg}} for quantiles of the
@@ -88,18 +88,18 @@
 #'
 #' @examples
 #' ## Define a data set.
-#' tb <- survival::stanford2
+#' df <- survival::stanford2
 #' ## remove a covariate with missing values.
-#' tb <- tb[, 1:4]
+#' df <- df[, 1:4]
 #' ## next, create the Surv object inside the survreg call:
 #' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                          data = tb, dist = "lognormal")
-#' add_ci(tb, fit, alpha = 0.1, names = c("lwr", "upr"))
+#'                          data = df, dist = "lognormal")
+#' add_ci(df, fit, alpha = 0.1, names = c("lwr", "upr"))
 #'
 #' ## Try a different model:
 #' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                           data = tb, dist = "weibull")
-#' add_ci(tb, fit2, alpha = 0.1, names = c("lwr", "upr"))
+#'                           data = df, dist = "weibull")
+#' add_ci(df, fit2, alpha = 0.1, names = c("lwr", "upr"))
 #'
 #' @references
 #' For descriptions of the log-location scale models supported:
@@ -110,7 +110,7 @@
 #'
 #' @export
 
-add_ci.survreg <- function(tb, fit,
+add_ci.survreg <- function(df, fit,
                            alpha = 0.1,
                            names = NULL,
                            yhatName = "mean_pred",
@@ -121,12 +121,12 @@ add_ci.survreg <- function(tb, fit,
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
 
-    if ((names[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(df))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
-    if(any(is.na(tb)))
-        stop("Check tb for missingness")
+    if(any(is.na(df)))
+        stop("Check df for missingness")
 
     if (!(fit$dist %in%
           c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
@@ -137,13 +137,13 @@ add_ci.survreg <- function(tb, fit,
             stop("weighted regression is unsupported.")
 
     ## if(method == "boot")
-    ##     boot_ci_survreg_expectation(tb, fit,
+    ##     boot_ci_survreg_expectation(df, fit,
     ##                                 alpha,
     ##                                 names,
     ##                                 yhatName,
     ##                                 nSims)
     ## else if(method == "parametric")
-    parametric_ci_survreg_expectation(tb, fit,
+    parametric_ci_survreg_expectation(df, fit,
                                       alpha,
                                       names,
                                       yhatName)
@@ -166,7 +166,7 @@ calc_surv_mean <- function(mat, distr, beta, scale){
     pred
 }
 
-parametric_ci_survreg_expectation <- function(tb, fit,
+parametric_ci_survreg_expectation <- function(df, fit,
                                               alpha,
                                               names,
                                               yhatName){
@@ -176,11 +176,11 @@ parametric_ci_survreg_expectation <- function(tb, fit,
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
     form <- formula(fit)
-    m <- model.frame(form, tb)
+    m <- model.frame(form, df)
     mat <- model.matrix(form, m)
 
 
-    nPred <- dim(tb)[1]
+    nPred <- dim(df)[1]
     beta <- coef(fit)
     scale <- fit$scale
 
@@ -225,17 +225,17 @@ parametric_ci_survreg_expectation <- function(tb, fit,
     lwr <- pred / w
     upr <- pred * w
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- c(pred)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- c(pred)
 
-    tb[[names[1]]] <- as.numeric(lwr)
-    tb[[names[2]]] <- as.numeric(upr)
+    df[[names[1]]] <- as.numeric(lwr)
+    df[[names[2]]] <- as.numeric(upr)
 
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }
 
 
-surv_boot_mean <- function(tb, fit){
+surv_boot_mean <- function(df, fit){
     distr <- fit$dist
 
     if (distr == "loglogistic" && (fit$scale >= 1)){
@@ -244,9 +244,9 @@ surv_boot_mean <- function(tb, fit){
     }
 
     form <- formula(fit)
-    m <- model.frame(form, tb)
+    m <- model.frame(form, df)
     mat <- model.matrix(form, m)
-    nPred <- dim(tb)[1]
+    nPred <- dim(df)[1]
     beta <- coef(fit)
     scale <- fit$scale
 
@@ -255,7 +255,7 @@ surv_boot_mean <- function(tb, fit){
     pred
 }
 
-boot_ci_survreg_expectation <- function(tb, fit,
+boot_ci_survreg_expectation <- function(df, fit,
                                         alpha,
                                         names,
                                         yhatName,
@@ -267,13 +267,13 @@ boot_ci_survreg_expectation <- function(tb, fit,
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
     form <- formula(fit)
-    m <- model.frame(form, tb)
+    m <- model.frame(form, df)
     mat <- model.matrix(form, m)
 
     if(any(is.na(mat)))
-        stop("Check tb for missingness")
+        stop("Check df for missingness")
 
-    nPred <- dim(tb)[1]
+    nPred <- dim(df)[1]
     beta <- coef(fit)
     scale <- fit$scale
 
@@ -283,20 +283,20 @@ boot_ci_survreg_expectation <- function(tb, fit,
     boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
 
     for (i in 1:nSims){
-        temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
+        temp <- df[sample(1:nPred, size = nPred, replace = TRUE),]
         boot_fit <- survival::survreg(formula(fit$terms), data = temp,
                                       dist = fit$dist)
-        boot_pred <- surv_boot_mean(tb, boot_fit)
+        boot_pred <- surv_boot_mean(df, boot_fit)
         boot_mat[i,] <- boot_pred
     }
 
     lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
     upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
-    if (is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- as.numeric(pred)
+    if (is.null(df[[yhatName]]))
+        df[[yhatName]] <- as.numeric(pred)
 
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 
 }

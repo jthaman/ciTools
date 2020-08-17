@@ -21,8 +21,8 @@
 #' to a data frame. A response level probability (conditioned on the
 #' model and covariates), such as \eqn{Pr(Response|Covariates < 10)},
 #' is generated for the fitted value of each observation in
-#' \code{tb}. These probabilities are then appended to \code{tb} and
-#' returned to the user as a tibble.
+#' \code{df}. These probabilities are then appended to \code{df} and
+#' returned to the user as a data frame.
 #'
 #' For more specific information about the arguments that are useful
 #' in each method, consult:
@@ -44,7 +44,7 @@
 #' so that users of accelerated failure time models can obtain
 #' estimates of the survivor function.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lm}, \code{glm}, or
 #'     \code{lmerMod}. Predictions are made with this object.
 #' @param q A real number. A quantile of the conditional response
@@ -52,16 +52,16 @@
 #' @param name \code{NULL} or character vector of length one. If
 #'     \code{NULL}, probabilities automatically will be named by
 #'     \code{add_probs}, otherwise, the probabilities will be named
-#'     \code{name} in the returned tibble.
+#'     \code{name} in the returned data frame.
 #' @param yhatName A character vector of length one. Names of the
 #' @param comparison A string. If \code{comparison = "<"}, then
 #'     \eqn{Pr(Y|x < q)} is calculated for each observation in
-#'     \code{tb}. Default is "<". Must be "<" or ">" for objects of
+#'     \code{df}. Default is "<". Must be "<" or ">" for objects of
 #'     class \code{lm} or \code{lmerMod}. If \code{fit} is a
 #'     \code{glm}, then \code{comparison} also may be \code{"<="} ,
 #'     \code{">="} , or \code{"="}.
 #' @param ... Additional arguments
-#' @return A tibble, \code{tb}, with predicted values and
+#' @return A dataframe, \code{df}, with predicted values and
 #'     probabilities attached.
 #'
 #' @examples
@@ -94,6 +94,6 @@
 #'
 #' @export
 
-add_probs <- function(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...){
+add_probs <- function(df, fit, q, name = NULL, yhatName = "pred", comparison, ...){
     UseMethod("add_probs", fit)
 }

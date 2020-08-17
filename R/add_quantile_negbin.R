@@ -22,7 +22,7 @@
 #' Quantiles of Negative Binomial linear models are determined by
 #' \code{add_quantile} through a simulation using \code{arm::sim}.
 #' 
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{negbin}. Predictions are made with
 #'     this object.
 #' @param p A real number between 0 and 1. Sets the probability level
@@ -34,7 +34,7 @@
 #' @param nSims A positive integer. Set the number of simulated draws
 #'     to use.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and level
+#' @return A dataframe, \code{df}, with predicted values and level
 #'     \emph{p} quantiles attached.
 #'
 #' @seealso \code{\link{add_ci.negbin}} for confidence intervals for
@@ -51,27 +51,27 @@
 #' 
 #' @export
 
-add_quantile.negbin <- function(tb, fit, p, name = NULL, yhatName = "pred",
+add_quantile.negbin <- function(df, fit, p, name = NULL, yhatName = "pred",
                                 nSims = 2000, ...){
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name))
         name <- paste("quantile", p, sep="")
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(df))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
-    sim_quantile_nb(tb, fit, p, name, yhatName, nSims)
+    sim_quantile_nb(df, fit, p, name, yhatName, nSims)
 }
 
-sim_quantile_nb <- function(tb, fit, p, name, yhatName, nSims){
+sim_quantile_nb <- function(df, fit, p, name, yhatName, nSims){
 
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response_nb(tb, fit, nSims)
+    out <- predict(fit, newdata = df, type = "response")
+    sim_response <- get_sim_response_nb(df, fit, nSims)
     quants <- apply(sim_response, 1, FUN = quantile, probs = p, type = 1)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- quants
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[name]] <- quants
+    data.frame(df)
 }

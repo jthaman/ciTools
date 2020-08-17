@@ -5,7 +5,7 @@
 \title{Response Level Probabilities for Linear Models}
 \usage{
 \method{add_probs}{lm}(
-  tb,
+  df,
   fit,
   q,
   name = NULL,
@@ -16,7 +16,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lm}. Predictions are made with
 this object.}
@@ -25,13 +25,13 @@ this object.}
 
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
 automatically will be named by \code{add_probs}, otherwise, the
-probabilities will be named \code{name} in the returned tibble.}
+probabilities will be named \code{name} in the returned data frame.}
 
 \item{yhatName}{A character vector of length one. Names of the}
 
 \item{comparison}{\code{"<"}, or \code{">"}. If \code{comparison =
 "<"}, then \eqn{Pr(Y|x < q)} is calculated for each observation in
-\code{tb}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.}
+\code{df}. Otherwise, \eqn{Pr(Y|x > q)} is calculated.}
 
 \item{log_response}{A logical. Default is \code{FALSE}. Set to
 \code{TRUE} if the model is log-linear: \eqn{\log(Y) = X \beta
@@ -40,7 +40,7 @@ probabilities will be named \code{name} in the returned tibble.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and
+A dataframe, \code{df}, with predicted values and
     probabilities attached.
 }
 \description{

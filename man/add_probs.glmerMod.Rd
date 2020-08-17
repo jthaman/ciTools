@@ -5,7 +5,7 @@
 \title{Response Probabilities for Generalized Linear Mixed Model Predictions}
 \usage{
 \method{add_probs}{glmerMod}(
-  tb,
+  df,
   fit,
   q,
   name = NULL,
@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{glmerMod}.}
 
@@ -33,7 +33,7 @@ vector.}
 
 \item{comparison}{A string. If \code{comparison = "<"}, then
 \eqn{Pr(Y|x < q)} is calculated for each observation in
-\code{tb}. Default is "<". Must be "<" or ">" for objects of
+\code{df}. Default is "<". Must be "<" or ">" for objects of
 class \code{lm} or \code{lmerMod}. If \code{fit} is a
 \code{glm} or \code{glmerMod}, then \code{comparison} also may
 be \code{"<="} , \code{">="} , or \code{"="}.}
@@ -53,24 +53,29 @@ replicates if \code{type = "boot"}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and estimated
+A dataframe, \code{df}, with predicted values and estimated
     probabilities attached.
 }
 \description{
 This function is one of the methods for \code{add_probs}, and is
 called automatically when \code{add_probs} is used on a \code{fit}
 of class \code{glmerMod}. Probabilities are approximate and
-determined via a simulation.
+determined via a simulation. This function is experimental.
+}
+\details{
+If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+  `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+  generalized estimating equations if this is desired.
 }
 \examples{
 n <- 300
 x <- runif(n)
 f <- factor(sample(1:5, size = n, replace = TRUE))
 y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-tb <- tibble::tibble(x = x, f = f, y = y)
-fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+df <- data.frame(x = x, f = f, y = y)
+fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 
-add_probs(tb, fit, name = "p0.6", q = 0.6, nSims = 500)
+add_probs(df, fit, name = "p0.6", q = 0.6, nSims = 500)
 
 }
 \seealso{

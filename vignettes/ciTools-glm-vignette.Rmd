@@ -10,7 +10,9 @@ vignette: >
 ---
 
 ```{r message=FALSE}
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
 library(ciTools)
 library(MASS)
 library(arm)
@@ -130,7 +132,7 @@ data" matrix. The default method is parametric and is called with
 `add_ci(data, fit, ...)`. This is the method we generally recommend
 for constructing confidence intervals for model predictions.
 
-The bootstrap method is called with `add_ci(tb, fit, type = "boot",
+The bootstrap method is called with `add_ci(df, fit, type = "boot",
 ...)` and was included originally for making comparisons against the
 parametric method. There are multiple methods of bootstrap for
 regression models (resampling cases, resampling residuals, parametric,
@@ -139,7 +141,7 @@ resamples cases and iteratively refits the model (using the default
 behavior of `boot::boot`) to determine confidence intervals. After
 collecting the bootstrap replicates, a bias-corrected and accelerated
 (BCa) bootstrap confidence interval is formed for each point in the
-sample `tb`.
+sample `df`.
 
 Although there are several methods for computing bootstrap confidence
 intervals, we don't provide options to compute all of these
@@ -204,10 +206,10 @@ false, these interval estimates may exhibit more disagreement.
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center", echo = F}
 ggplot(df4, aes(x = x, y = y)) +
-    ggtitle("Logistic Regression") +
-    geom_jitter(height = 0.01) +
-    geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
-    geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
+  ggtitle("Logistic Regression") +
+  geom_jitter(height = 0.01) +
+  geom_ribbon(aes(ymin = lboot, ymax = uboot), alpha = 0.4, fill = "red") +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4, fill = "royalblue") +
   geom_line(aes(x = x , y = pred...3), size = 2)
 ```
 
@@ -336,7 +338,7 @@ df_ints <- df %>%
 
 As with other methods available in `ciTools` the requested
 statistics are computed, appended to the data frame, and returned to
-the user as a tibble.
+the user as a data frame.
 
 ```{r fig.width = 6, fig.heither = 4, fig.align = "center"}
 df_ints %>%
@@ -513,10 +515,10 @@ with sample size, however there is an increase from sample size $500$
 to $1000$, which is within simulation error.
 
 ```{r message=FALSE}
-pois <- read_csv("pois_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+pois <- read.csv("pois_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(pois)
 ```
 
@@ -580,10 +582,10 @@ dispersion parameter. These results lead us to believe that more study
 is warranted on this type of interval estimate.
 
 ```{r message=FALSE}
-neg_bin <- read_csv("negbin_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+neg_bin <- read.csv("negbin_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(neg_bin)
 ```
 
@@ -642,10 +644,11 @@ level. Average interval widths tend to exhibit a high degree of
 variation.
 
 ```{r message=FALSE}
-gam <- read_csv("gamma_pi_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+gam <- read.csv("gamma_pi_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
+
 knitr::kable(gam)
 ```
 
@@ -708,10 +711,10 @@ error or two of $0.95$ and interval widths generally decrease
 according to the increased sample size.
 
 ```{r message=FALSE}
-norm_log <- read_csv("gaussian_pi_loglink_results.csv") %>%
-    dplyr::select(-total_time) %>%
-    rename(nominal_level = level) %>%
-    dplyr::select(sample_size, everything())
+norm_log <- read.csv("gaussian_pi_loglink_results.csv") %>%
+  dplyr::select(-total_time) %>%
+  rename(nominal_level = level) %>%
+  dplyr::select(sample_size, everything())
 knitr::kable(norm_log)
 ```
 

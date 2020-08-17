@@ -23,13 +23,13 @@
 #'
 #' Prediction intervals for \code{lm} objects are calculated
 #' parametrically. This function is essentially just a wrapper for
-#' \code{predict(fit, tb, interval = "prediction")} if \code{fit} is a
+#' \code{predict(fit, df, interval = "prediction")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, prediction intervals
 #' for the response are calculated parametrically, then the
 #' exponential function is applied to transform them to the original
 #' scale.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class lm. Predictions are made with this
 #'     object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -45,7 +45,7 @@
 #'     \eqn{\log(Y) = X\beta + \epsilon}. Again, these intervals will
 #'     be on the scale of the original response, Y.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #' 
 #' @seealso \code{\link{add_ci.lm}} for confidence intervals for
@@ -71,28 +71,28 @@
 #' add_pi(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
 #' @export
 
-add_pi.lm <- function(tb, fit, alpha = 0.05, names = NULL,
+add_pi.lm <- function(df, fit, alpha = 0.05, names = NULL,
                       yhatName = "pred", log_response = FALSE, ...){
     
     if (log_response)
-        add_pi_lm_log(tb, fit, alpha, names, yhatName)
+        add_pi_lm_log(df, fit, alpha, names, yhatName)
 
     else {
         if (is.null(names)){
             names[1] <- paste("LPB", alpha/2, sep = "")
             names[2] <- paste("UPB", 1 - alpha/2, sep = "")
         }
-        if ((names[1] %in% colnames(tb))) {
+        if ((names[1] %in% colnames(df))) {
             warning ("These PIs may have already been appended to your dataframe. Overwriting.")
         }
-        out <- predict(fit, tb, interval = "prediction", level = 1 - alpha)
-        if(is.null(tb[[yhatName]]))
-            tb[[yhatName]] <- out[, 1]
-        if (is.null(tb[[names[1]]]))
-            tb[[names[1]]] <- out[, 2]
-        if (is.null(tb[[names[2]]]))
-            tb[[names[2]]] <- out[, 3]
-        tibble::as_data_frame(tb)
+        out <- predict(fit, df, interval = "prediction", level = 1 - alpha)
+        if(is.null(df[[yhatName]]))
+            df[[yhatName]] <- out[, 1]
+        if (is.null(df[[names[1]]]))
+            df[[names[1]]] <- out[, 2]
+        if (is.null(df[[names[2]]]))
+            df[[names[2]]] <- out[, 3]
+        data.frame(df)
     }
 }
 

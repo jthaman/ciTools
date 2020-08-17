@@ -31,7 +31,7 @@
 #' corrected and accelerated intervals are calculated. See
 #' \code{boot::boot.ci} for more details.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{negbin}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -41,7 +41,7 @@
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of predictions made
-#'     for each observation in tb
+#'     for each observation in df
 #' @param type A string. Must be \code{type = "parametric"} or
 #'     \code{type = "boot"}. \code{type} determines the method used to
 #'     compute the confidence intervals.
@@ -53,7 +53,7 @@
 #'     bootstrap method is used.
 #' @param ... Additional arguments.
 #' 
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.negbin}} for prediction intervals for
@@ -72,7 +72,7 @@
 #'
 #' @export
 
-add_ci.negbin <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
+add_ci.negbin <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                           response = TRUE, type = "parametric", nSims = 2000, ...){
 
     if (!(fit$converged))
@@ -81,21 +81,21 @@ add_ci.negbin <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred"
         names[1] <- paste("LCB", alpha/2, sep = "")
         names[2] <- paste("UCB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb))) {
+    if ((names[1] %in% colnames(df))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
     
     if (type == "boot")
-        boot_ci_negbin(tb, fit, alpha, names, yhatName, response, nSims)
+        boot_ci_negbin(df, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
-        parametric_ci_negbin(tb, fit, alpha, names, yhatName, response)
+        parametric_ci_negbin(df, fit, alpha, names, yhatName, response)
     else 
         stop("Incorrect interval type specified!")
 
 }
 
-parametric_ci_negbin <- function(tb, fit, alpha, names, yhatName, response){
-    out <- predict(fit, tb, se.fit = TRUE, type = "link")
+parametric_ci_negbin <- function(df, fit, alpha, names, yhatName, response){
+    out <- predict(fit, df, se.fit = TRUE, type = "link")
 
     crit_val <- qt(p = 1 - alpha/2, df = fit$df.residual)
 
@@ -116,22 +116,22 @@ parametric_ci_negbin <- function(tb, fit, alpha, names, yhatName, response){
         pred <- out$fit
     }
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- pred
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }
 
 
-boot_fit_nb<- function(data, tb, fit, lvl, indices){
+boot_fit_nb<- function(data, df, fit, lvl, indices){
     data_temp <- data[indices,]
     form <- fit$call[2]
     temp_fit <- glm.nb(form, data = data_temp)
-    predict(temp_fit, newdata = tb, type = lvl)
+    predict(temp_fit, newdata = df, type = lvl)
 }
 
-boot_ci_negbin <- function(tb, fit, alpha, names, yhatName, response, nSims){
+boot_ci_negbin <- function(df, fit, alpha, names, yhatName, response, nSims){
 
     if (response){
         lvl <- "response"
@@ -140,19 +140,19 @@ boot_ci_negbin <- function(tb, fit, alpha, names, yhatName, response, nSims){
         lvl <- "link"
     }
 
-    out <- predict(fit, tb, type = lvl)
+    out <- predict(fit, df, type = lvl)
 
     boot_obj <- boot(data = fit$model,
                      statistic = boot_fit_nb,
                      R = nSims,
                      fit = fit,
-                     tb = tb,
+                     df = df,
                      lvl = lvl)
 
 
-    temp_mat <- matrix(0, ncol = 2, nrow = NROW(tb))
+    temp_mat <- matrix(0, ncol = 2, nrow = NROW(df))
 
-    for (i in 1:NROW(tb)){
+    for (i in 1:NROW(df)){
         temp_mat[i,] <- boot.ci(boot_obj,
                                 type = "bca",
                                 conf = 1 - alpha,
@@ -162,9 +162,9 @@ boot_ci_negbin <- function(tb, fit, alpha, names, yhatName, response, nSims){
     lwr <- temp_mat[,1]
     upr <- temp_mat[,2]
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }

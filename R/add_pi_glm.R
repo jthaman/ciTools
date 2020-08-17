@@ -30,7 +30,7 @@
 #' with the negative binomial distribution, see Gelman and Hill
 #' (2007).
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glm}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -44,7 +44,7 @@
 #'     simulations to run.
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     prediction bounds attached.
 #'
 #' @seealso \code{\link{add_ci.glm}} for confidence intervals for
@@ -66,14 +66,14 @@
 #' @export
 
 
-add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
+add_pi.glm <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                        nSims = 2000,  ...){
 
     if (is.null(names)) {
         names[1] <- paste("LPB", alpha/2, sep = "")
         names[2] <- paste("UPB", 1 - alpha/2, sep = "")
     }
-    if ((names[1] %in% colnames(tb)))
+    if ((names[1] %in% colnames(df)))
         warning ("These PIs may have already been appended to your dataframe. Overwriting.")
 
 
@@ -92,32 +92,32 @@ add_pi.glm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred",
         stop("Unsupported family")
 
     if(fit$family$family == "gaussian")
-        pi_gaussian(tb, fit, alpha, names, yhatName)
+        pi_gaussian(df, fit, alpha, names, yhatName)
     else
-        sim_pi_glm(tb, fit, alpha, names, yhatName, nSims)
+        sim_pi_glm(df, fit, alpha, names, yhatName, nSims)
 }
 
-pi_gaussian <- function(tb, fit, alpha, names, yhatName){
+pi_gaussian <- function(df, fit, alpha, names, yhatName){
     sigma_sq <- summary(fit)$dispersion
     inverselink <- fit$family$linkinv
-    out <- predict(fit, newdata = tb, se.fit = TRUE)
+    out <- predict(fit, newdata = df, se.fit = TRUE)
     se_terms <- out$se.fit
     t_quant <- qt(p = alpha/2, df = fit$df.residual, lower.tail = FALSE)
     se_global <- sqrt(sigma_sq + se_terms^2)
     lwr <- inverselink(out$fit) - t_quant * se_global
     upr <- inverselink(out$fit) + t_quant * se_global
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- inverselink(out$fit)
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- inverselink(out$fit)
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }
 
-get_sim_response <- function(tb, fit, nSims){
+get_sim_response <- function(df, fit, nSims){
 
-    nPreds <- NROW(tb)
-    modmat <- model.matrix(fit, data = tb)
+    nPreds <- NROW(df)
+    modmat <- model.matrix(fit, data = df)
     response_distr <- fit$family$family
     inverselink <- fit$family$linkinv
     overdisp <- summary(fit)$dispersion
@@ -158,9 +158,9 @@ get_sim_response <- function(tb, fit, nSims){
     sim_response
 }
 
-sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response(tb = tb, fit = fit, nSims = nSims)
+sim_pi_glm <- function(df, fit, alpha, names, yhatName, nSims){
+    out <- predict(fit, newdata = df, type = "response")
+    sim_response <- get_sim_response(df = df, fit = fit, nSims = nSims)
     lwr <- apply(sim_response, 1, FUN = quantile, probs = alpha/2, type = 1)
     upr <- apply(sim_response, 1, FUN = quantile, probs = 1 - alpha / 2, type = 1)
 
@@ -169,9 +169,9 @@ sim_pi_glm <- function(tb, fit, alpha, names, yhatName, nSims){
       warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
     }
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[names[1]]] <- lwr
-    tb[[names[2]]] <- upr
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[names[1]]] <- lwr
+    df[[names[2]]] <- upr
+    data.frame(df)
 }

@@ -19,9 +19,9 @@
 #'
 #' This function is one of the methods for \code{add_pi}, and is
 #' called automatically when \code{add_pi} is used on a \code{fit} of
-#' class \code{glmerMod}.
+#' class \code{glmerMod}. This function is experimental.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glmerMod}.
 #' @param p A real number between 0 and 1. Sets the probability level
 #'     of the quantiles.
@@ -40,7 +40,7 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and quantiles attached.
+#' @return A dataframe, \code{df}, with predicted values and quantiles attached.
 #'
 #' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
 #'     of \code{glmerMod} objects, \code{\link{add_probs.glmerMod}} for
@@ -48,19 +48,23 @@
 #'     \code{\link{add_ci.glmerMod}} for confidence intervals of
 #'     \code{glmerMod} objects.
 #'
+#' @details If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+#'   `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+#'   generalized estimating equations if this is desired.
+#'
 #' @examples
 #' n <- 300
 #' x <- runif(n)
 #' f <- factor(sample(1:5, size = n, replace = TRUE))
 #' y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-#' tb <- tibble::tibble(x = x, f = f, y = y)
-#' fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+#' df <- data.frame(x = x, f = f, y = y)
+#' fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 #'
-#' add_quantile(tb, fit, name = "quant0.6", p = 0.6, nSims = 500)
+#' add_quantile(df, fit, name = "quant0.6", p = 0.6, nSims = 500)
 #'
 #' @export
 
-add_quantile.glmerMod <- function(tb, fit,
+add_quantile.glmerMod <- function(df, fit,
                                   p, name = NULL, yhatName = "pred",
                                   type = "boot", includeRanef = TRUE,
                                   nSims = 10000, ...){
@@ -75,15 +79,15 @@ add_quantile.glmerMod <- function(tb, fit,
         stop ("p should be in (0,1)")
     if (is.null(name))
         name <- paste("quantile", p, sep="")
-    if ((name %in% colnames(tb)))
+    if ((name %in% colnames(df)))
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     if (type == "boot")
-        bootstrap_quant_glmermod(tb, fit, p, name, includeRanef, nSims, yhatName)
+        bootstrap_quant_glmermod(df, fit, p, name, includeRanef, nSims, yhatName)
     else
         stop("Incorrect type specified!")
 }
 
-bootstrap_quant_glmermod <- function(tb, fit, p, name, includeRanef, nSims, yhatName) {
+bootstrap_quant_glmermod <- function(df, fit, p, name, includeRanef, nSims, yhatName) {
 
     if (includeRanef) {
         rform = NULL
@@ -91,14 +95,14 @@ bootstrap_quant_glmermod <- function(tb, fit, p, name, includeRanef, nSims, yhat
         rform = NA
     }
 
-    gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
-    gg <- as.matrix(gg)
-    quant_out <- apply(gg, 1, FUN = quantile, probs = p)
-    out <- predict(fit, tb, re.form = rform, type = "response")
+  gg <- simulate(fit, newdata = df, re.form = rform, nsim = nSims)
+  gg <- as.matrix(gg)
+  quant_out <- apply(gg, 1, FUN = quantile, probs = p)
+  out <- predict(fit, df, re.form = rform, type = "response")
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- quant_out
+  if(is.null(df[[yhatName]]))
+    df[[yhatName]] <- out
+  df[[name]] <- quant_out
 
-    tibble::as_data_frame(tb)
+  data.frame(df)
 }

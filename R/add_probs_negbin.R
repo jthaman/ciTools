@@ -21,14 +21,14 @@
 #' object of class \code{negbin}. Probabilities are determined through
 #' simulation, using the same method as \code{add_pi.negbin}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{negbin}. Predictions are made
 #'     with this object.
 #' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
-#'     tibble
+#'     data frame.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param comparison A character vector of length one. Permitted
 #'     arguments are \code{"="}, \code{"<"}, \code{"<="}, \code{">"}, or
@@ -36,10 +36,10 @@
 #' @param nSims A positive integer. Controls the number of simulated
 #'     draws.
 #' @param ... Additional arguments.
-#' 
-#' @return A tibble, \code{tb}, with predicted values and
+#'
+#' @return A dataframe, \code{df}, with predicted values and
 #'     probabilities attached.
-#' 
+#'
 #' @seealso \code{\link{add_ci.negbin}} for confidence intervals for
 #'     \code{negbin} objects, \code{\link{add_pi.negbin}} for prediction
 #'     intervals of \code{negbin} objects, and
@@ -52,10 +52,10 @@
 #' df <- data.frame(x1 = x1, y = y)
 #' fit <- MASS::glm.nb(y ~ x1, data = df)
 #' add_probs(df, fit, q = 50)
-#' 
+#'
 #' @export
 
-add_probs.negbin <- function(tb, fit, q, name = NULL, yhatName = "pred",
+add_probs.negbin <- function(df, fit, q, name = NULL, yhatName = "pred",
                              comparison = "<", nSims = 2000, ...){
 
     if (is.null(name) & (comparison == "<"))
@@ -69,24 +69,22 @@ add_probs.negbin <- function(tb, fit, q, name = NULL, yhatName = "pred",
     if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
 
-    if ((name %in% colnames(tb)))
+    if ((name %in% colnames(df)))
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
 
-    sim_probs_negbin(tb, fit, q, name, yhatName, nSims, comparison)
+    sim_probs_negbin(df, fit, q, name, yhatName, nSims, comparison)
 }
 
 
-sim_probs_negbin <- function(tb, fit, q, name, yhatName, nSims, comparison){
+sim_probs_negbin <- function(df, fit, q, name, yhatName, nSims, comparison){
 
-    out <- predict(fit, newdata = tb, type = "response")
-    sim_response <- get_sim_response_nb(tb, fit, nSims)
+    out <- predict(fit, newdata = df, type = "response")
+    sim_response <- get_sim_response_nb(df, fit, nSims)
 
     probs <- apply(sim_response, 1, FUN = calc_prob, quant = q, comparison = comparison)
-    
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
+
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out
+    df[[name]] <- probs
+    data.frame(df)
 }
-
-

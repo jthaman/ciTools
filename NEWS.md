@@ -26,3 +26,8 @@ SCHEDULED: &lt;2017-12-02 Sat&gt;
     1.  Binomial regression with ciTools
     2.  Generalized Linear Models with ciTools
 
+
+Version 0.6.0
+=============
+
+- Dropped dependency of tibble and tidyverse

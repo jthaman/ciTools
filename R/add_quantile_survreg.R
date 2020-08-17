@@ -48,7 +48,7 @@
 #' confidence intervals. Inspect any warning messages given from
 #' \code{survreg}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{survreg}. Predictions are made
 #'     with this object.
 #' @param p A real number between 0 and 1. Sets the probability level
@@ -58,7 +58,7 @@
 #'     \code{add_quantile}, otherwise, they will be named \code{name}.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
-#'     the quantiles are also appended to \code{tb}.
+#'     the quantiles are also appended to \code{df}.
 #' @param alpha A number. Controls the confidence level of the
 #'     confidence intervals if \code{confint = TRUE}.
 ## #' @param method A string. One of either \code{"parametric"} or
@@ -66,7 +66,7 @@
 ## #' @param nSims A positive integer. Set the
 ## #'     number of simulated draws to use.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted medians, level \eqn{p}
+#' @return A dataframe, \code{df}, with predicted medians, level \eqn{p}
 #'     quantiles, and confidence intervals attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals
@@ -87,24 +87,24 @@
 #'
 #' @examples
 #' ## Define a data set:
-#' tb <- survival::stanford2
+#' df <- survival::stanford2
 #' ## remove a covariate with missing values:
-#' tb <- tb[, 1:4]
+#' df <- df[, 1:4]
 #' ## next, create the Surv object inside the survreg call:
 #' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                          data = tb, dist = "lognormal")
+#'                          data = df, dist = "lognormal")
 #' ## Calculate the level 0.75 quantile wit CIs for that quantile
-#' add_quantile(tb, fit, p = 0.75, name = c("quant", "lwr", "upr"))
+#' add_quantile(df, fit, p = 0.75, name = c("quant", "lwr", "upr"))
 #'
 #' ## Try a weibull model for the same data:
 #' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                           data = tb, dist = "weibull")
+#'                           data = df, dist = "weibull")
 #' ## Calculate the level 0.75 quantile with CIs for the quantile
-#' add_quantile(tb, fit2, p = 0.75, name = c("quant", "lwr", "upr"))
+#' add_quantile(df, fit2, p = 0.75, name = c("quant", "lwr", "upr"))
 #'
 #' @export
 
-add_quantile.survreg <- function(tb, fit, p = 0.5,
+add_quantile.survreg <- function(df, fit, p = 0.5,
                                  name = NULL,
                                  yhatName = "median_pred",
                                  confint = TRUE,
@@ -117,7 +117,7 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
         name[2] <- paste("lcb")
         name[3] <- paste("ucb")
     }
-    if ((name[1] %in% colnames(tb))) {
+    if ((name[1] %in% colnames(df))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
 
@@ -129,57 +129,57 @@ add_quantile.survreg <- function(tb, fit, p = 0.5,
         if (var(fit$weights) != 0)
             stop("weighted regression is unsupported.")
 
-    if(any(is.na(tb)))
-        stop("Check tb for missingness")
+    if(any(is.na(df)))
+        stop("Check df for missingness")
 
     ## if(method == "boot")
-    ##     boot_ci_survreg_quantile(tb, fit, p, name, yhatName,
+    ##     boot_ci_survreg_quantile(df, fit, p, name, yhatName,
     ##                              confint, alpha, nSims)
     ## else if(method == "parametric")
-        parametric_ci_survreg_quantile(tb, fit, p, name, yhatName,
+        parametric_ci_survreg_quantile(df, fit, p, name, yhatName,
                                        confint, alpha)
     ## else
     ##     stop("method must be either 'boot' or 'parametric'")
 }
 
-boot_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
+boot_ci_survreg_quantile <- function(df, fit, p, name, yhatName,
                                      confint, alpha, nSims){
-    nPred <- dim(tb)[1]
-    out <- predict(fit, tb, se.fit = TRUE,
+    nPred <- dim(df)[1]
+    out <- predict(fit, df, se.fit = TRUE,
                    type = "quantile", p = p)
-    med <- predict(fit, tb, se.fit = TRUE,
+    med <- predict(fit, df, se.fit = TRUE,
                    type = "quantile", p = 0.5)
     pred <- out$fit
 
     if (confint){
         boot_mat <- matrix(NA, nrow = nSims, ncol = nPred)
         for (i in 1:nSims){
-            temp <- tb[sample(1:nPred, size = nPred, replace = TRUE),]
+            temp <- df[sample(1:nPred, size = nPred, replace = TRUE),]
             boot_fit <- survival::survreg(formula(fit$terms), data = temp,
                                           dist = fit$dist)
-            boot_pred <- predict(boot_fit, tb,
+            boot_pred <- predict(boot_fit, df,
                                  type = "quantile", p = p)
             boot_mat[i,] <- boot_pred
         }
         lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
         upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
     }
-    if (is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- med$fit
+    if (is.null(df[[yhatName]]))
+        df[[yhatName]] <- med$fit
 
-    tb[[name[1]]] <- pred
+    df[[name[1]]] <- pred
 
     if (confint){
-        tb[[name[2]]] <- lwr
-        tb[[name[3]]] <- upr
+        df[[name[2]]] <- lwr
+        df[[name[3]]] <- upr
     }
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }
 
-parametric_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
+parametric_ci_survreg_quantile <- function(df, fit, p, name, yhatName,
                                            confint, alpha){
-    out <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = p)
-    med <- predict(fit, tb, se.fit = TRUE, type = "quantile", p = 0.5)
+    out <- predict(fit, df, se.fit = TRUE, type = "quantile", p = p)
+    med <- predict(fit, df, se.fit = TRUE, type = "quantile", p = 0.5)
     pred <- out$fit
 
     if (confint){
@@ -190,14 +190,14 @@ parametric_ci_survreg_quantile <- function(tb, fit, p, name, yhatName,
         lwr <- pred / w
     }
 
-    if (is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- med$fit
+    if (is.null(df[[yhatName]]))
+        df[[yhatName]] <- med$fit
 
-    tb[[name[1]]] <- pred
+    df[[name[1]]] <- pred
 
     if (confint){
-        tb[[name[2]]] <- lwr
-        tb[[name[3]]] <- upr
+        df[[name[2]]] <- lwr
+        df[[name[3]]] <- upr
     }
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
-get_x_matrix_mermod <- function(tb, fit){
+get_x_matrix_mermod <- function(df, fit){
 
     ## This function is necessary to avoid cases where the new data
     ## upon which CIs are generated does not contain all levels for
@@ -44,17 +44,17 @@ get_x_matrix_mermod <- function(tb, fit){
         if(is.factor(mm[[i]])) mm[[i]] <- as.character(mm[[i]])
     }
     suppressWarnings(mat <- model.matrix(reformulate(attributes(terms(fit))$term.labels),
-                                         dplyr::bind_rows(mm, tb))[-(1:nrow(fit@frame)), ])
-    if (dim(tb)[1] == 1)
+                                         dplyr::bind_rows(mm, df))[-(1:nrow(fit@frame)), ])
+    if (dim(df)[1] == 1)
         mat <- t(as.matrix(mat))
     mat
 }
 
 
 
-get_prediction_se_mermod <- function(tb, fit){
+get_prediction_se_mermod <- function(df, fit){
 
-    X <- get_x_matrix_mermod(tb, fit)
+    X <- get_x_matrix_mermod(df, fit)
     vcovBetaHat <- vcov(fit) %>%
         as.matrix
     X %*% vcovBetaHat %*% t(X) %>%
@@ -81,8 +81,8 @@ get_resid_df_mermod <- function(fit){
         (length(attributes(summary(fit)$varcor)$names) + 1)
 }
 
-get_pi_mermod_var <- function(tb, fit, includeRanef){
-    seFixed <- get_prediction_se_mermod(tb, fit)
+get_pi_mermod_var <- function(df, fit, includeRanef){
+    seFixed <- get_prediction_se_mermod(df, fit)
     seG <- arm::se.ranef(fit)[[1]][1,]
     sigmaG <- as.data.frame(VarCorr(fit))$sdcor[1]
     se_residual <- sigma(fit)
@@ -113,27 +113,27 @@ calc_prob <- function(x, quant, comparison){
 }
 
 my_pred_full <- function(fit) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL)
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NULL)
 }
 
 my_pred_fixed <- function(fit) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA)
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NA)
 }
 
 my_pred_full_glmer_response <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "response")
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NULL, family = fit@resp$family$family, type = "response")
 }
 
 my_pred_fixed_glmer_response <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "response")
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NA, family = fit@resp$family$family, type = "response")
 }
 
 my_pred_full_glmer_linear <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NULL, family = fit@resp$family$family, type = "link")
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NULL, family = fit@resp$family$family, type = "link")
 }
 
 my_pred_fixed_glmer_linear <- function(fit, lvl) {
-    predict(fit, newdata = ciTools_data$tb_temp, re.form = NA, family = fit@resp$family$family, type = "link")
+    predict(fit, newdata = ciTools_data$df_temp, re.form = NA, family = fit@resp$family$family, type = "link")
 }
 
 boot_quants <- function(merBoot, alpha) {

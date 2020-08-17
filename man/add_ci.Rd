@@ -4,10 +4,10 @@
 \alias{add_ci}
 \title{Add Confidence Intervals for Fitted Values to Data Frames}
 \usage{
-add_ci(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
+add_ci(df, fit, alpha = 0.05, names = NULL, yhatName = "pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data. \code{tb} can be the
+\item{df}{A data frame of new data. \code{df} can be the
 original data or new data.}
 
 \item{fit}{An object of class \code{lm}, \code{glm},
@@ -24,20 +24,20 @@ named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
 \item{yhatName}{A character vector of length one. Name of the
-vector of the predictions made for each observation in \code{tb}}
+vector of the predictions made for each observation in \code{df}}
 
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{
 This is a generic function to append confidence intervals for
 predictions of a model fit to a data frame. A confidence interval
 is generated for the fitted value of each observation in
-\code{tb}. These confidence intervals are then appended to
-\code{tb} and returned to the user as a tibble. The \code{fit} may
+\code{df}. These confidence intervals are then appended to
+\code{df} and returned to the user as a data frame. The \code{fit} may
 be a linear, log-linear, linear mixed, generalized linear model,
 generalized linear mixed, or accelerated failure time model.
 }

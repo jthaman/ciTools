@@ -20,9 +20,9 @@
 #' This function is one of the methods for \code{add_probs}, and is
 #' called automatically when \code{add_probs} is used on a \code{fit}
 #' of class \code{glmerMod}. Probabilities are approximate and
-#' determined via a simulation.
+#' determined via a simulation. This function is experimental.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{glmerMod}.
 #' @param q A double. A quantile of the response distribution.
 #' @param name \code{NULL} or character vector of length one. If
@@ -35,7 +35,7 @@
 #'     calculate the probabilities.
 #' @param comparison A string. If \code{comparison = "<"}, then
 #'     \eqn{Pr(Y|x < q)} is calculated for each observation in
-#'     \code{tb}. Default is "<". Must be "<" or ">" for objects of
+#'     \code{df}. Default is "<". Must be "<" or ">" for objects of
 #'     class \code{lm} or \code{lmerMod}. If \code{fit} is a
 #'     \code{glm} or \code{glmerMod}, then \code{comparison} also may
 #'     be \code{"<="} , \code{">="} , or \code{"="}.
@@ -46,7 +46,7 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values and estimated
+#' @return A dataframe, \code{df}, with predicted values and estimated
 #'     probabilities attached.
 #'
 #' @seealso \code{\link{add_pi.glmerMod}} for prediction intervals
@@ -55,19 +55,23 @@
 #'     \code{\link{add_quantile.glmerMod}} for response quantiles of
 #'     \code{glmerMod} objects.
 #'
+#' @details If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+#'   `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+#'   generalized estimating equations if this is desired.
+#'
 #' @examples
 #' n <- 300
 #' x <- runif(n)
 #' f <- factor(sample(1:5, size = n, replace = TRUE))
 #' y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-#' tb <- tibble::tibble(x = x, f = f, y = y)
-#' fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+#' df <- data.frame(x = x, f = f, y = y)
+#' fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 #'
-#' add_probs(tb, fit, name = "p0.6", q = 0.6, nSims = 500)
+#' add_probs(df, fit, name = "p0.6", q = 0.6, nSims = 500)
 #'
 #' @export
 
-add_probs.glmerMod <- function(tb, fit,
+add_probs.glmerMod <- function(df, fit,
                                q, name = NULL, yhatName = "pred", comparison = "<",
                                type = "boot", includeRanef = TRUE,
                                nSims = 10000, ...){
@@ -89,17 +93,17 @@ add_probs.glmerMod <- function(tb, fit,
     if (is.null(name) & (comparison == "="))
         name <- paste("prob_equal_to", q, sep="")
 
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(df))) {
         warning ("These probabilitiess may have already been appended to your dataframe. Overwriting.")
     }
 
     if (type == "boot")
-        bootstrap_probs_glmermod(tb, fit, q, name, includeRanef, nSims, yhatName, comparison)
+        bootstrap_probs_glmermod(df, fit, q, name, includeRanef, nSims, yhatName, comparison)
     else
         stop("Incorrect type specified!")
 }
 
-bootstrap_probs_glmermod <- function(tb, fit, q, name, includeRanef, nSims, yhatName, comparison) {
+bootstrap_probs_glmermod <- function(df, fit, q, name, includeRanef, nSims, yhatName, comparison) {
 
     if (includeRanef) {
         rform = NULL
@@ -107,13 +111,13 @@ bootstrap_probs_glmermod <- function(tb, fit, q, name, includeRanef, nSims, yhat
         rform = NA
     }
 
-    gg <- simulate(fit, newdata = tb, re.form = rform, nsim = nSims)
-    gg <- as.matrix(gg)
-    probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
-    out <- predict(fit, tb, re.form = rform, type = "response")
+  gg <- simulate(fit, newdata = df, re.form = rform, nsim = nSims)
+  gg <- as.matrix(gg)
+  probs <- apply(gg, 1, FUN = calc_prob, quant = q, comparison = comparison)
+  out <- predict(fit, df, re.form = rform, type = "response")
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- out
-    tb[[name]] <- probs
-    tibble::as_data_frame(tb)
+  if(is.null(df[[yhatName]]))
+    df[[yhatName]] <- out
+  df[[name]] <- probs
+  data.frame(df)
 }

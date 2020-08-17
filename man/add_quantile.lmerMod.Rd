@@ -5,7 +5,7 @@
 \title{Quantiles for the Response of a Linear Mixed Model}
 \usage{
 \method{add_quantile}{lmerMod}(
-  tb,
+  df,
   fit,
   p,
   name = NULL,
@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lm}. Predictions are made with
 this object.}
@@ -51,7 +51,7 @@ log-linear mixed model: \eqn{\log(Y) = X\beta + Z\gamma +
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level-p
+A dataframe, \code{df}, with predicted values and level-p
     quantiles attached.
 }
 \description{

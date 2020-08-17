@@ -6,7 +6,7 @@
 Failure Time Models}
 \usage{
 \method{add_probs}{survreg}(
-  tb,
+  df,
   fit,
   q,
   name = NULL,
@@ -18,7 +18,7 @@ Failure Time Models}
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{survreg}. Predictions are made
 with this object.}
@@ -29,7 +29,7 @@ survival applications this is the time of event.}
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
 automatically will be named by \code{add_probs()}, otherwise,
 the probabilities will be named \code{name} in the returned
-tibble}
+data frame.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
@@ -40,7 +40,7 @@ at time \code{q} is calculated.}
 
 \item{confint}{A logical. If \code{TRUE}, confidence intervals for
 the estimated probabilities will be calculated and appended to
-\code{tb}.}
+\code{df}.}
 
 \item{alpha}{A number. Control the confidence level of the
 confidence intervals if \code{confint = TRUE}.}
@@ -48,7 +48,7 @@ confidence intervals if \code{confint = TRUE}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted medians, probabilities,
+A dataframe, \code{df}, with predicted medians, probabilities,
     and confidence intervals for predicted probabilities attached.
 }
 \description{
@@ -87,20 +87,20 @@ confidence intervals. Inspect any warning messages given from
 }
 \examples{
 ## Define a data set.
-tb <- survival::stanford2
+df <- survival::stanford2
 ## remove a covariate with missing values.
-tb <- tb[, 1:4]
+df <- df[, 1:4]
 ## next, create the Surv object inside the survreg call:
 fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                         data = tb, dist = "lognormal")
+                         data = df, dist = "lognormal")
 ## Calculate the level 0.75 quantile wit CIs for that quantile
-add_probs(tb, fit, q = 500, name = c("Fhat", "lwr", "upr"))
+add_probs(df, fit, q = 500, name = c("Fhat", "lwr", "upr"))
 
 ## Try a weibull model for the same data:
 fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                          data = tb, dist = "weibull")
+                          data = df, dist = "weibull")
 ## Calculate the level 0.75 quantile with CIs for the quantile
-add_probs(tb, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
+add_probs(df, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
 
 
 }

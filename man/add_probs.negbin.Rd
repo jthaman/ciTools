@@ -5,7 +5,7 @@
 \title{Response Probabilities for Negative Binomial Models}
 \usage{
 \method{add_probs}{negbin}(
-  tb,
+  df,
   fit,
   q,
   name = NULL,
@@ -16,7 +16,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{negbin}. Predictions are made
 with this object.}
@@ -26,7 +26,7 @@ with this object.}
 \item{name}{\code{NULL} or a string. If \code{NULL}, probabilities
 automatically will be named by \code{add_probs()}, otherwise,
 the probabilities will be named \code{name} in the returned
-tibble}
+data frame.}
 
 \item{yhatName}{A string. Name of the vector of predictions.}
 
@@ -40,7 +40,7 @@ draws.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and
+A dataframe, \code{df}, with predicted values and
     probabilities attached.
 }
 \description{

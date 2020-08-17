@@ -50,20 +50,20 @@
 #' confidence intervals. Inspect any warning messages given from
 #' \code{survreg}.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{survreg}. Predictions are made
 #'     with this object.
 #' @param q A double. A quantile of the survival time distribution. In
 #'     survival applications this is the time of event.
 #' @param confint A logical. If \code{TRUE}, confidence intervals for
 #'     the estimated probabilities will be calculated and appended to
-#'     \code{tb}.
+#'     \code{df}.
 #' @param alpha A number. Control the confidence level of the
 #'     confidence intervals if \code{confint = TRUE}.
 #' @param name \code{NULL} or a string. If \code{NULL}, probabilities
 #'     automatically will be named by \code{add_probs()}, otherwise,
 #'     the probabilities will be named \code{name} in the returned
-#'     tibble
+#'     data frame.
 ## #' @param method A string. One of either \code{"parametric"} or
 ## #'     \code{"bootstrap"}.
 #' @param yhatName A string. Name of the vector of predictions.
@@ -74,7 +74,7 @@
 ## #' @param nSims Number of simulations used if \code{method = "boot"}
 #' @param ... Additional arguments.
 #'
-#' @return A tibble, \code{tb}, with predicted medians, probabilities,
+#' @return A dataframe, \code{df}, with predicted medians, probabilities,
 #'     and confidence intervals for predicted probabilities attached.
 #'
 #' @seealso \code{\link{add_ci.survreg}} for confidence intervals for
@@ -92,26 +92,26 @@
 #'
 #' @examples
 #' ## Define a data set.
-#' tb <- survival::stanford2
+#' df <- survival::stanford2
 #' ## remove a covariate with missing values.
-#' tb <- tb[, 1:4]
+#' df <- df[, 1:4]
 #' ## next, create the Surv object inside the survreg call:
 #' fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                          data = tb, dist = "lognormal")
+#'                          data = df, dist = "lognormal")
 #' ## Calculate the level 0.75 quantile wit CIs for that quantile
-#' add_probs(tb, fit, q = 500, name = c("Fhat", "lwr", "upr"))
+#' add_probs(df, fit, q = 500, name = c("Fhat", "lwr", "upr"))
 #'
 #' ## Try a weibull model for the same data:
 #' fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-#'                           data = tb, dist = "weibull")
+#'                           data = df, dist = "weibull")
 #' ## Calculate the level 0.75 quantile with CIs for the quantile
-#' add_probs(tb, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
+#' add_probs(df, fit2, q = 500, name = c("Fhat", "lwr", "upr"))
 #'
 #'
 #' @export
 
 
-add_probs.survreg <- function(tb, fit, q,
+add_probs.survreg <- function(df, fit, q,
                               name = NULL, yhatName = "median_pred",
                               comparison = "<",
                               confint = TRUE,
@@ -130,7 +130,7 @@ add_probs.survreg <- function(tb, fit, q,
         name[2] <- paste("lcb")
         name[3] <- paste("ucb")
     }
-    if ((name[1] %in% colnames(tb)))
+    if ((name[1] %in% colnames(df)))
         warning ("These probabilities may have already been appended to your dataframe. Overwriting.")
 
     if (!is.null(fit$weights))
@@ -141,31 +141,31 @@ add_probs.survreg <- function(tb, fit, q,
           c("loglogistic", "lognormal", "loggaussian", "exponential", "weibull")))
         stop("Unsupported distribution")
 
-    if(any(is.na(tb)))
-        stop("Check tb for missingness")
+    if(any(is.na(df)))
+        stop("Check df for missingness")
 
     ## if (method == "parametric") {
-        parametric_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
+        parametric_ci_survreg_prob(df, fit, q, name, yhatName, comparison,
                                    confint, alpha)
     ## }
     ## else if (method == "boot") {
-    ##     boot_ci_survreg_prob(tb, fit, q, name, yhatName, comparison,
+    ##     boot_ci_survreg_prob(df, fit, q, name, yhatName, comparison,
     ##                          confint, alpha, nSims)
     ## }
     ## else
     ##     stop("method must be either boot or parametric")
 }
 
-survreg_calc_probs <- function(tb, fit, q, comparison){
+survreg_calc_probs <- function(df, fit, q, comparison){
     form <- formula(fit)
-    m <- model.frame(form, tb)
+    m <- model.frame(form, df)
     mat <- model.matrix(form, m)
 
     dist <- survival::survreg.distributions[[fit$dist]][["dist"]]
     fn_list <- survival::survreg.distributions[[dist]][["density"]]
     cdf <- function(x) fn_list(x)[,1]
 
-    pred <- predict(fit, tb, type = "linear")
+    pred <- predict(fit, df, type = "linear")
     scale <- fit$scale
     zeta <- (log(q) - pred) / scale
 
@@ -183,14 +183,14 @@ survreg_calc_probs <- function(tb, fit, q, comparison){
     ))
 }
 
-parametric_ci_survreg_prob <- function(tb, fit, q,
+parametric_ci_survreg_prob <- function(df, fit, q,
                                        name, yhatName,
                                        comparison,
                                        confint,
                                        alpha
                                        ){
 
-    collect <- survreg_calc_probs(tb = tb, fit = fit, q = q,
+    collect <- survreg_calc_probs(df = df, fit = fit, q = q,
                                   comparison = comparison)
 
     F <- collect[["F"]]
@@ -223,28 +223,28 @@ parametric_ci_survreg_prob <- function(tb, fit, q,
         upr <- F / (F + (1 - F) / w)
     }
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- predict(fit, tb, type = "quantile" , p = 0.5)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- predict(fit, df, type = "quantile" , p = 0.5)
 
-    tb[[name[1]]] <- as.numeric(F)
+    df[[name[1]]] <- as.numeric(F)
 
     if (confint){
-        tb[[name[2]]] <- as.numeric(lwr)
-        tb[[name[3]]] <- as.numeric(upr)
+        df[[name[2]]] <- as.numeric(lwr)
+        df[[name[3]]] <- as.numeric(upr)
     }
 
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }
 
-boot_ci_survreg_prob <- function(tb, fit, q,
+boot_ci_survreg_prob <- function(df, fit, q,
                                  name, yhatName,
                                  comparison,
                                  confint,
                                  alpha,
                                  nSims){
-    pred <- predict(fit, tb, type = "quantile", p = 0.5)
+    pred <- predict(fit, df, type = "quantile", p = 0.5)
 
-    collect <- survreg_calc_probs(tb = tb, fit = fit, q = q,
+    collect <- survreg_calc_probs(df = df, fit = fit, q = q,
                                   comparison = comparison)
 
     F <- collect[["F"]]
@@ -254,27 +254,27 @@ boot_ci_survreg_prob <- function(tb, fit, q,
         unsurv <- as.matrix(dat[,1])
         dat <- cbind(dat, unsurv)
         nBoot <- NROW(dat)
-        boot_mat <- matrix(NA, nrow = nSims, ncol = NROW(tb))
+        boot_mat <- matrix(NA, nrow = nSims, ncol = NROW(df))
         for (i in 1:nSims){
             temp <- dat[sample(1:nBoot, size = nBoot, replace = TRUE),]
             boot_fit <- survival::survreg(formula(fit$terms), data = temp,
                                           dist = fit$dist)
-            boot_mat[i,] <- survreg_calc_probs(tb = tb, fit = boot_fit, q = q,
+            boot_mat[i,] <- survreg_calc_probs(df = df, fit = boot_fit, q = q,
                                                comparison = comparison)[["F"]]
         }
         lwr = apply(boot_mat, 2, quantile, probs = alpha / 2)
         upr = apply(boot_mat, 2, quantile, probs = 1 - alpha / 2)
     }
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- pred
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- pred
 
-    tb[[name[1]]] <- F
+    df[[name[1]]] <- F
 
     if (confint){
-        tb[[name[2]]] <- lwr
-        tb[[name[3]]] <- upr
+        df[[name[2]]] <- lwr
+        df[[name[3]]] <- upr
     }
 
-    tibble::as_data_frame(tb)
+    data.frame(df)
 }

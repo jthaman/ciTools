@@ -5,10 +5,10 @@
 \title{Confidence Intervals for the Mean Survival Time of Accelerated
 Failure Time Models.}
 \usage{
-\method{add_ci}{survreg}(tb, fit, alpha = 0.1, names = NULL, yhatName = "mean_pred", ...)
+\method{add_ci}{survreg}(df, fit, alpha = 0.1, names = NULL, yhatName = "mean_pred", ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data on which to form
+\item{df}{A data frame of new data on which to form
 predictions and confidence intervals.}
 
 \item{fit}{An object of class \code{survreg}. Predictions are made
@@ -27,7 +27,7 @@ default name is \code{mean_pred}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted expected values and
+A dataframe, \code{df}, with predicted expected values and
     level \emph{1 - alpha} level confidence levels attached.
 }
 \description{
@@ -74,18 +74,18 @@ confidence intervals. Inspect any warning messages given from
 }
 \examples{
 ## Define a data set.
-tb <- survival::stanford2
+df <- survival::stanford2
 ## remove a covariate with missing values.
-tb <- tb[, 1:4]
+df <- df[, 1:4]
 ## next, create the Surv object inside the survreg call:
 fit <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                         data = tb, dist = "lognormal")
-add_ci(tb, fit, alpha = 0.1, names = c("lwr", "upr"))
+                         data = df, dist = "lognormal")
+add_ci(df, fit, alpha = 0.1, names = c("lwr", "upr"))
 
 ## Try a different model:
 fit2 <- survival::survreg(survival::Surv(time, status) ~ age + I(age^2),
-                          data = tb, dist = "weibull")
-add_ci(tb, fit2, alpha = 0.1, names = c("lwr", "upr"))
+                          data = df, dist = "weibull")
+add_ci(df, fit2, alpha = 0.1, names = c("lwr", "upr"))
 
 }
 \references{

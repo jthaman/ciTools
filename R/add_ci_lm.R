@@ -23,12 +23,12 @@
 #'
 #' Confidence intervals for \code{lm} objects are calculated
 #' parametrically. This function is essentially a wrapper for
-#' \code{predict(fit, tb, interval = "confidence")} if \code{fit} is a
+#' \code{predict(fit, df, interval = "confidence")} if \code{fit} is a
 #' linear model. If \code{log_response = TRUE}, confidence intervals
 #' for the response are calculated using Wald's Method. See Meeker and
 #' Escobar (1998) for details.
 #'
-#' @param tb A tibble or data frame.
+#' @param df A data frame.
 #' @param fit An object of class \code{lm}. Predictions are made with this
 #'     object.
 #' @param alpha A real number between 0 and 1. Controls the confidence
@@ -39,13 +39,13 @@
 #'     named \code{names[1]} and the upper confidence bound will be
 #'     named \code{names[2]}.
 #' @param yhatName A string. Name of the vector of the predictions
-#'     made for each observation in tb
+#'     made for each observation in df
 #' @param log_response Logical. Default is \code{FALSE}. If
 #'     \code{TRUE}, confidence intervals will be generated for the
 #'     \emph{response level} of a log-linear model:  \eqn{log(Y) =
 #'     X\beta + \epsilon}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.lm}} for prediction intervals for
@@ -62,30 +62,29 @@
 #' add_ci(cars, fit)
 #' # Try a different confidence level
 #' add_ci(cars, fit, alpha = 0.5)
-#' # Try custom names for the confidence bounds 
+#' # Try custom names for the confidence bounds
 #' add_ci(cars, fit, alpha = 0.5, names = c("lwr", "upr"))
-#' 
+#'
 #' @export
 
-add_ci.lm <- function(tb, fit, alpha = 0.05, names = NULL, yhatName = "pred", log_response = FALSE, ...){
+add_ci.lm <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred", log_response = FALSE, ...){
     if (log_response)
-        add_ci_lm_log(tb, fit, alpha, names, yhatName)
+        add_ci_lm_log(df, fit, alpha, names, yhatName)
     else {
 
         if (is.null(names)){
             names[1] <- paste("LCB", alpha/2, sep = "")
             names[2] <- paste("UCB", 1 - alpha/2, sep = "")
         }
-        if ((names[1] %in% colnames(tb))) {
+        if ((names[1] %in% colnames(df))) {
             warning ("These CIs may have already been appended to your dataframe. Overwriting.")
         }
-        out <- predict(fit, tb, interval = "confidence", level = 1 - alpha)
+      out <- predict(fit, df, interval = "confidence", level = 1 - alpha)
 
-        if(is.null(tb[[yhatName]]))
-            tb[[yhatName]] <- out[, 1]
-        tb[[names[1]]] <- out[, 2]
-        tb[[names[2]]] <- out[, 3]
-        tibble::as_data_frame(tb)
-    } 
+      if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- out[, 1]
+      df[[names[1]]] <- out[, 2]
+      df[[names[2]]] <- out[, 3]
+      data.frame(df)
+    }
 }
-

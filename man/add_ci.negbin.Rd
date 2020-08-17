@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Negative Binomial Linear Model Predictions}
 \usage{
 \method{add_ci}{negbin}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -17,7 +17,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{negbin}.}
 
@@ -31,7 +31,7 @@ named \code{names[1]} and the upper confidence bound will be
 named \code{names[2]}.}
 
 \item{yhatName}{A string. Name of the vector of predictions made
-for each observation in tb}
+for each observation in df}
 
 \item{response}{A logical. The default is \code{TRUE}. If
 \code{TRUE}, the confidence intervals will be determined for
@@ -48,7 +48,7 @@ bootstrap method is used.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
     confidence bounds attached.
 }
 \description{

@@ -4,10 +4,10 @@
 \alias{add_probs}
 \title{Add Regression Probabilities to Data Frames}
 \usage{
-add_probs(tb, fit, q, name = NULL, yhatName = "pred", comparison, ...)
+add_probs(df, fit, q, name = NULL, yhatName = "pred", comparison, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{lm}, \code{glm}, or
 \code{lmerMod}. Predictions are made with this object.}
@@ -18,13 +18,13 @@ distribution.}
 \item{name}{\code{NULL} or character vector of length one. If
 \code{NULL}, probabilities automatically will be named by
 \code{add_probs}, otherwise, the probabilities will be named
-\code{name} in the returned tibble.}
+\code{name} in the returned data frame.}
 
 \item{yhatName}{A character vector of length one. Names of the}
 
 \item{comparison}{A string. If \code{comparison = "<"}, then
 \eqn{Pr(Y|x < q)} is calculated for each observation in
-\code{tb}. Default is "<". Must be "<" or ">" for objects of
+\code{df}. Default is "<". Must be "<" or ">" for objects of
 class \code{lm} or \code{lmerMod}. If \code{fit} is a
 \code{glm}, then \code{comparison} also may be \code{"<="} ,
 \code{">="} , or \code{"="}.}
@@ -32,7 +32,7 @@ class \code{lm} or \code{lmerMod}. If \code{fit} is a
 \item{...}{Additional arguments}
 }
 \value{
-A tibble, \code{tb}, with predicted values and
+A dataframe, \code{df}, with predicted values and
     probabilities attached.
 }
 \description{
@@ -40,8 +40,8 @@ This is a generic function to append response level probabilities
 to a data frame. A response level probability (conditioned on the
 model and covariates), such as \eqn{Pr(Response|Covariates < 10)},
 is generated for the fitted value of each observation in
-\code{tb}. These probabilities are then appended to \code{tb} and
-returned to the user as a tibble.
+\code{df}. These probabilities are then appended to \code{df} and
+returned to the user as a data frame.
 }
 \details{
 For more specific information about the arguments that are useful

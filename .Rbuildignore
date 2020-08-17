@@ -36,3 +36,5 @@ TODO.org
 NEWS.org
 R/TAGS
 ^data-raw$
+^doc$
+^Meta$

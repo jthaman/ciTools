@@ -29,7 +29,7 @@
 #' recommended method when working with any linear mixed models more
 #' complicated than the random intercept model.
 #'
-#' @param tb A tibble or data frame of new data.
+#' @param df A data frame of new data.
 #' @param fit An object of class \code{lmerMod}.
 #' @param alpha A real number between 0 and 1. Controls the confidence
 #'     level of the interval estimates.
@@ -53,7 +53,7 @@
 #' @param nSims A positive integer.  Controls the number of bootstrap
 #'     replicates if \code{type = "boot"}.
 #' @param ... Additional arguments.
-#' @return A tibble, \code{tb}, with predicted values, upper and lower
+#' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
 #' @seealso \code{\link{add_pi.lmerMod}} for prediction intervals
@@ -75,7 +75,7 @@
 #' }
 #' @export
 
-add_ci.lmerMod <- function(tb, fit,
+add_ci.lmerMod <- function(df, fit,
                            alpha = 0.05, names = NULL, yhatName = "pred",
                            type = "boot", includeRanef = TRUE,
                            nSims = 500, ...){
@@ -90,25 +90,25 @@ add_ci.lmerMod <- function(tb, fit,
     names[1] <- paste("LCB", alpha/2, sep = "")
     names[2] <- paste("UCB", 1 - alpha/2, sep = "")
   }
-  if ((names[1] %in% colnames(tb))) {
+  if ((names[1] %in% colnames(df))) {
     warning ("These CIs may have already been appended to your dataframe. Overwriting.")
   }
 
   if (type == "parametric")
-    parametric_ci_lmermod(tb, fit, alpha, names, includeRanef, yhatName)
+    parametric_ci_lmermod(df, fit, alpha, names, includeRanef, yhatName)
   else if (type == "boot")
-    bootstrap_ci_lmermod(tb, fit, alpha, names, includeRanef, nSims, yhatName)
+    bootstrap_ci_lmermod(df, fit, alpha, names, includeRanef, nSims, yhatName)
   else
     stop("Incorrect type specified!")
 }
 
 
-parametric_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, yhatName){
+parametric_ci_lmermod <- function(df, fit, alpha, names, includeRanef, yhatName){
 
   if (length(fit@cnms[[1]]) != 1)
     stop("parametric confidence intervals are currently only implemented for random intercept models.")
 
-  seFixed <- get_prediction_se_mermod(tb, fit)
+  seFixed <- get_prediction_se_mermod(df, fit)
   seRandom <- arm::se.ranef(fit)[[1]][1,]
 
   rdf <- get_resid_df_mermod(fit)
@@ -121,21 +121,21 @@ parametric_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, yhatName)
     seGlobal <- seFixed
   }
 
-  out <- predict(fit, tb, re.form = re.form)
-  if(is.null(tb[[yhatName]]))
-    tb[[yhatName]] <- out
-  tb[[names[1]]] <- out + qt(alpha/2, df = rdf) * seGlobal
-  tb[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
-  tibble::as_data_frame(tb)
+  out <- predict(fit, df, re.form = re.form)
+  if(is.null(df[[yhatName]]))
+    df[[yhatName]] <- out
+  df[[names[1]]] <- out + qt(alpha/2, df = rdf) * seGlobal
+  df[[names[2]]] <- out + qt(1 - alpha/2, df = rdf) * seGlobal
+  data.frame(df)
 
 }
 
 
 ciTools_data <- new.env(parent = emptyenv())
 
-bootstrap_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yhatName) {
+bootstrap_ci_lmermod <- function(df, fit, alpha, names, includeRanef, nSims, yhatName) {
 
-  ciTools_data$tb_temp <- tb
+  ciTools_data$df_temp <- df
 
   if (includeRanef) {
     rform = NULL
@@ -149,10 +149,10 @@ bootstrap_ci_lmermod <- function(tb, fit, alpha, names, includeRanef, nSims, yha
 
   ci_out <- boot_quants(boot_obj, alpha)
 
-  if(is.null(tb[[yhatName]]))
-    tb[[yhatName]] <- ci_out$fit
-  tb[[names[1]]] <- ci_out$lwr
-  tb[[names[2]]] <- ci_out$upr
-  as_data_frame(tb)
+  if(is.null(df[[yhatName]]))
+    df[[yhatName]] <- ci_out$fit
+  df[[names[1]]] <- ci_out$lwr
+  df[[names[2]]] <- ci_out$upr
+  as_data_frame(df)
 
 }

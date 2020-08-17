@@ -16,18 +16,18 @@
 # along with ciTools. If not, see <http://www.gnu.org/licenses/>.
 
 
-add_quantile_lm_log <- function(tb, fit, p, name = NULL, yhatName) {
+add_quantile_lm_log <- function(df, fit, p, name = NULL, yhatName) {
     if (p <= 0 || p >= 1)
         stop ("p should be in (0,1)")
     if (is.null(name)) {
         name <- paste("quantile", p, sep = "")
     }
 
-    if ((name %in% colnames(tb))) {
+    if ((name %in% colnames(df))) {
         warning ("These quantiles may have already been appended to your dataframe. Overwriting.")
     }
     
-    out <- predict(fit, tb, interval = "prediction", se.fit = TRUE)
+    out <- predict(fit, df, interval = "prediction", se.fit = TRUE)
     fitted <- out$fit[,1]
     residual_df <- out$df
     se_fitted <- out$se.fit
@@ -36,10 +36,10 @@ add_quantile_lm_log <- function(tb, fit, p, name = NULL, yhatName) {
     t_quantile <- qt(p = p, df = residual_df)
     out_quantiles <- exp(fitted + se_pred * t_quantile)
 
-    if(is.null(tb[[yhatName]]))
-        tb[[yhatName]] <- exp(fitted)
-    tb[[name]] <- out_quantiles
-    tibble::as_data_frame(tb)
+    if(is.null(df[[yhatName]]))
+        df[[yhatName]] <- exp(fitted)
+    df[[name]] <- out_quantiles
+    data.frame(df)
 }
 
 

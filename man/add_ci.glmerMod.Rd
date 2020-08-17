@@ -5,7 +5,7 @@
 \title{Confidence Intervals for Generalized Linear Mixed Model Predictions}
 \usage{
 \method{add_ci}{glmerMod}(
-  tb,
+  df,
   fit,
   alpha = 0.05,
   names = NULL,
@@ -18,7 +18,7 @@
 )
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{glmerMod}.}
 
@@ -56,7 +56,7 @@ replicates if \code{type = "boot"}.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values, upper and lower
+A dataframe, \code{df}, with predicted values, upper and lower
   confidence bounds attached.
 }
 \description{
@@ -68,17 +68,21 @@ class \code{glmerMod}.
 The default and recommended method is bootstrap. The bootstrap
 method can handle many types of models and we find it to be
 generally reliable and robust as it is built on the \code{bootMer}
-function from \code{lme4}.
+function from \code{lme4}. This function is experimental.
+
+If \code{IncludeRanef} is False, random slopes and intercepts are set to 0. Unlike in
+  `lmer` fits, settings random effects to 0 does not mean they are marginalized out. Consider
+  generalized estimating equations if this is desired.
 }
 \examples{
 n <- 300
 x <- runif(n)
 f <- factor(sample(1:5, size = n, replace = TRUE))
 y <- rpois(n, lambda = exp(1 - 0.05 * x * as.numeric(f) + 2 * as.numeric(f)))
-tb <- tibble::tibble(x = x, f = f, y = y)
-fit <- lme4::glmer(y ~ (1+x|f), data=tb, family = "poisson")
+df <- data.frame(x = x, f = f, y = y)
+fit <- lme4::glmer(y ~ (1+x|f), data=df, family = "poisson")
 
-\dontrun{add_ci(tb, fit, names = c("lcb", "ucb"), nSims = 300)}
+\dontrun{add_ci(df, fit, names = c("lcb", "ucb"), nSims = 300)}
 
 }
 \references{

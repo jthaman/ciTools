@@ -4,10 +4,10 @@
 \alias{add_quantile.negbin}
 \title{Quantiles for the Response of a Negative Binomial Regression}
 \usage{
-\method{add_quantile}{negbin}(tb, fit, p, name = NULL, yhatName = "pred", nSims = 2000, ...)
+\method{add_quantile}{negbin}(df, fit, p, name = NULL, yhatName = "pred", nSims = 2000, ...)
 }
 \arguments{
-\item{tb}{A tibble or data frame of new data.}
+\item{df}{A data frame of new data.}
 
 \item{fit}{An object of class \code{negbin}. Predictions are made with
 this object.}
@@ -27,7 +27,7 @@ to use.}
 \item{...}{Additional arguments.}
 }
 \value{
-A tibble, \code{tb}, with predicted values and level
+A dataframe, \code{df}, with predicted values and level
     \emph{p} quantiles attached.
 }
 \description{
