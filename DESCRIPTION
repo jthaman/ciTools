@@ -23,7 +23,6 @@ Imports:
     boot,
     dplyr,
     lme4,
-    magrittr,
     MASS,
     methods,
     stats,

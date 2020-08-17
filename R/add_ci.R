@@ -42,7 +42,7 @@
 #'
 #' @import stats
 #' @import lme4
-#' @importFrom magrittr %>%
+#' @importFrom dplyr %>%
 #' @importFrom dplyr bind_rows
 #' @importFrom arm se.ranef
 #' @importFrom arm sim

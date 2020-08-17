@@ -16,7 +16,6 @@ knitr::opts_chunk$set(fig.width=8, fig.height=4)
 library(ciTools)
 library(dplyr)
 library(ggplot2)
-library(magrittr)
 library(knitr)
 ```
 
