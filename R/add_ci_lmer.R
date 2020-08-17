@@ -153,6 +153,6 @@ bootstrap_ci_lmermod <- function(df, fit, alpha, names, includeRanef, nSims, yha
     df[[yhatName]] <- ci_out$fit
   df[[names[1]]] <- ci_out$lwr
   df[[names[2]]] <- ci_out$upr
-  as_data_frame(df)
+  data.frame(df)
 
 }
