@@ -1,5 +1,5 @@
 ---
-title: Introducing `ciTools`
+title: Introducing ciTools
 author: John Haman and Matthew Avery
 date: August 8, 2017
 output: rmarkdown::html_vignette

@@ -1,5 +1,5 @@
 ---
-title: Generalized Linear Models with `ciTools`
+title: Generalized Linear Models with ciTools
 author: John Haman
 date: 10 November 2017
 output: rmarkdown::html_vignette
@@ -331,9 +331,9 @@ non-continuous distributions.
 
 ```{r }
 df_ints <- df %>%
-    add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
-    add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
-    print()
+  add_ci(fit, names = c("lcb", "ucb"), alpha = 0.1) %>%
+  add_pi(fit, names = c("lpb", "upb"), alpha = 0.1, nSims = 20000) %>%
+  head()
 ```
 
 As with other methods available in `ciTools` the requested
@@ -366,9 +366,9 @@ that their support is not continuous.
 
 ```{r }
 df %>%
-    add_probs(fit, q = 10) %>%
-    add_quantile(fit, p = 0.4) %>%
-    print()
+  add_probs(fit, q = 10) %>%
+  add_quantile(fit, p = 0.4) %>%
+  head()
 ```
 
 ### Extension to Quasipoisson

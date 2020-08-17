@@ -1,5 +1,5 @@
 ---
-title: Binomial Regression with `ciTools`
+title: Binomial Regression with ciTools
 author: Matthew Avery
 date: 11 October 2017
 output: rmarkdown::html_vignette
@@ -13,11 +13,11 @@ vignette: >
 
 Logistic regression is most commonly used with a Bernoulli
 response. If $Y \sim Bernoulli(p)$, then $P(Y = 1) = p = 1 - P(Y =
-0)$. Logistic regression can be used to estimate $p|\texdff{x}$
-where $\texdff{x}$ is a collection of predictor variables. This is
+0)$. Logistic regression can be used to estimate $p|\textbf{x}$
+where $\textbf{x}$ is a collection of predictor variables. This is
 accomplished by assuming the relationship
 
-$$log(\frac{p}{1-p}) = \texdff{x}\beta$$
+$$log(\frac{p}{1-p}) = \textbf{x}\beta$$
 
 and then choosing $\beta$ to maximize the joint likelihood:
 
@@ -25,7 +25,7 @@ $$\Pi_i p_i^{y_i}(1-p_i)^{(1-y_i)}$$
 
 Note that the function linking the predictor variables to $p$ is
 called the logit function, which is what gives logistic regression
-its name. In $\texdff{R}$, this model can be fit using `glm` by
+its name. In $\textbf{R}$, this model can be fit using `glm` by
 specifying the options `family = "binomial"`.
 
 The binomial distribution is a generalization of the Bernoulli,
@@ -73,7 +73,7 @@ df <- data.frame(
 Consider the data set, `df`, given below.
 
 ```{r }
-df
+head(df)
 ```
 
 Here, $x$ is some predictor variable related to the number of
@@ -88,7 +88,7 @@ We get the same results using different syntax:
 
 ```{r }
 dfProb <- mutate(df, prob = y/n)
-dfProb
+head(dfProb)
 glm(prob ~ x, data = dfProb, family = "binomial", weights = n)
 ```
 
@@ -117,7 +117,7 @@ dfTall <- out
 For example:
 
 ```{r }
-dfTall
+head(dfTall)
 glm(y ~ x, data = dfTall, family = "binomial")
 ```
 
@@ -161,7 +161,7 @@ fit <- glm(y/n ~ x, data = df, family = "binomial", weights = n)
 
 
 ```{r }
-add_quantile(df, fit, p = 0.9)
+head(add_quantile(df, fit, p = 0.9))
 ```
 
 There is a lot to unpack here, including three warning

@@ -1,5 +1,5 @@
 ---
-title: Mixed models with `ciTools`
+title: Mixed models with ciTools
 author: Matthew Avery
 date: August 17, 2017
 output: rmarkdown::html_vignette
@@ -221,7 +221,7 @@ driven by both $SE(\hat{\beta})$ and $SE(\hat{g})$.
 
 
 ```{r}
-df %>% add_ci(fit2, type = "parametric", includeRanef = T)
+df %>% add_ci(fit2, type = "parametric", includeRanef = T) %>% head()
 ```
 
 Plotting these results lets us visualize the uncertainty around our
@@ -254,7 +254,7 @@ intervals can be obtained by specifying `type = boot`.
 set.seed(20170628)
 df %>%
   add_ci(fit2, includeRanef = T, type = "parametric", names = c("Lpar", "Upar")) %>%
-  add_ci(fit2, includeRanef = T, type = "boot", names = c("Lboot", "Uboot"))
+  add_ci(fit2, includeRanef = T, type = "boot", names = c("Lboot", "Uboot")) %>% head()
 ```
 
 We can plot our intervals side by side for comparison. The plot below
@@ -293,7 +293,7 @@ option. Note that this is the default setting for `includeRanef`.
 
 
 ```{r}
-df %>% add_ci(fit2, includeRanef = F, type = "parametric")
+df %>% add_ci(fit2, includeRanef = F, type = "parametric") %>% head()
 ```
 
 
@@ -440,7 +440,7 @@ confidence intervals only wider:
 
 
 ```{r}
-df %>% add_pi(fit2, includeRanef = T, type = "parametric")
+df %>% add_pi(fit2, includeRanef = T, type = "parametric") %>% head()
 ```
 
 ```{r, fig.width = 8, fig.heither = 5}
@@ -469,7 +469,7 @@ Finally, the unconditional prediction interval:
 
 
 ```{r}
-df %>% add_pi(fit2, type = "parametric",includeRanef = F)
+df %>% add_pi(fit2, type = "parametric",includeRanef = F) %>% head()
 ```
 
 In this case, there are a number of applications. Rather than

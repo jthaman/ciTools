@@ -1,4 +1,3 @@
-
 add_pi_glm_test.R
 .#add_pi_glm_test.R
 #add_pi_glm_test.R#
@@ -43,10 +42,9 @@ addr/.Rproj.user/41647CCE/sdb/s-3BC26ECF/9DFBB5CD
 addr/.Rproj.user/41647CCE/sdb/s-CE1466A3/4B439272
 addr/.Rproj.user/41647CCE/sdb/s-CE1466A3/9DFBB5CD
 .Rproj.user
-inst/doc
 ciTools.Rproj
 /R/TAGS
 /vignettes/.build.timestamp
 /something.png
-doc
 Meta
+doc
