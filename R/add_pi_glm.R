@@ -166,7 +166,7 @@ sim_pi_glm <- function(df, fit, alpha, names, yhatName, nSims){
 
     if(fit$family$family == "binomial"){
       out <- out * fit$prior.weights
-      warning("For binomial models, add_pi's column of fitted values refelct E(Y|X) rather than typical default for logistic regression, pHat")
+      warning("For binomial models, add_pi's column of fitted values reflect E(Y|X) rather than typical default for logistic regression, pHat")
     }
 
     if(is.null(df[[yhatName]]))

@@ -204,7 +204,7 @@ In the analysis of AFT models, statisticians have several options for
 making predictions. `predict.survreg` for example, allows one to
 predict the median failure time, or any other quantile. These
 predictions have the same units as the original time scale (time to
-death or failure). Additionally, `predict.survreg` can also output the
+death or failure). Additionally, `predict.survreg` can output the
 corresponding value of the linear predictor for a given point in the
 factor space.
 

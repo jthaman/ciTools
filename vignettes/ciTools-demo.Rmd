@@ -34,7 +34,7 @@ or a set of points that "span the space", allowing the analyst to
 visualize system performance. For more information about spanning a
 design space in **R**, see
 [data_grid](https://www.rdocumentation.org/packages/modelr/versions/0.1.1/topics/data_grid)
-or [crossing](http://tidyr.tidyverse.org/reference/expand.html).
+or [crossing](https://tidyr.tidyverse.org/reference/expand.html).
 
 `ciTools` makes these statistical quantities available through a
 set of four functions that have a uniform syntax: `add_<*>(data,
