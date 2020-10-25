@@ -52,7 +52,7 @@
 #' @param nSims An integer. Number of simulations to perform if the
 #'     bootstrap method is used.
 #' @param ... Additional arguments.
-#' 
+#'
 #' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     confidence bounds attached.
 #'
@@ -84,12 +84,12 @@ add_ci.negbin <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred"
     if ((names[1] %in% colnames(df))) {
         warning ("These CIs may have already been appended to your dataframe. Overwriting.")
     }
-    
+
     if (type == "boot")
         boot_ci_negbin(df, fit, alpha, names, yhatName, response, nSims)
     else if (type == "parametric")
         parametric_ci_negbin(df, fit, alpha, names, yhatName, response)
-    else 
+    else
         stop("Incorrect interval type specified!")
 
 }
@@ -127,7 +127,8 @@ parametric_ci_negbin <- function(df, fit, alpha, names, yhatName, response){
 boot_fit_nb<- function(data, df, fit, lvl, indices){
     data_temp <- data[indices,]
     form <- fit$call[2]
-    temp_fit <- glm.nb(form, data = data_temp)
+    ##temp_fit <- glm.nb(form, data = data_temp)
+    temp_fit <- update(fit, data = data_temp)
     predict(temp_fit, newdata = df, type = lvl)
 }
 

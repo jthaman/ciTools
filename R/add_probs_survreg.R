@@ -65,7 +65,7 @@
 #'     the probabilities will be named \code{name} in the returned
 #'     data frame.
 ## #' @param method A string. One of either \code{"parametric"} or
-## #'     \code{"bootstrap"}.
+## #'     \code{"boot"}.
 #' @param yhatName A string. Name of the vector of predictions.
 #' @param comparison A character vector of length one. If
 #'     \code{comparison = "<"}, then \eqn{Pr(Y|X < q)} is

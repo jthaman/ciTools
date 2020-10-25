@@ -141,7 +141,8 @@ boot_fit <- function(data, df, fit, lvl, indices){
     data_temp <- data[indices,]
     form <- fit$formula
     fam <- fit$family
-    temp_fit <- glm(form, data = data_temp, family = fam)
+    ## temp_fit <- glm(form, data = data_temp, family = fam)
+    temp_fit <- update(fit, data = data_temp)
     predict(temp_fit, newdata = df, type = lvl)
 }
 

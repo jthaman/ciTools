@@ -68,7 +68,6 @@
 #'
 #' @export
 
-
 add_pi.negbin <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred",
                           nSims = 2000, ...){
 
