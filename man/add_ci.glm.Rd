@@ -45,7 +45,7 @@ the method used to compute the confidence intervals.}
 \item{nSims}{An integer. Number of simulations to perform if the
 bootstrap method is used.}
 
-\item{...}{Additional arguments.}
+\item{...}{Additional arguments passed to \code{boot::boot()}.}
 }
 \value{
 A dataframe, \code{df}, with predicted values, upper and lower

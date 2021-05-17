@@ -46,7 +46,7 @@
 #'     will be made on the scale of the linear predictor.
 #' @param nSims An integer. Number of simulations to perform if the
 #'     bootstrap method is used.
-#' @param ... Additional arguments.
+#' @param ... Additional arguments passed to \code{boot::boot()}.
 #'
 #' @return A dataframe, \code{df}, with predicted values, upper and lower
 #'     confidence bounds attached.
@@ -95,7 +95,16 @@ add_ci.glm <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred",
     }
 
     if (type == "boot")
-        boot_ci_glm(df, fit, alpha, names, yhatName, response, nSims)
+        boot_ci_glm(
+          df=df,
+          fit=fit,
+          alpha=alpha,
+          names=names,
+          yhatName=yhatName,
+          response=response,
+          nSims=nSims,
+          ...
+        )
     else if (type == "parametric")
         parametric_ci_glm(df, fit, alpha, names, yhatName, response)
     else
@@ -143,10 +152,41 @@ boot_fit <- function(data, df, fit, lvl, indices){
     fam <- fit$family
     ## temp_fit <- glm(form, data = data_temp, family = fam)
     temp_fit <- update(fit, data = data_temp)
-    predict(temp_fit, newdata = df, type = lvl)
+    # Find factor levels that are in the prediction data that are not in the
+    # updated fit data
+    factor_columns <-
+      names(temp_fit$model[, sapply(X=temp_fit$model, FUN=is.factor), drop=FALSE])
+    missing_factors <-
+      lapply(
+        X=setNames(nm=factor_columns),
+        FUN=function(current_nm) {
+          base::setdiff(
+            unique(df[[current_nm]]),
+            unique(data_temp[[current_nm]])
+          )
+        }
+      )
+    # Set the parameter values to NA when they are not in the model
+    df_new <-
+      lapply(
+        X=setNames(nm=names(df)),
+        FUN=function(current_nm) {
+          ret <- df[[current_nm]]
+          mask_na <- ret %in% missing_factors[[current_nm]]
+          if (any(mask_na)) {
+            warning(
+              "Factor levels in column ", current_nm, " for prediction are missing in the model.  ",
+              "Consider setting `strata` to ensure that all factors are represented."
+            )
+            ret[mask_na] <- NA
+          }
+          ret
+        }
+      )
+    predict(temp_fit, newdata = as.data.frame(df_new), type = lvl)
 }
 
-boot_ci_glm <- function(df, fit, alpha, names, yhatName, response, nSims){
+boot_ci_glm <- function(df, fit, alpha, names, yhatName, response, nSims, ...){
     if (response){
         lvl <- "response"
     }
@@ -161,7 +201,8 @@ boot_ci_glm <- function(df, fit, alpha, names, yhatName, response, nSims){
                      R = nSims,
                      fit = fit,
                      lvl = lvl,
-                     df = df)
+                     df = df,
+                     ...)
 
     temp_mat <- matrix(0, ncol = 2, nrow = NROW(df))
 
