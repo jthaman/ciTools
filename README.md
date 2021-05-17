@@ -1,6 +1,11 @@
 ciTools: An **R** Package for Quick Uncertainty Intervals
 =========================================================
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/jthaman/ciTools/workflows/R-CMD-check/badge.svg)](https://github.com/jthaman/ciTools/actions)
+[![Codecov test coverage](https://codecov.io/gh/jthaman/ciTools/branch/master/graph/badge.svg)](https://codecov.io/gh/jthaman/ciTools?branch=master)
+<!-- badges: end -->
+
 ![](lmer.png)
 
 [As seen at RStudio::conf2018!](https://github.com/matthewravery/ciTools/blob/master/RStudio-conf-slides.pdf)
