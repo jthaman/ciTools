@@ -74,7 +74,9 @@ df <- data.frame(x1 = x1, y = y)
 fit <- MASS::glm.nb(y ~ x1, data = df)
 df <- df[sample(100),]
 add_ci(df, fit, names = c("lcb", "ucb"))
-
+\dontrun{
+add_ci(df, fit, names = c("lcb", "ucb"), type = "boot")
+}
 }
 \seealso{
 \code{\link{add_pi.negbin}} for prediction intervals for
