@@ -139,10 +139,16 @@ parametric_ci_glm <- function(df, fit, alpha, names, yhatName, response){
 
 boot_fit <- function(data, df, fit, lvl, indices){
     data_temp <- data[indices,]
-    form <- fit$formula
-    fam <- fit$family
-    ## temp_fit <- glm(form, data = data_temp, family = fam)
-    temp_fit <- update(fit, data = data_temp)
+    # Generate a new environment that contains the original environment in case
+    # elements of `call` come from the original environment.
+    fit_env <- environment(fit$formula)
+    fit_env$fit <- fit
+    fit_env$data_temp <- data_temp
+    temp_fit <-
+      with(
+        fit_env,
+        update(fit, data = data_temp)
+      )
     predict(temp_fit, newdata = df, type = lvl)
 }
 
