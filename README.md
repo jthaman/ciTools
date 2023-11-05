@@ -16,6 +16,11 @@ models. Additionally, we provide functions to determine probabilities
 and quantiles of the conditional response distribution given each of
 these models.
 
+Status
+------
+
+I no longer have time to actively maintain ciTools. There are some known bugs and limitations. 
+
 Why use `ciTools`?
 ------------------
 
