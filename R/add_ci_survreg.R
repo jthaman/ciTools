@@ -175,8 +175,8 @@ parametric_ci_survreg_expectation <- function(df, fit,
     if (distr == "loglogistic" && (fit$scale >= 1))
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
-    form <- formula(fit)
-    m <- model.frame(form, df)
+    form <- delete.response(formula(fit))
+    m <- model.frame(form, df, xlev = fit$xlevels)
     mat <- model.matrix(form, m)
 
 
@@ -243,8 +243,8 @@ surv_boot_mean <- function(df, fit){
         return(pred)
     }
 
-    form <- formula(fit)
-    m <- model.frame(form, df)
+    form <- delete.response(formula(fit))
+    m <- model.frame(form, df, xlev = fit$xlevels)
     mat <- model.matrix(form, m)
     nPred <- dim(df)[1]
     beta <- coef(fit)
@@ -266,8 +266,8 @@ boot_ci_survreg_expectation <- function(df, fit,
     if (distr == "loglogistic" && (fit$scale >= 1))
         stop("Expected value is undefined for loglogistic distribution with scale >= 1")
 
-    form <- formula(fit)
-    m <- model.frame(form, df)
+    form <- delete.response(formula(fit))
+    m <- model.frame(form, df, xlev = fit$xlevels)
     mat <- model.matrix(form, m)
 
     if(any(is.na(mat)))
