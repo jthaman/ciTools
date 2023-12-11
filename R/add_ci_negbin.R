@@ -69,7 +69,9 @@
 #' fit <- MASS::glm.nb(y ~ x1, data = df)
 #' df <- df[sample(100),]
 #' add_ci(df, fit, names = c("lcb", "ucb"))
-#'
+#' \dontrun{
+#' add_ci(df, fit, names = c("lcb", "ucb"), type = "boot")
+#' }
 #' @export
 
 add_ci.negbin <- function(df, fit, alpha = 0.05, names = NULL, yhatName = "pred",
@@ -123,15 +125,6 @@ parametric_ci_negbin <- function(df, fit, alpha, names, yhatName, response){
     data.frame(df)
 }
 
-
-boot_fit_nb<- function(data, df, fit, lvl, indices){
-    data_temp <- data[indices,]
-    form <- fit$call[2]
-    ##temp_fit <- glm.nb(form, data = data_temp)
-    temp_fit <- update(fit, data = data_temp)
-    predict(temp_fit, newdata = df, type = lvl)
-}
-
 boot_ci_negbin <- function(df, fit, alpha, names, yhatName, response, nSims){
 
     if (response){
@@ -144,7 +137,7 @@ boot_ci_negbin <- function(df, fit, alpha, names, yhatName, response, nSims){
     out <- predict(fit, df, type = lvl)
 
     boot_obj <- boot(data = fit$model,
-                     statistic = boot_fit_nb,
+                     statistic = boot_fit,
                      R = nSims,
                      fit = fit,
                      df = df,
